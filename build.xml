@@ -479,18 +479,6 @@
       <fileset dir="libtest">
         <include name="jnlp.jar"/>
       </fileset>
-      <fileset dir=".">
-        <include name="LICENSE.TXT"/>
-        <include name="COPYING.TXT"/>
-        <include name="THIRDPARTY-LICENSE-JAVA3D.TXT"/>
-        <include name="THIRDPARTY-LICENSE-BATIK.TXT"/>
-        <include name="THIRDPARTY-LICENSE-ITEXT.TXT"/>
-        <include name="THIRDPARTY-LICENSE-VECTORGRAPHICS.TXT"/>
-        <include name="THIRDPARTY-LICENSE-SUNFLOW.TXT"/>
-        <include name="THIRDPARTY-LICENSE-JMF.HTML"/>
-        <include name="THIRDPARTY-LICENSE-TANGO.TXT"/>
-        <include name="THIRDPARTY-LICENSE-CONTRIBUTIONS.TXT"/>
-      </fileset>
     </jar>
 
     <!-- Clean build directory -->
@@ -535,25 +523,11 @@
         <include name="*.dll"/>
       </fileset>
     </copy>
-    <!-- Copy COPYING.TXT and licenses texts to install/windows/build/ -->
-    <copy file="COPYING.TXT" todir="install/windows/build"/>
-    <copy file="LICENSE.TXT" todir="install/windows/build" />
-    <copy file="THIRDPARTY-LICENSE-JAVA.TXT"      todir="install/windows/build" />
-    <copy file="THIRDPARTY-LICENSE-JAVA3D.TXT"    todir="install/windows/build" />
-    <copy file="THIRDPARTY-LICENSE-BATIK.TXT"     todir="install/windows/build"/>
-    <copy file="THIRDPARTY-LICENSE-ITEXT.TXT"     todir="install/windows/build" />
-    <copy file="THIRDPARTY-LICENSE-VECTORGRAPHICS.TXT"  todir="install/windows/build" />
-    <copy file="THIRDPARTY-LICENSE-SUNFLOW.TXT"   todir="install/windows/build" />
-    <copy file="THIRDPARTY-LICENSE-JMF.HTML"      todir="install/windows/build"/>
-    <copy file="THIRDPARTY-LICENSE-LAUNCH4J.TXT"  todir="install/windows/build" />
-    <copy file="THIRDPARTY-LICENSE-INNOSETUP.TXT" todir="install/windows/build" />
-    <copy file="THIRDPARTY-LICENSE-TANGO.TXT"     todir="install/windows/build" />
-    <copy file="THIRDPARTY-LICENSE-CONTRIBUTIONS.TXT" todir="install/windows/build" />
 
     <!-- Copy 32 bit JRE to install/windows/build/jre/x86... excluding files mentioned
          in JRE README.TXT file (JRE bin/javaw.exe command excepted) -->
     <copy todir="install/windows/build/jre8/x86">
-      <fileset dir="C:\Program Files (x86)\Java\jre1.8.0_51">
+      <fileset dir="C:\Program Files (x86)\Java\jre1.8.0_111">
         <include name="*"/>
         <include name="bin/**"/>
         <include name="lib/**"/>
@@ -619,7 +593,7 @@
     <!-- Copy 64 bit JRE to install/windows/build/jre/x64... excluding files mentioned
          in JRE README.TXT file (JRE bin/javaw.exe command excepted) -->
     <copy todir="install/windows/build/jre8/x64">
-      <fileset dir="C:\Program Files\Java\jre1.8.0_51">
+      <fileset dir="C:\Program Files\Java\jre1.8.0_111">
         <include name="*"/>
         <include name="bin/**"/>
         <include name="lib/**"/>
@@ -691,20 +665,20 @@
     </exec>
 
     <!-- Pack largest jars -->
-    <exec executable="C:\Program Files\Java\jre1.8.0_51\bin\pack200.exe" failonerror="yes">
+    <exec executable="C:\Program Files\Java\jre1.8.0_111\bin\pack200.exe" failonerror="yes">
       <arg value="${basedir}\install\windows\build\lib\SweetHome3D.pack.gz"/>
       <arg value="${basedir}\install\windows\build\lib\SweetHome3D.jar"/>
     </exec>
     <delete file="${basedir}\install\windows\build\lib\SweetHome3D.jar"/>
 
-    <exec executable="C:\Program Files\Java\jre1.8.0_51\bin\pack200.exe" failonerror="yes">
+    <exec executable="C:\Program Files\Java\jre1.8.0_111\bin\pack200.exe" failonerror="yes">
       <arg value="-J-Xmx512m"/>
       <arg value="${basedir}\install\windows\build\jre8\x86\lib\rt.pack.gz"/>
       <arg value="${basedir}\install\windows\build\jre8\x86\lib\rt.jar"/>
     </exec>
     <delete file="${basedir}\install\windows\build\jre8\x86\lib\rt.jar"/>
 
-    <exec executable="C:\Program Files\Java\jre1.8.0_51\bin\pack200.exe" failonerror="yes">
+    <exec executable="C:\Program Files\Java\jre1.8.0_111\bin\pack200.exe" failonerror="yes">
       <arg value="-J-Xmx512m"/>
       <arg value="${basedir}\install\windows\build\jre8\x64\lib\rt.pack.gz"/>
       <arg value="${basedir}\install\windows\build\jre8\x64\lib\rt.jar"/>
@@ -806,16 +780,6 @@
         <include name="*.jnilib"/>
       </fileset>
     </copy>
-    <!-- Copy COPYING.TXT and licenses texts to install/macosx/SweetHome3D-version/ -->
-    <copy file="COPYING.TXT" todir="install/macosx/SweetHome3D-${version}"/>
-    <copy file="LICENSE.TXT" todir="install/macosx/SweetHome3D-${version}" />
-    <copy file="THIRDPARTY-LICENSE-JAVA3D.TXT"     todir="install/macosx/SweetHome3D-${version}" />
-    <copy file="THIRDPARTY-LICENSE-BATIK.TXT"      todir="install/macosx/SweetHome3D-${version}"/>
-    <copy file="THIRDPARTY-LICENSE-VECTORGRAPHICS.TXT"  todir="install/macosx/SweetHome3D-${version}" />
-    <copy file="THIRDPARTY-LICENSE-SUNFLOW.TXT"   todir="install/macosx/SweetHome3D-${version}" />
-    <copy file="THIRDPARTY-LICENSE-JMF.HTML"       todir="install/macosx/SweetHome3D-${version}" />
-    <copy file="THIRDPARTY-LICENSE-TANGO.TXT"      todir="install/macosx/SweetHome3D-${version}" />
-    <copy file="THIRDPARTY-LICENSE-CONTRIBUTIONS.TXT"   todir="install/macosx/SweetHome3D-${version}" />
   </target>
 
   <!-- Builds install/SweetHome3D-version-macosx.dmg archive that contains SweetHome3D.app
@@ -916,17 +880,6 @@
         <include name="*.so"/>
       </fileset>
     </copy>
-    <copy file="COPYING.TXT" todir="install/linux/x86/SweetHome3D-${version}" />
-    <copy file="LICENSE.TXT" todir="install/linux/x86/SweetHome3D-${version}" />
-    <copy file="THIRDPARTY-LICENSE-JAVA.TXT"      todir="install/linux/x86/SweetHome3D-${version}" />
-    <copy file="THIRDPARTY-LICENSE-JAVA3D.TXT"    todir="install/linux/x86/SweetHome3D-${version}" />
-    <copy file="THIRDPARTY-LICENSE-BATIK.TXT"     todir="install/linux/x86/SweetHome3D-${version}"/>
-    <copy file="THIRDPARTY-LICENSE-ITEXT.TXT"     todir="install/linux/x86/SweetHome3D-${version}" />
-    <copy file="THIRDPARTY-LICENSE-VECTORGRAPHICS.TXT" todir="install/linux/x86/SweetHome3D-${version}" />
-    <copy file="THIRDPARTY-LICENSE-SUNFLOW.TXT"   todir="install/linux/x86/SweetHome3D-${version}" />
-    <copy file="THIRDPARTY-LICENSE-JMF.HTML"      todir="install/linux/x86/SweetHome3D-${version}" />
-    <copy file="THIRDPARTY-LICENSE-TANGO.TXT"     todir="install/linux/x86/SweetHome3D-${version}" />
-    <copy file="THIRDPARTY-LICENSE-CONTRIBUTIONS.TXT"  todir="install/linux/x86/SweetHome3D-${version}" />
     <copy file="src/com/eteks/sweethome3d/swing/resources/aboutIcon.png"
         tofile="install/linux/x86/SweetHome3D-${version}/SweetHome3DIcon.png"/>
 
@@ -1034,17 +987,6 @@
         <include name="*.so"/>
       </fileset>
     </copy>
-    <copy file="COPYING.TXT" todir="install/linux/x64/SweetHome3D-${version}" />
-    <copy file="LICENSE.TXT" todir="install/linux/x64/SweetHome3D-${version}" />
-    <copy file="THIRDPARTY-LICENSE-JAVA.TXT"      todir="install/linux/x64/SweetHome3D-${version}" />
-    <copy file="THIRDPARTY-LICENSE-JAVA3D.TXT"    todir="install/linux/x64/SweetHome3D-${version}" />
-    <copy file="THIRDPARTY-LICENSE-BATIK.TXT"     todir="install/linux/x64/SweetHome3D-${version}"/>
-    <copy file="THIRDPARTY-LICENSE-ITEXT.TXT"     todir="install/linux/x64/SweetHome3D-${version}" />
-    <copy file="THIRDPARTY-LICENSE-VECTORGRAPHICS.TXT" todir="install/linux/x64/SweetHome3D-${version}" />
-    <copy file="THIRDPARTY-LICENSE-SUNFLOW.TXT"   todir="install/linux/x64/SweetHome3D-${version}" />
-    <copy file="THIRDPARTY-LICENSE-JMF.HTML"      todir="install/linux/x64/SweetHome3D-${version}" />
-    <copy file="THIRDPARTY-LICENSE-TANGO.TXT"     todir="install/linux/x64/SweetHome3D-${version}" />
-    <copy file="THIRDPARTY-LICENSE-CONTRIBUTIONS.TXT"  todir="install/linux/x64/SweetHome3D-${version}" />
     <copy file="src/com/eteks/sweethome3d/swing/resources/aboutIcon.png"
         tofile="install/linux/x64/SweetHome3D-${version}/SweetHome3DIcon.png"/>
   	
@@ -1183,18 +1125,6 @@
     </copy>
     <!-- Copy README.TXT and licenses texts to install/macosx/SweetHome3D-version/ -->
     <copy file="install/portable/README.TXT" todir="install/portable/SweetHome3D-${version}-portable"/>
-    <copy file="COPYING.TXT" todir="install/portable/SweetHome3D-${version}-portable"/>
-    <copy file="LICENSE.TXT" todir="install/portable/SweetHome3D-${version}-portable" />
-    <copy file="THIRDPARTY-LICENSE-JAVA.TXT"       todir="install/portable/SweetHome3D-${version}-portable" />
-    <copy file="THIRDPARTY-LICENSE-JAVA3D.TXT"     todir="install/portable/SweetHome3D-${version}-portable" />
-    <copy file="THIRDPARTY-LICENSE-BATIK.TXT"      todir="install/portable/SweetHome3D-${version}-portable"/>
-    <copy file="THIRDPARTY-LICENSE-ITEXT.TXT"      todir="install/portable/SweetHome3D-${version}-portable" />
-    <copy file="THIRDPARTY-LICENSE-VECTORGRAPHICS.TXT"  todir="install/portable/SweetHome3D-${version}-portable" />
-    <copy file="THIRDPARTY-LICENSE-SUNFLOW.TXT"   todir="install/portable/SweetHome3D-${version}-portable" />
-    <copy file="THIRDPARTY-LICENSE-JMF.HTML"      todir="install/portable/SweetHome3D-${version}-portable" />
-    <copy file="THIRDPARTY-LICENSE-LAUNCH4J.TXT"  todir="install/portable/SweetHome3D-${version}-portable" />
-    <copy file="THIRDPARTY-LICENSE-TANGO.TXT"     todir="install/portable/SweetHome3D-${version}-portable" />
-    <copy file="THIRDPARTY-LICENSE-CONTRIBUTIONS.TXT"   todir="install/portable/SweetHome3D-${version}-portable" />
     <!-- Copy Mac OS X application bundle using a different Info.plist file -->
     <copy todir="install/portable/SweetHome3D-${version}-portable/SweetHome3D-macosx.app">
       <fileset dir="install/macosx/Sweet Home 3D"/>
@@ -1234,12 +1164,6 @@
                   includes="lib/**, SweetHome3DViewer.html"/>
       <zipfileset dir="install/viewer"
                   includes="README.TXT"/>
-      <zipfileset dir=".">
-        <include name="COPYING.TXT"/>
-        <include name="LICENSE.TXT"/>
-        <include name="THIRDPARTY-LICENSE-JAVA3D.TXT"/>
-        <include name="THIRDPARTY-LICENSE-BATIK.TXT"/>
-      </zipfileset>
     </zip>
 
     <echo message="install/SweetHome3DViewer-${version}.zip ready for ftp"/>
@@ -1254,7 +1178,6 @@
       <fileset dir=".">
         <include name="build.xml"/>
         <include name="*.TXT"/>
-        <include name="THIRDPARTY-LICENSE-*.HTML"/>
         <include name="*-diff.zip"/>
         <include name="src/**"/>
         <include name="test/**"/>

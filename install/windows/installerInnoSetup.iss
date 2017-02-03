@@ -22,9 +22,8 @@ AppSupportURL=http://sweethome3d.sourceforge.net
 AppUpdatesURL=http://sweethome3d.sourceforge.net
 DefaultDirName={pf}\Sweet Home 3D
 DefaultGroupName=eTeks Sweet Home 3D
-LicenseFile=..\..\COPYING.TXT
 OutputDir=.
-OutputBaseFilename=..\SweetHome3D-5.4-windows
+OutputBaseFilename=SweetHome3D-5.4-windows
 Compression=lzma2/ultra64
 SolidCompression=yes
 ChangesAssociations=yes
@@ -37,22 +36,7 @@ VersionInfoCompany=eTeks
 ArchitecturesInstallIn64BitMode=x64
 
 [Languages]
-Name: "english"; MessagesFile: "compiler:Default.isl"
-Name: "french"; MessagesFile: "compiler:Languages\French.isl"
-Name: "portuguese"; MessagesFile: "compiler:Languages\Portuguese.isl"
-Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
-Name: "italian"; MessagesFile: "compiler:Languages\Italian.isl"
-Name: "german"; MessagesFile: "compiler:Languages\German.isl"
-Name: "czech"; MessagesFile: "compiler:Languages\Czech.isl"
-Name: "polish"; MessagesFile: "compiler:Languages\Polish.isl"
-Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
-Name: "hungarian"; MessagesFile: "compiler:Languages\Hungarian.isl"
-Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
-Name: "greek"; MessagesFile: "compiler:Languages\Greek.isl"
-Name: "japanese"; Messagesfile: "compiler:Languages\Japanese.isl"
-Name: "swedish"; MessagesFile: "Swedish.isl"
 Name: "chinesesimp"; Messagesfile: "ChineseSimp.isl"
-Name: "bulgarian"; Messagesfile: "Bulgarian.isl"
 
 [Tasks]
 Name: desktopicon; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
@@ -69,18 +53,15 @@ Type: files; Name: "{app}\lib\j3d*.jar"
 Type: files; Name: "{app}\lib\vecmath.jar"
 
 [Files]
-Source: "build\*.TXT"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "build\lib\*.jar"; DestDir: "{app}\lib"; Flags: ignoreversion
 Source: "build\lib\java3d-1.6\*.jar"; DestDir: "{app}\lib\java3d-1.6"; Flags: ignoreversion
 Source: "build\lib\*.pack.gz"; DestDir: "{app}\lib"; Flags: ignoreversion
 ; Install JRE and DLLs for not 64 bit
 Source: "build\SweetHome3D-x86.exe"; DestDir: "{app}"; DestName: "SweetHome3D.exe"; Flags: ignoreversion; Check: not Is64BitInstallMode
-Source: "build\lib\x86\*.dll"; DestDir: "{app}\lib"; Flags: ignoreversion; Check: not Is64BitInstallMode
 Source: "build\lib\java3d-1.6\x86\*.dll"; DestDir: "{app}\lib\java3d-1.6"; Flags: ignoreversion; Check: not Is64BitInstallMode
 Source: "build\jre8\x86\*"; DestDir: "{app}\jre8"; Flags: ignoreversion recursesubdirs createallsubdirs; Check: not Is64BitInstallMode
 ; Install JRE and DLLs for 64 bit
 Source: "build\SweetHome3D-x64.exe"; DestDir: "{app}"; DestName: "SweetHome3D.exe"; Flags: ignoreversion; Check: Is64BitInstallMode
-Source: "build\lib\x64\*.dll"; DestDir: "{app}\lib"; Flags: ignoreversion; Check: Is64BitInstallMode
 Source: "build\lib\java3d-1.6\x64\*.dll"; DestDir: "{app}\lib\java3d-1.6"; Flags: ignoreversion; Check: Is64BitInstallMode
 Source: "build\jre8\x64\*"; DestDir: "{app}\jre8"; Flags: ignoreversion recursesubdirs createallsubdirs; Check: Is64BitInstallMode
 
@@ -104,16 +85,8 @@ Type: files; Name: "{app}\lib\SweetHome3D.jar"
 Type: filesandordirs; Name: "{app}\jre8\launch4j-tmp"
 
 [CustomMessages]
-SweetHome3DComment=Arrange the furniture of your house
-french.SweetHome3DComment=Am閚agez les meubles de votre logement
-portuguese.SweetHome3DComment=Organiza as mobilias da sua casa
-brazilianportuguese.SweetHome3DComment=Organiza as mobilias da sua casa
-czech.SweetHome3DComment=Sestavte si design interieru vaseho domu
-polish.SweetHome3DComment=Zaprojektuj wnetrze swojego domu
-hungarian.SweetHome3DComment=Keszitse el lakasanak belso kialakitasat!
 chinesesimp.SweetHome3DComment=布置您的温馨小家
 UnpackingMessage=Unpacking %1...
-french.UnpackingMessage=D閏ompression du fichier %1...
 
 [Registry]
 Root: HKCR; Subkey: ".sh3d"; ValueType: string; ValueName: ""; ValueData: "eTeks Sweet Home 3D"; Flags: uninsdeletevalue
