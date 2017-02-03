@@ -19,5 +19,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.7.0_79"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="lib" path="lib/java3d-1.6/jogl-all.jar"/>
+	<classpathentry kind="lib" path="lib/beautyeye_lnf.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
