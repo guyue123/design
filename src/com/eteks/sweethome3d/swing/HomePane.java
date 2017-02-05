@@ -2889,7 +2889,17 @@ public class HomePane extends JRootPane implements HomeView {
         if (furniturePane == null) {
           tabbedpane.add(preferences.getLocalizedString(HomePane.class, "tabbedPane.planView.title"), planView);
         } else {
-          final JSplitPane planViewPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, planView, furniturePane);
+          // 2017/02/05 右侧上部：物件，墙壁，房间，虚拟参观者，线条等的属性，右侧下部：物件列表
+          JPanel  emptyPane = new JPanel();
+          add(emptyPane, BorderLayout.CENTER);
+          
+          final JSplitPane rightPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, emptyPane, furniturePane);
+          rightPane.setMinimumSize(new Dimension());
+          rightPane.setDividerLocation(0.5);
+          configureSplitPane(rightPane, home, 
+              PLAN_PANE_DIVIDER_LOCATION_VISUAL_PROPERTY, 0.5, false, controller);
+          
+          final JSplitPane planViewPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, planView, rightPane);
           planViewPane.setMinimumSize(new Dimension());
           planViewPane.setLastDividerLocation(160);
           configureSplitPane(planViewPane, home, 

@@ -43,14 +43,16 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -162,6 +164,7 @@ public class WallPanel extends JPanel implements DialogView {
           controller.removePropertyChangeListener(WallController.Property.X_START, xStartChangeListener);
           controller.setXStart(xStartSpinnerModel.getLength());
           controller.addPropertyChangeListener(WallController.Property.X_START, xStartChangeListener);
+          modifyWallsView();
         }
       });
     
@@ -185,6 +188,7 @@ public class WallPanel extends JPanel implements DialogView {
           controller.removePropertyChangeListener(WallController.Property.Y_START, yStartChangeListener);
           controller.setYStart(yStartSpinnerModel.getLength());
           controller.addPropertyChangeListener(WallController.Property.Y_START, yStartChangeListener);
+          modifyWallsView();
         }
       });
     
@@ -208,6 +212,7 @@ public class WallPanel extends JPanel implements DialogView {
           controller.removePropertyChangeListener(WallController.Property.X_END, xEndChangeListener);
           controller.setXEnd(xEndSpinnerModel.getLength());
           controller.addPropertyChangeListener(WallController.Property.X_END, xEndChangeListener);
+          modifyWallsView();
         }
       });
     
@@ -231,6 +236,7 @@ public class WallPanel extends JPanel implements DialogView {
           controller.removePropertyChangeListener(WallController.Property.Y_END, yEndChangeListener);
           controller.setYEnd(yEndSpinnerModel.getLength());
           controller.addPropertyChangeListener(WallController.Property.Y_END, yEndChangeListener);
+          modifyWallsView();
         }
       });
 
@@ -258,6 +264,7 @@ public class WallPanel extends JPanel implements DialogView {
           controller.setDistanceToEndPoint(distanceToEndPointSpinnerModel.getLength());
           controller.addPropertyChangeListener(WallController.Property.DISTANCE_TO_END_POINT, 
               distanceToEndPointChangeListener);
+          modifyWallsView();
         }
       });
 
@@ -269,6 +276,8 @@ public class WallPanel extends JPanel implements DialogView {
           if (leftSideColorRadioButton.isSelected()) {
             controller.setLeftSidePaint(WallController.WallPaint.COLORED);
           }
+          
+          modifyWallsView();
         }
       });
     controller.addPropertyChangeListener(WallController.Property.LEFT_SIDE_PAINT, 
@@ -303,6 +312,8 @@ public class WallPanel extends JPanel implements DialogView {
           if (leftSideTextureRadioButton.isSelected()) {
             controller.setLeftSidePaint(WallController.WallPaint.TEXTURED);
           }
+          
+          modifyWallsView();
         }
       });
     
@@ -321,6 +332,8 @@ public class WallPanel extends JPanel implements DialogView {
           if (leftSideMattRadioButton.isSelected()) {
             controller.setLeftSideShininess(0f);
           }
+          
+          modifyWallsView();
         }
       });
     PropertyChangeListener leftSideShininessListener = new PropertyChangeListener() {
@@ -338,6 +351,8 @@ public class WallPanel extends JPanel implements DialogView {
           if (leftSideShinyRadioButton.isSelected()) {
             controller.setLeftSideShininess(0.25f);
           }
+          
+          modifyWallsView();
         }
       });
     controller.addPropertyChangeListener(WallController.Property.LEFT_SIDE_SHININESS, 
@@ -366,6 +381,8 @@ public class WallPanel extends JPanel implements DialogView {
           if (rightSideColorRadioButton.isSelected()) {
             controller.setRightSidePaint(WallController.WallPaint.COLORED);
           }
+          
+          modifyWallsView();
         }
       });
     controller.addPropertyChangeListener(WallController.Property.RIGHT_SIDE_PAINT, 
@@ -400,6 +417,8 @@ public class WallPanel extends JPanel implements DialogView {
           if (rightSideTextureRadioButton.isSelected()) {
             controller.setRightSidePaint(WallController.WallPaint.TEXTURED);
           }
+          
+          modifyWallsView();
         }
       });
   
@@ -418,6 +437,8 @@ public class WallPanel extends JPanel implements DialogView {
           if (rightSideMattRadioButton.isSelected()) {
             controller.setRightSideShininess(0f);
           }
+          
+          modifyWallsView();
         }
       });
     PropertyChangeListener rightSideShininessListener = new PropertyChangeListener() {
@@ -435,6 +456,8 @@ public class WallPanel extends JPanel implements DialogView {
           if (rightSideShinyRadioButton.isSelected()) {
             controller.setRightSideShininess(0.25f);
           }
+          
+          modifyWallsView();
         }
       });
     controller.addPropertyChangeListener(WallController.Property.RIGHT_SIDE_SHININESS, 
@@ -500,6 +523,8 @@ public class WallPanel extends JPanel implements DialogView {
     this.patternComboBox.addItemListener(new ItemListener() {
         public void itemStateChanged(ItemEvent ev) {
           controller.setPattern((TextureImage)patternComboBox.getSelectedItem());
+          
+          modifyWallsView();
         }
       });
     controller.addPropertyChangeListener(WallController.Property.PATTERN, 
@@ -518,6 +543,8 @@ public class WallPanel extends JPanel implements DialogView {
           if (topDefaultColorRadioButton.isSelected()) {
             controller.setTopPaint(WallController.WallPaint.DEFAULT);
           }
+          
+          modifyWallsView();
         }
       });
     this.topColorRadioButton = new JRadioButton(SwingTools.getLocalizedLabelText(preferences, 
@@ -527,6 +554,8 @@ public class WallPanel extends JPanel implements DialogView {
           if (topColorRadioButton.isSelected()) {
             controller.setTopPaint(WallController.WallPaint.COLORED);
           }
+          
+          modifyWallsView();
         }
       });
     controller.addPropertyChangeListener(WallController.Property.TOP_PAINT, 
@@ -566,6 +595,8 @@ public class WallPanel extends JPanel implements DialogView {
           if (rectangularWallRadioButton.isSelected()) {
             controller.setShape(WallController.WallShape.RECTANGULAR_WALL);
           }
+          
+          modifyWallsView();
         }
       });
     controller.addPropertyChangeListener(WallController.Property.SHAPE, 
@@ -597,6 +628,8 @@ public class WallPanel extends JPanel implements DialogView {
           controller.setRectangularWallHeight(rectangularWallHeightSpinnerModel.getLength());
           controller.addPropertyChangeListener(WallController.Property.RECTANGULAR_WALL_HEIGHT, 
               rectangularWallHeightChangeListener);
+          
+          modifyWallsView();
         }
       });
    
@@ -607,6 +640,8 @@ public class WallPanel extends JPanel implements DialogView {
           if (slopingWallRadioButton.isSelected()) {
             controller.setShape(WallController.WallShape.SLOPING_WALL);
           }
+          
+          modifyWallsView();
         }
       });
     ButtonGroup wallHeightButtonGroup = new ButtonGroup();
@@ -637,6 +672,8 @@ public class WallPanel extends JPanel implements DialogView {
           controller.setSlopingWallHeightAtStart(slopingWallHeightAtStartSpinnerModel.getLength());
           controller.addPropertyChangeListener(WallController.Property.SLOPING_WALL_HEIGHT_AT_START, 
               slopingWallHeightAtStartChangeListener);
+          
+          modifyWallsView();
         }
       });
     
@@ -663,6 +700,8 @@ public class WallPanel extends JPanel implements DialogView {
           controller.setSlopingWallHeightAtEnd(slopingWallHeightAtEndSpinnerModel.getLength());
           controller.addPropertyChangeListener(WallController.Property.SLOPING_WALL_HEIGHT_AT_END, 
               slopingWallHeightAtEndChangeListener);
+          
+          modifyWallsView();
         }
       });
 
@@ -689,6 +728,8 @@ public class WallPanel extends JPanel implements DialogView {
           controller.setThickness(thicknessSpinnerModel.getLength());
           controller.addPropertyChangeListener(WallController.Property.THICKNESS, 
               thicknessChangeListener);
+          
+          modifyWallsView();
         }
       });
     
@@ -715,6 +756,8 @@ public class WallPanel extends JPanel implements DialogView {
           controller.setArcExtentInDegrees(((Number)arcExtentSpinnerModel.getValue()).floatValue());
           controller.addPropertyChangeListener(WallController.Property.ARC_EXTENT_IN_DEGREES, 
               arcExtentChangeListener);
+          
+          modifyWallsView();
         }
       });
     
@@ -1158,12 +1201,58 @@ public class WallPanel extends JPanel implements DialogView {
       }
       dialog.dispose();
     }
+    
+    // 2017/02/05 显示属性框
+    if (parentView != null) {
+      Component parentComponent = ((Component)parentView).getParent();
+      
+      if (parentComponent instanceof JSplitPane) {
+        Component subCom = ((JSplitPane)parentComponent).getComponent(1);
+        
+        if (subCom instanceof JSplitPane) {
+          Component targetCom = ((JSplitPane)subCom).getComponent(0);
+          
+          if (targetCom instanceof JPanel) {
+            JPanel propPanel = ((JPanel)targetCom);
+            // 找到面板
+            propPanel.removeAll();
+            propPanel.repaint();
 
-    JFormattedTextField thicknessTextField = 
+            
+            this.setPreferredSize(new Dimension(600, 600));
+            JScrollPane scrollPane = new JScrollPane(this);
+            scrollPane.setBounds(0, 0, 600, 600);
+            
+            JTabbedPane tabbedpane = new JTabbedPane();
+            tabbedpane.add("1", new JLabel("1"));
+            tabbedpane.add("2", new JLabel("2"));
+            tabbedpane.add("3", scrollPane);
+            
+            scrollPane.revalidate();
+            tabbedpane.revalidate();
+            
+            propPanel.revalidate();
+            
+            propPanel.add(tabbedpane);
+          }
+        }
+      }
+    }
+    
+
+/*    JFormattedTextField thicknessTextField = 
         ((JSpinner.DefaultEditor)thicknessSpinner.getEditor()).getTextField();
     if (SwingTools.showConfirmDialog((JComponent)parentView, 
             this, this.dialogTitle, thicknessTextField) == JOptionPane.OK_OPTION) {
       this.controller.modifyWalls();
-    }
+    }*/
+  }
+  
+  /**
+   * 2017/02/05
+   * 属性修改时同步更新平面视图
+   */
+  private void modifyWallsView() {
+    this.controller.modifyWalls();
   }
 }

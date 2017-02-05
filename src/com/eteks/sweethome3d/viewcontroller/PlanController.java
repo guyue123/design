@@ -20,6 +20,8 @@
 package com.eteks.sweethome3d.viewcontroller;
 
 import java.awt.BasicStroke;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
@@ -41,6 +43,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
@@ -6778,6 +6785,28 @@ public class PlanController extends FurnitureController implements Controller {
           } else if (item instanceof ObserverCamera) {
             modifyObserverCamera();
           } 
+        }
+        
+        if (item == null || !(item instanceof Wall || item instanceof HomePieceOfFurniture || 
+            item instanceof Room || item instanceof Polyline || item instanceof Label ||
+            item instanceof Compass || item instanceof ObserverCamera)) {
+          // 移除右侧属性列表
+          Component parentComponent = ((Component)getView()).getParent();
+          
+          if (parentComponent instanceof JSplitPane) {
+            Component subCom = ((JSplitPane)parentComponent).getComponent(1);
+            
+            if (subCom instanceof JSplitPane) {
+              Component targetCom = ((JSplitPane)subCom).getComponent(0);
+              
+              if (targetCom instanceof JPanel) {
+                JPanel propPanel = ((JPanel)targetCom);
+                // 找到面板
+                propPanel.removeAll();
+                propPanel.repaint();
+              }
+            }
+          }
         }
         
       } else if (clickCount == 2) {

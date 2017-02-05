@@ -442,6 +442,9 @@ public class FurnitureTable extends JTable implements View, Printable {
                   (HomePieceOfFurniture)tableModel.getValueAt(row, 0)}));
             } else if (ev.getClickCount() == 2) {
               deleteInformationPopup();
+              // 2017/02/05 双击弹出框改成左键单击
+              //controller.modifySelectedFurniture();
+            } else if (ev.getClickCount() == 1 && ev.getButton() == MouseEvent.BUTTON1) {
               controller.modifySelectedFurniture();
             }
           }
