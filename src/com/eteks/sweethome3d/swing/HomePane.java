@@ -48,7 +48,6 @@ import java.awt.datatransfer.FlavorListener;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DragSource;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.FocusEvent;
@@ -128,6 +127,7 @@ import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
@@ -140,7 +140,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.RootPaneContainer;
 import javax.swing.Scrollable;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 import javax.swing.ToolTipManager;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
@@ -2414,8 +2413,9 @@ public class HomePane extends JRootPane implements HomeView {
    */
   private JComponent createMainPane(Home home, UserPreferences preferences, 
                                     HomeController controller) {
-    final JComponent catalogFurniturePane = createCatalogFurniturePane(home, preferences, controller);
+    final JComponent catalogFurniturePane = createCatalogFurniturePane(home, preferences, controller);  
     final JComponent planView3DPane = createPlanView3DPane(home, preferences, controller);
+    
 
     if (catalogFurniturePane == null) {
       return planView3DPane;
@@ -2424,7 +2424,7 @@ public class HomePane extends JRootPane implements HomeView {
     } else {
       final JSplitPane mainPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, catalogFurniturePane, planView3DPane);
       // Set default divider location
-      mainPane.setDividerLocation(360);
+      mainPane.setDividerLocation(120);
       configureSplitPane(mainPane, home, 
           MAIN_PANE_DIVIDER_LOCATION_VISUAL_PROPERTY, 0.3, true, controller);
       return mainPane;
@@ -2539,6 +2539,34 @@ public class HomePane extends JRootPane implements HomeView {
       }
     }
     
+    // 2017/02/04
+    JComponent furnitureView = null;//createFurnitureView(home, preferences, controller);
+
+    if (catalogView == null) {
+      return furnitureView;
+    } else if (furnitureView == null) {
+      return catalogView;
+    } else {
+      // Create a split pane that displays both components
+      JSplitPane catalogFurniturePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, 
+          catalogView, furnitureView);
+      catalogFurniturePane.setBorder(null);
+      catalogFurniturePane.setMinimumSize(new Dimension());
+      configureSplitPane(catalogFurniturePane, home, 
+          CATALOG_PANE_DIVIDER_LOCATION_VISUAL_PROPERTY, 0.5, false, controller);
+      return catalogFurniturePane;
+    }
+  }
+
+  /**
+   * 2017/02/04
+   * Returns furniture table pane. 
+   * @param home
+   * @param preferences
+   * @param controller
+   * @return
+   */
+  private JComponent createFurnitureView(Home home, UserPreferences preferences, final HomeController controller) {
     // Configure furniture view
     JComponent furnitureView = (JComponent)controller.getFurnitureController().getView();
     if (furnitureView != null) {
@@ -2601,21 +2629,7 @@ public class HomePane extends JRootPane implements HomeView {
         furnitureView = furnitureScrollPane;
       }
     }
-
-    if (catalogView == null) {
-      return furnitureView;
-    } else if (furnitureView == null) {
-      return catalogView;
-    } else {
-      // Create a split pane that displays both components
-      JSplitPane catalogFurniturePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, 
-          catalogView, furnitureView);
-      catalogFurniturePane.setBorder(null);
-      catalogFurniturePane.setMinimumSize(new Dimension());
-      configureSplitPane(catalogFurniturePane, home, 
-          CATALOG_PANE_DIVIDER_LOCATION_VISUAL_PROPERTY, 0.5, false, controller);
-      return catalogFurniturePane;
-    }
+    return furnitureView;
   }
 
   /**
@@ -2861,10 +2875,33 @@ public class HomePane extends JRootPane implements HomeView {
       if (view3D instanceof Scrollable) {
         view3D = SwingTools.createScrollPane(view3D);
       }
+      
+      // 2017/02/04
+      final JComponent furniturePane = createFurnitureView(home, preferences, controller);
     
       final JComponent planView3DPane;
       boolean detachedView3D = Boolean.parseBoolean(home.getProperty(view3D.getClass().getName() + DETACHED_VIEW_VISUAL_PROPERTY));
       if (planView != null) {
+        // 2017/02/04 使用tabbedPane
+        JTabbedPane tabbedpane = new JTabbedPane();
+        add(tabbedpane, BorderLayout.CENTER);
+        
+        if (furniturePane == null) {
+          tabbedpane.add(preferences.getLocalizedString(HomePane.class, "tabbedPane.planView.title"), planView);
+        } else {
+          final JSplitPane planViewPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, planView, furniturePane);
+          planViewPane.setMinimumSize(new Dimension());
+          planViewPane.setLastDividerLocation(160);
+          configureSplitPane(planViewPane, home, 
+              PLAN_PANE_DIVIDER_LOCATION_VISUAL_PROPERTY, 0.85, false, controller);
+          
+          tabbedpane.add(preferences.getLocalizedString(HomePane.class, "tabbedPane.planView.title"), planViewPane);
+        }
+        tabbedpane.add(preferences.getLocalizedString(HomePane.class, "tabbedPane.3dView.title"), view3D);
+        
+        planView3DPane = tabbedpane;
+       
+        /*
         // Create a split pane that displays both components
         final JSplitPane planView3DSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, planView, view3D);
         planView3DSplitPane.setMinimumSize(new Dimension());
@@ -2902,7 +2939,7 @@ public class HomePane extends JRootPane implements HomeView {
             });
         }
         
-        planView3DPane = planView3DSplitPane;
+        planView3DPane = planView3DSplitPane;*/
       } else {
         planView3DPane = view3D;
       }

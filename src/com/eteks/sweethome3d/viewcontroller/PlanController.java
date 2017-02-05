@@ -6757,7 +6757,8 @@ public class PlanController extends FurnitureController implements Controller {
             setState(getRectangleSelectionState());
           }          
         }
-      } else if (clickCount == 2) {
+        
+        // 2017/02/05 单击事件
         Selectable item = getSelectableItemAt(x, y);
         // If shift isn't pressed, and an item is under cursor position
         if (!shiftDown && item != null) {
@@ -6778,6 +6779,30 @@ public class PlanController extends FurnitureController implements Controller {
             modifyObserverCamera();
           } 
         }
+        
+      } else if (clickCount == 2) {
+        //  2017/02/05 改成单击事件
+        /*
+        Selectable item = getSelectableItemAt(x, y);
+        // If shift isn't pressed, and an item is under cursor position
+        if (!shiftDown && item != null) {
+          // Modify selected item on a double click
+          if (item instanceof Wall) {
+            modifySelectedWalls();
+          } else if (item instanceof HomePieceOfFurniture) {
+            modifySelectedFurniture();
+          } else if (item instanceof Room) {
+            modifySelectedRooms();
+          } else if (item instanceof Polyline) {
+            modifySelectedPolylines();
+          } else if (item instanceof Label) {
+            modifySelectedLabels();
+          } else if (item instanceof Compass) {
+            modifyCompass();
+          } else if (item instanceof ObserverCamera) {
+            modifyObserverCamera();
+          } 
+        }*/
       }
     }
     
@@ -7992,7 +8017,7 @@ public class PlanController extends FurnitureController implements Controller {
       Wall previousWall = this.wallEndAtStart != null
           ? this.wallEndAtStart
           : this.wallStartAtStart;
-      // Create a new wall with an angle equal to previous wall angle - 90�
+      // Create a new wall with an angle equal to previous wall angle - 90�
       double previousWallAngle = Math.PI - Math.atan2(previousWall.getYStart() - previousWall.getYEnd(), 
           previousWall.getXStart() - previousWall.getXEnd());
       previousWallAngle -=  Math.PI / 2;
@@ -9118,7 +9143,7 @@ public class PlanController extends FurnitureController implements Controller {
       float newPitch = (float)(this.oldPitch 
           + (y - getYLastMousePress()) * Math.cos(this.selectedCamera.getYaw()) * Math.PI / 360
           - (x - getXLastMousePress()) * Math.sin(this.selectedCamera.getYaw()) * Math.PI / 360);
-      // Check new angle is between -90� and 90�  
+      // Check new angle is between -90� and 90�  
       newPitch = Math.max(newPitch, -(float)Math.PI / 2);
       newPitch = Math.min(newPitch, (float)Math.PI / 2);
       
@@ -10482,7 +10507,7 @@ public class PlanController extends FurnitureController implements Controller {
       float [][] points = this.newRoom.getPoints();
       this.xPreviousPoint = points [points.length - 1][0];
       this.yPreviousPoint = points [points.length - 1][1]; 
-      // Create a new side with an angle equal to previous side angle - 90�
+      // Create a new side with an angle equal to previous side angle - 90�
       double previousSideAngle = Math.PI - Math.atan2(points [points.length - 2][1] - points [points.length - 1][1], 
           points [points.length - 2][0] - points [points.length - 1][0]);
       previousSideAngle -=  Math.PI / 2;
@@ -11410,7 +11435,7 @@ public class PlanController extends FurnitureController implements Controller {
       float [][] points = this.newPolyline.getPoints();
       this.xPreviousPoint = points [points.length - 1][0];
       this.yPreviousPoint = points [points.length - 1][1]; 
-      // Create a new segment with an angle equal to previous segment angle - 90�
+      // Create a new segment with an angle equal to previous segment angle - 90�
       double previousSegmentAngle = Math.PI - Math.atan2(points [points.length - 2][1] - points [points.length - 1][1], 
           points [points.length - 2][0] - points [points.length - 1][0]);
       previousSegmentAngle -=  Math.PI / 2;
