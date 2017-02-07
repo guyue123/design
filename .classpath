@@ -20,5 +20,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="lib" path="lib/java3d-1.6/jogl-all.jar"/>
 	<classpathentry kind="lib" path="lib/beautyeye_lnf.jar"/>
+	<classpathentry kind="lib" path="lib/swingx.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

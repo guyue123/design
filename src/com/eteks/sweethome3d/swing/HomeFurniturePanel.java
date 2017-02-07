@@ -19,6 +19,9 @@
  */
 package com.eteks.sweethome3d.swing;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -33,10 +36,12 @@ import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.event.ChangeEvent;
@@ -105,11 +110,19 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
    */
   public HomeFurniturePanel(UserPreferences preferences,
                             HomeFurnitureController controller) {
-    super(new GridBagLayout());
+    // 2017/02/07
+    super(new BorderLayout());
+   // super(new GridBagLayout());
+    
     this.controller = controller;
     createComponents(preferences, controller);
     setMnemonics(preferences);
-    layoutComponents(preferences, controller);
+    
+    // 2017/02/07
+    layoutComponents2(preferences, controller);
+    //layoutComponents(preferences, controller);
+    
+    SwingTools.addResizeComponentListener(this);
   }
 
   /**
@@ -130,6 +143,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
       final PropertyChangeListener nameChangeListener = new PropertyChangeListener() {
           public void propertyChange(PropertyChangeEvent ev) {
             nameTextField.setText(controller.getName());
+            modifyView();
           }
         };
       controller.addPropertyChangeListener(HomeFurnitureController.Property.NAME, nameChangeListener);
@@ -143,6 +157,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
               controller.setName(name);
             }
             controller.addPropertyChangeListener(HomeFurnitureController.Property.NAME, nameChangeListener);
+            modifyView();
           }
     
           public void insertUpdate(DocumentEvent ev) {
@@ -165,6 +180,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
           public void propertyChange(PropertyChangeEvent ev) {
             nameVisibleCheckBox.setNullable(ev.getNewValue() == null);
             nameVisibleCheckBox.setValue((Boolean)ev.getNewValue());
+            modifyView();
           }
         };
       controller.addPropertyChangeListener(HomeFurnitureController.Property.NAME_VISIBLE, nameVisibleChangeListener);
@@ -173,6 +189,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
             controller.removePropertyChangeListener(HomeFurnitureController.Property.NAME_VISIBLE, nameVisibleChangeListener);
             controller.setNameVisible(nameVisibleCheckBox.getValue());
             controller.addPropertyChangeListener(HomeFurnitureController.Property.NAME_VISIBLE, nameVisibleChangeListener);
+            modifyView();
           }
         });
     }
@@ -187,6 +204,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
       final PropertyChangeListener descriptionChangeListener = new PropertyChangeListener() {
           public void propertyChange(PropertyChangeEvent ev) {
             descriptionTextField.setText(controller.getDescription());
+            modifyView();
           }
         };
       controller.addPropertyChangeListener(HomeFurnitureController.Property.DESCRIPTION, descriptionChangeListener);
@@ -200,6 +218,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
               controller.setDescription(description);
             }
             controller.addPropertyChangeListener(HomeFurnitureController.Property.DESCRIPTION, descriptionChangeListener);
+            modifyView();
           }
     
           public void insertUpdate(DocumentEvent ev) {
@@ -226,6 +245,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
           public void propertyChange(PropertyChangeEvent ev) {
             priceSpinnerModel.setNullable(ev.getNewValue() == null);
             priceSpinnerModel.setValue(((Number)ev.getNewValue()).floatValue());
+            modifyView();
           }
         };
       controller.addPropertyChangeListener(HomeFurnitureController.Property.PRICE, priceChangeListener);
@@ -234,6 +254,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
             controller.removePropertyChangeListener(HomeFurnitureController.Property.PRICE, priceChangeListener);
             controller.setPrice(new BigDecimal(priceSpinnerModel.getNumber().doubleValue()));
             controller.addPropertyChangeListener(HomeFurnitureController.Property.PRICE, priceChangeListener);
+            modifyView();
           }
         });
     }
@@ -253,6 +274,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
           public void propertyChange(PropertyChangeEvent ev) {
             xSpinnerModel.setNullable(ev.getNewValue() == null);
             xSpinnerModel.setLength((Float)ev.getNewValue());
+            modifyView();
           }
         };
       controller.addPropertyChangeListener(HomeFurnitureController.Property.X, xChangeListener);
@@ -261,6 +283,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
             controller.removePropertyChangeListener(HomeFurnitureController.Property.X, xChangeListener);
             controller.setX(xSpinnerModel.getLength());
             controller.addPropertyChangeListener(HomeFurnitureController.Property.X, xChangeListener);
+            modifyView();
           }
         });
     }
@@ -278,6 +301,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
           public void propertyChange(PropertyChangeEvent ev) {
             ySpinnerModel.setNullable(ev.getNewValue() == null);
             ySpinnerModel.setLength((Float) ev.getNewValue());
+            modifyView();
           }
         };
       controller.addPropertyChangeListener(HomeFurnitureController.Property.Y, yChangeListener);
@@ -286,6 +310,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
             controller.removePropertyChangeListener(HomeFurnitureController.Property.Y, yChangeListener);
             controller.setY(ySpinnerModel.getLength());
             controller.addPropertyChangeListener(HomeFurnitureController.Property.Y, yChangeListener);
+            modifyView();
           }
         });
     }
@@ -303,6 +328,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
           public void propertyChange(PropertyChangeEvent ev) {
             elevationSpinnerModel.setNullable(ev.getNewValue() == null);
             elevationSpinnerModel.setLength((Float) ev.getNewValue());
+            modifyView();
           }
         };
       controller.addPropertyChangeListener(HomeFurnitureController.Property.ELEVATION, elevationChangeListener);
@@ -311,6 +337,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
             controller.removePropertyChangeListener(HomeFurnitureController.Property.ELEVATION, elevationChangeListener);
             controller.setElevation(elevationSpinnerModel.getLength());
             controller.addPropertyChangeListener(HomeFurnitureController.Property.ELEVATION, elevationChangeListener);
+            modifyView();
           }
         });
     }
@@ -330,6 +357,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
             Integer newAngle = (Integer)ev.getNewValue();
             angleSpinnerModel.setNullable(newAngle == null);
             angleSpinnerModel.setValue(newAngle);
+            modifyView();
           }
         };
       controller.addPropertyChangeListener(HomeFurnitureController.Property.ANGLE_IN_DEGREES, angleChangeListener);
@@ -344,6 +372,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
               controller.setAngleInDegrees(value.intValue());
             }
             controller.addPropertyChangeListener(HomeFurnitureController.Property.ANGLE_IN_DEGREES, angleChangeListener);
+            modifyView();
           }
         });
     }
@@ -363,6 +392,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
           public void propertyChange(PropertyChangeEvent ev) {
             basePlanItemCheckBox.setNullable(ev.getNewValue() == null);
             basePlanItemCheckBox.setValue((Boolean) ev.getNewValue());
+            modifyView();
           }
         };
       controller.addPropertyChangeListener(HomeFurnitureController.Property.BASE_PLAN_ITEM,
@@ -374,6 +404,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
             controller.setBasePlanItem(basePlanItemCheckBox.getValue());
             controller.addPropertyChangeListener(HomeFurnitureController.Property.BASE_PLAN_ITEM,
                 basePlanItemModelChangeListener);
+            modifyView();
           }
         });
       this.basePlanItemCheckBox.setEnabled(controller.isBasePlanItemEnabled());
@@ -396,6 +427,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
             if (width != null) {
               widthSpinnerModel.setMinimumLength(Math.min(width, minimumLength));
             }
+            modifyView();
           }
         };
       widthChangeListener.propertyChange(null);
@@ -405,6 +437,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
             controller.removePropertyChangeListener(HomeFurnitureController.Property.WIDTH, widthChangeListener);
             controller.setWidth(widthSpinnerModel.getLength());
             controller.addPropertyChangeListener(HomeFurnitureController.Property.WIDTH, widthChangeListener);
+            modifyView();
           }
         });
     }
@@ -424,6 +457,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
             if (depth != null) {
               depthSpinnerModel.setMinimumLength(Math.min(depth, minimumLength));
             }
+            modifyView();
           }
         };
       depthChangeListener.propertyChange(null);
@@ -433,6 +467,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
             controller.removePropertyChangeListener(HomeFurnitureController.Property.DEPTH, depthChangeListener);
             controller.setDepth(depthSpinnerModel.getLength());
             controller.addPropertyChangeListener(HomeFurnitureController.Property.DEPTH, depthChangeListener);
+            modifyView();
           }
         });
     }
@@ -452,6 +487,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
             if (height != null) {
               heightSpinnerModel.setMinimumLength(Math.min(height, minimumLength));
             }
+            modifyView();
           }
         };
       heightChangeListener.propertyChange(null);
@@ -461,6 +497,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
             controller.removePropertyChangeListener(HomeFurnitureController.Property.HEIGHT, heightChangeListener);
             controller.setHeight(heightSpinnerModel.getLength());
             controller.addPropertyChangeListener(HomeFurnitureController.Property.HEIGHT, heightChangeListener);
+            modifyView();
           }
         });
     }
@@ -479,6 +516,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
           public void propertyChange(PropertyChangeEvent ev) {
             // If proportional property changes update keep proportions check box
             keepProportionsCheckBox.setSelected(controller.isProportional());
+            modifyView();
           }
         });
     }
@@ -498,6 +536,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
           public void propertyChange(PropertyChangeEvent ev) {
             mirroredModelCheckBox.setNullable(ev.getNewValue() == null);
             mirroredModelCheckBox.setValue((Boolean) ev.getNewValue());
+            modifyView();
           }
         };
       controller
@@ -509,6 +548,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
             controller.setModelMirrored(mirroredModelCheckBox.getValue());
             controller.addPropertyChangeListener(HomeFurnitureController.Property.MODEL_MIRRORED,
                 mirroredModelChangeListener);
+            modifyView();
           }
         });
     }
@@ -523,12 +563,14 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
           public void stateChanged(ChangeEvent ev) {
             if (defaultColorAndTextureRadioButton.isSelected()) {
               controller.setPaint(HomeFurnitureController.FurniturePaint.DEFAULT);
+              modifyView();
             }
           }
         });
       controller.addPropertyChangeListener(HomeFurnitureController.Property.PAINT, new PropertyChangeListener() {
           public void propertyChange(PropertyChangeEvent ev) {
             updatePaintRadioButtons(controller);
+            modifyView();
           }
         });
       
@@ -539,6 +581,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
           public void stateChanged(ChangeEvent ev) {
             if (colorRadioButton.isSelected()) {
               controller.setPaint(HomeFurnitureController.FurniturePaint.COLORED);
+              modifyView();
             }
           }
         });
@@ -555,11 +598,13 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
           public void propertyChange(PropertyChangeEvent ev) {
             controller.setColor(colorButton.getColor());
             controller.setPaint(HomeFurnitureController.FurniturePaint.COLORED);
+            modifyView();
           }
         });
       controller.addPropertyChangeListener(HomeFurnitureController.Property.COLOR, new PropertyChangeListener() {
           public void propertyChange(PropertyChangeEvent ev) {
             colorButton.setColor(controller.getColor());
+            modifyView();
           }
         });
       
@@ -571,6 +616,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
             public void stateChanged(ChangeEvent ev) {
               if (textureRadioButton.isSelected()) {
                 controller.setPaint(HomeFurnitureController.FurniturePaint.TEXTURED);
+                modifyView();
               }
             }
           });
@@ -592,6 +638,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
               public void stateChanged(ChangeEvent ev) {
                 if (modelMaterialsRadioButton.isSelected()) {
                   controller.setPaint(HomeFurnitureController.FurniturePaint.MODEL_MATERIALS);
+                  modifyView();
                 }
               }
             });
@@ -618,12 +665,14 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
           public void stateChanged(ChangeEvent ev) {
             if (defaultShininessRadioButton.isSelected()) {
               controller.setShininess(HomeFurnitureController.FurnitureShininess.DEFAULT);
+              modifyView();
             }
           }
         });
       controller.addPropertyChangeListener(HomeFurnitureController.Property.SHININESS, new PropertyChangeListener() {
           public void propertyChange(PropertyChangeEvent ev) {
             updateShininessRadioButtons(controller);
+            modifyView();
           }
         });
       this.mattRadioButton = new JRadioButton(SwingTools.getLocalizedLabelText(preferences, HomeFurniturePanel.class,
@@ -632,6 +681,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
           public void stateChanged(ChangeEvent ev) {
             if (mattRadioButton.isSelected()) {
               controller.setShininess(HomeFurnitureController.FurnitureShininess.MATT);
+              modifyView();
             }
           }
         });
@@ -641,6 +691,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
           public void stateChanged(ChangeEvent ev) {
             if (shinyRadioButton.isSelected()) {
               controller.setShininess(HomeFurnitureController.FurnitureShininess.SHINY);
+              modifyView();
             }
           }
         });
@@ -665,6 +716,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
           public void propertyChange(PropertyChangeEvent ev) {
             visibleCheckBox.setNullable(ev.getNewValue() == null);
             visibleCheckBox.setValue((Boolean) ev.getNewValue());
+            modifyView();
           }
         };
       controller.addPropertyChangeListener(HomeFurnitureController.Property.VISIBLE, visibleChangeListener);
@@ -673,6 +725,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
             controller.removePropertyChangeListener(HomeFurnitureController.Property.VISIBLE, visibleChangeListener);
             controller.setVisible(visibleCheckBox.getValue());
             controller.addPropertyChangeListener(HomeFurnitureController.Property.VISIBLE, visibleChangeListener);
+            modifyView();
           }
         });
     }
@@ -695,6 +748,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
             lightPowerSpinnerModel.setValue(lightPower != null
                 ? Math.round((Float) ev.getNewValue() * 100)
                 : null);
+            modifyView();
           }
         };
       controller.addPropertyChangeListener(HomeFurnitureController.Property.LIGHT_POWER, lightPowerChangeListener);
@@ -705,6 +759,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
             controller.setLightPower(((Number) lightPowerSpinnerModel.getValue()).floatValue() / 100f);
             controller
                 .addPropertyChangeListener(HomeFurnitureController.Property.LIGHT_POWER, lightPowerChangeListener);
+            modifyView();
           }
         });
     }
@@ -713,7 +768,8 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
     // Add a listener that enables / disables size fields depending on furniture resizable and deformable
     PropertyChangeListener sizeListener = new PropertyChangeListener() {
         public void propertyChange(PropertyChangeEvent ev) {
-          updateSizeComponents(controller);     
+          updateSizeComponents(controller);  
+          modifyView();
         }
       };
     controller.addPropertyChangeListener(HomeFurnitureController.Property.RESIZABLE, sizeListener);
@@ -886,6 +942,306 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
         this.lightPowerLabel.setLabelFor(this.lightPowerSpinner);
       }
     }
+  }
+  
+  /**
+   * Layouts panel components in panel with their labels. 
+   */
+  private void layoutComponents2(UserPreferences preferences, 
+                                final HomeFurnitureController controller) {
+    // tabbed Panel
+    JTabbedPane tabbedpane = new JTabbedPane();
+    JPanel panel = SwingTools.initPropPanel();
+    panel.add(tabbedpane);
+
+    add(panel);
+    
+    int labelAlignment = OperatingSystem.isMacOSX() 
+        ? GridBagConstraints.LINE_END
+        : GridBagConstraints.LINE_START;
+    
+    Insets labelInsets = new Insets(0, 0, 5, 5);
+    Insets rightComponentInsets = new Insets(0, 0, 5, 0);
+    
+    JScrollPane scrollPane1 = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    JPanel box1 = new JPanel(new GridBagLayout());
+    // First row    
+    boolean priceDisplayed = this.priceLabel != null;
+    JPanel namePanel = SwingTools.createTitledPanel(preferences.getLocalizedString(
+        HomeFurniturePanel.class, priceDisplayed  ?  "nameAndPricePanel.title"  : "namePanel.title"));
+    int rowGap = OperatingSystem.isMacOSXLeopardOrSuperior() ? 0 : 5;
+    if (this.nameLabel != null) {
+      namePanel.add(this.nameLabel, new GridBagConstraints(
+          0, 0, 1, 1, 0, 0, labelAlignment, GridBagConstraints.NONE,
+          new Insets(0, 0, 0, 5), 0, 0));
+      namePanel.add(this.nameTextField, new GridBagConstraints(
+          1, 0, 1, 1, 0, 0, GridBagConstraints.LINE_START,
+          GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 10), 0, 0));
+    }
+    if (this.nameVisibleCheckBox != null) {
+      namePanel.add(this.nameVisibleCheckBox, new GridBagConstraints(
+          2, 0, 2, 1, 0, 0, GridBagConstraints.LINE_START,
+          GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    }
+    if (this.descriptionLabel != null) {
+      namePanel.add(this.descriptionLabel, new GridBagConstraints(
+          0, 1, 1, 1, 0, 0, labelAlignment, GridBagConstraints.NONE,
+          new Insets(5, 0, 0, 5), 0, 0));
+      namePanel.add(this.descriptionTextField, new GridBagConstraints(
+          1, 1, priceDisplayed  ? 1  : 3, 1, 0, 0, GridBagConstraints.LINE_START,
+          GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, priceDisplayed  ? 10  : 0), 0, 0));
+    }
+    if (priceDisplayed) {
+      namePanel.add(this.priceLabel, new GridBagConstraints(
+          this.descriptionLabel != null  ? 2  : 0, 1, 1, 1, 0, 0, labelAlignment, GridBagConstraints.NONE,
+          new Insets(5, 0, 0, 5), 0, 0));
+      namePanel.add(this.priceSpinner, new GridBagConstraints(
+          this.descriptionLabel != null  ? 3  : 1, 1, 1, 1, 0, 0, GridBagConstraints.LINE_START,
+          GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 0), 0, 0));
+    }
+    if (namePanel.getComponentCount() > 0) {
+      box1.add(namePanel, new GridBagConstraints(0, 0, 3, 1, 0, 0, labelAlignment, GridBagConstraints.HORIZONTAL,
+          new Insets(0, 0, rowGap, 0), 0, 0));
+    }
+    
+    // Size panel
+    JPanel sizePanel = SwingTools.createTitledPanel(preferences.getLocalizedString(
+        HomeFurniturePanel.class, "sizePanel.title"));
+    
+    JPanel sizePanelLeft = new JPanel(new GridBagLayout());
+    JPanel sizePanelRight = new JPanel(new GridBagLayout());
+    if (this.widthLabel != null) {
+      sizePanelLeft.add(this.widthLabel, new GridBagConstraints(
+          0, 0, 1, 1, 0, 0, labelAlignment, 
+          GridBagConstraints.NONE, labelInsets, 0, 0));
+      sizePanelLeft.add(this.widthSpinner, new GridBagConstraints(
+          1, 0, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+          GridBagConstraints.NONE, rightComponentInsets, -10, 0));
+    }
+    if (this.depthLabel != null) {
+      sizePanelLeft.add(this.depthLabel, new GridBagConstraints(
+          0, 1, 1, 1, 0, 0, labelAlignment, 
+          GridBagConstraints.NONE, labelInsets, 0, 0));
+      sizePanelLeft.add(this.depthSpinner, new GridBagConstraints(
+          1, 1, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+          GridBagConstraints.NONE, rightComponentInsets, -10, 0));
+    }
+    if (this.heightLabel != null) {
+      sizePanelLeft.add(this.heightLabel, new GridBagConstraints(
+          0, 2, 1, 1, 0, 0, labelAlignment, 
+          GridBagConstraints.NONE, labelInsets, 0, 0));
+      sizePanelLeft.add(this.heightSpinner, new GridBagConstraints(
+          1, 2, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+          GridBagConstraints.NONE, rightComponentInsets, -10, 0));
+    }
+    
+    if (sizePanelLeft.getComponentCount() > 0) {
+      sizePanel.add(sizePanelLeft);
+    }
+    
+    if (this.keepProportionsCheckBox != null) {
+      sizePanelRight.add(this.keepProportionsCheckBox, new GridBagConstraints(
+          0, 0, 2, 1, 0, 1, GridBagConstraints.LINE_START, 
+          GridBagConstraints.NONE, rightComponentInsets, 0, 0));
+    }
+    if (this.mirroredModelCheckBox != null) {
+      sizePanelRight.add(this.mirroredModelCheckBox, new GridBagConstraints(
+          0, 1, 2, 1, 0, 1, GridBagConstraints.LINE_START, 
+          GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    }
+    
+    if (sizePanelRight.getComponentCount() > 0) {
+      sizePanel.add(sizePanelRight);
+    }
+    
+    if (sizePanel.getComponentCount() > 0) {
+      box1.add(sizePanel, new GridBagConstraints(
+          0, 1, 2, 1, 1, 0, labelAlignment, 
+          GridBagConstraints.BOTH, new Insets(0, 0, rowGap, 0), 0, 0));
+    }
+    // last panel
+    JPanel lastPanel = SwingTools.createTitledPanel(" ");
+    // Last row
+    if (this.visibleCheckBox != null) {
+      lastPanel.add(this.visibleCheckBox, new GridBagConstraints(
+          0, 3, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+          GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    }
+    
+    if (this.elevationLabel != null) {
+      lastPanel.add(this.elevationLabel, new GridBagConstraints(
+          0, 1, 1, 1, 0, 0, labelAlignment,
+          GridBagConstraints.NONE, labelInsets, 0, 0));
+      lastPanel.add(this.elevationSpinner, new GridBagConstraints(
+          1, 1, 1, 1, 0, 0, GridBagConstraints.LINE_START,
+          GridBagConstraints.HORIZONTAL, rightComponentInsets, 15, 0));
+      
+      // 空格
+      lastPanel.add(new JLabel(), new GridBagConstraints(
+          2, 1, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+          GridBagConstraints.NONE, new Insets(0, 0, 5, 0), 20, 0));
+    }
+    if (this.angleLabel != null) {
+      lastPanel.add(this.angleLabel, new GridBagConstraints(
+          0, 2, 1, 1, 0, 0, labelAlignment,
+          GridBagConstraints.NONE, labelInsets, 0, 0));
+      lastPanel.add(this.angleSpinner, new GridBagConstraints(
+          1, 2, 1, 1, 0, 1, GridBagConstraints.LINE_START,
+          GridBagConstraints.HORIZONTAL, rightComponentInsets, 15, 0));
+    }
+    
+    if (lastPanel.getComponentCount() > 0) {
+      box1.add(lastPanel, new GridBagConstraints(
+          0, 2, 2, 1, 1, 0, labelAlignment, 
+          GridBagConstraints.BOTH, new Insets(0, 0, rowGap, 0), 0, 0));
+    }
+    
+    scrollPane1.add(box1);
+    scrollPane1.setViewportView(box1);
+    scrollPane1.setBorder(null);
+    tabbedpane.add("基本信息", scrollPane1);
+    
+    JScrollPane scrollPane2 = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    JPanel box2 = new JPanel(new GridBagLayout());
+    final JPanel paintPanel = SwingTools.createTitledPanel(preferences.getLocalizedString(
+        HomeFurniturePanel.class, "colorAndTexturePanel.title"));
+    if (this.defaultColorAndTextureRadioButton != null) {
+      int buttonPadY;
+      int buttonsBottomInset;
+      if (OperatingSystem.isMacOSXLeopardOrSuperior() 
+          && OperatingSystem.isJavaVersionGreaterOrEqual("1.7")) {
+        // Ensure the top and bottom of segmented buttons are correctly drawn 
+        buttonPadY = 4;
+        buttonsBottomInset = -4;
+      } else {
+        buttonPadY = 0;
+        buttonsBottomInset = 0;
+      }
+      
+      // Color and Texture panel
+      paintPanel.add(this.defaultColorAndTextureRadioButton, new GridBagConstraints(
+          0, 0, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+          GridBagConstraints.NONE, labelInsets, 0, 0));
+      paintPanel.add(this.colorRadioButton, new GridBagConstraints(
+          0, 1, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+          GridBagConstraints.NONE, new Insets(0, 0, 0, 5), 0, 0));
+      paintPanel.add(this.colorButton, new GridBagConstraints(
+          1, 1, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+          GridBagConstraints.HORIZONTAL, new Insets(0, 0, buttonsBottomInset, 0), 0, buttonPadY));
+      if (this.textureComponent != null) {
+        paintPanel.add(this.textureRadioButton, new GridBagConstraints(
+            0, 2, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+            GridBagConstraints.NONE, new Insets(5, 0, 0, 5), 0, 0));
+        paintPanel.add(this.textureComponent, new GridBagConstraints(
+            1, 2, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+            GridBagConstraints.HORIZONTAL, new Insets(5, 0, buttonsBottomInset, 0), 0, buttonPadY));
+      }
+      if (this.modelMaterialsComponent != null) {
+        paintPanel.add(this.modelMaterialsRadioButton, new GridBagConstraints(
+            0, 3, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+            GridBagConstraints.NONE, new Insets(5, 0, 0, 5), 0, 0));
+        paintPanel.add(this.modelMaterialsComponent, new GridBagConstraints(
+            1, 3, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+            GridBagConstraints.HORIZONTAL, new Insets(5, 0, buttonsBottomInset, 0), 0, buttonPadY));
+      }
+      box2.add(paintPanel, new GridBagConstraints(
+          0, 2, 1, 1, 0, 0, labelAlignment, 
+          GridBagConstraints.BOTH, new Insets(0, 0, rowGap, 0), 0, 0));
+      
+      controller.addPropertyChangeListener(HomeFurnitureController.Property.TEXTURABLE, 
+          new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent ev) {
+              paintPanel.setVisible(controller.isTexturable());
+            }
+          });
+      paintPanel.setVisible(controller.isTexturable());
+    }
+    if (this.defaultShininessRadioButton != null) {
+      // Shininess panel
+      final JPanel shininessPanel = SwingTools.createTitledPanel(preferences.getLocalizedString(
+          HomeFurniturePanel.class, "shininessPanel.title"));
+      shininessPanel.add(this.defaultShininessRadioButton, new GridBagConstraints(
+          0, 0, 1, 1, 0, 1, GridBagConstraints.LINE_START, 
+          GridBagConstraints.NONE, new Insets(0, 0, 5, 0), 0, 0));
+      shininessPanel.add(this.mattRadioButton, new GridBagConstraints(
+          0, 1, 1, 1, 0, 1, GridBagConstraints.LINE_START, 
+          GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+      shininessPanel.add(this.shinyRadioButton, new GridBagConstraints(
+          0, 2, 1, 1, 0, 1, GridBagConstraints.LINE_START, 
+          GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 0, 0));
+      if (paintPanel.getComponentCount() == 7) {
+        shininessPanel.add(new JLabel(), new GridBagConstraints(
+            0, 3, 1, 1, 0, 1, GridBagConstraints.LINE_START, 
+            GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 0, 0));
+      }
+      box2.add(shininessPanel, new GridBagConstraints(
+          1, 2, 2, 1, 0, 0, labelAlignment, 
+          GridBagConstraints.BOTH, new Insets(0, 0, rowGap, 0), 0, 0));
+      
+      controller.addPropertyChangeListener(HomeFurnitureController.Property.TEXTURABLE, 
+          new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent ev) {
+              shininessPanel.setVisible(controller.isTexturable());
+            }
+          });
+      shininessPanel.setVisible(controller.isTexturable());
+    }
+    
+    if (this.lightPowerLabel != null) {
+      box2.add(this.lightPowerLabel, new GridBagConstraints(
+          1, 3, 1, 1, 0, 0, labelAlignment, 
+          GridBagConstraints.NONE, new Insets(0, 10, 0, 5), 0, 0));
+      box2.add(this.lightPowerSpinner, new GridBagConstraints(
+          2, 3, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+          GridBagConstraints.NONE, new Insets(0, 0, 0, 5), 0, 0));
+    }
+    
+    scrollPane2.add(box2);
+    scrollPane2.setViewportView(box2);
+    scrollPane2.setBorder(null);
+    tabbedpane.add("颜色、纹理、光泽", scrollPane2);
+    
+
+    JScrollPane scrollPane4 = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    JPanel box4 = new JPanel(new GridBagLayout());
+    // Location panel
+    JPanel locationPanel = SwingTools.createTitledPanel(preferences.getLocalizedString(
+        HomeFurniturePanel.class, "locationPanel.title"));
+
+    if (this.xLabel != null) {
+      locationPanel.add(this.xLabel, new GridBagConstraints(
+          0, 0, 1, 1, 0, 0, labelAlignment, GridBagConstraints.NONE,
+          labelInsets, 0, 0));
+      locationPanel.add(this.xSpinner, new GridBagConstraints(
+          1, 0, 1, 1, 0, 0, GridBagConstraints.LINE_START,
+          GridBagConstraints.HORIZONTAL, rightComponentInsets, -15, 0));
+    }
+    if (this.yLabel != null) {
+      locationPanel.add(this.yLabel, new GridBagConstraints(
+          0, 1, 1, 1, 0, 0, labelAlignment, GridBagConstraints.NONE,
+          labelInsets, 0, 0));
+      locationPanel.add(this.ySpinner, new GridBagConstraints(
+          1, 1, 1, 1, 0, 0, GridBagConstraints.LINE_START,
+          GridBagConstraints.HORIZONTAL, rightComponentInsets, -15, 0));
+    }
+    
+    if (this.basePlanItemCheckBox != null) {
+      locationPanel.add(this.basePlanItemCheckBox, new GridBagConstraints(
+          0, 4, 2, 1, 0, 0, GridBagConstraints.LINE_START, 
+          GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    }
+
+    if (locationPanel.getComponentCount() > 0) {
+      box4.add(locationPanel, new GridBagConstraints(
+          0, 1, 1, 1, 1, 0, labelAlignment, GridBagConstraints.BOTH, new Insets(
+          0, 0, rowGap, 0), 0, 0));
+      
+      scrollPane4.add(box4);
+      scrollPane4.setViewportView(box4);
+      scrollPane4.setBorder(null);
+      tabbedpane.add("坐标", scrollPane4);
+    }
+
   }
   
   /**
@@ -1125,9 +1481,43 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
    * Displays this panel in a modal dialog box. 
    */
   public void displayView(View parentView) {
-    if (SwingTools.showConfirmDialog((JComponent)parentView, 
+    // 2017/02/05 显示属性框
+    if (parentView != null) {
+      if (((Component)parentView).getParent() instanceof JSplitPane) {
+        // 2017/02/05 显示属性框
+        SwingTools.addComponent2PropPanel(parentView, this);
+      } else {
+        Component parentComponent = ((Component)parentView).getParent().getParent().getParent();
+  
+        if (parentComponent instanceof JSplitPane) {
+          Component targetCom = ((JSplitPane)parentComponent).getComponent(0);
+          
+          if (targetCom instanceof JPanel) {
+            final JPanel propPanel = ((JPanel)targetCom);
+            // 找到面板
+            propPanel.removeAll();
+            propPanel.repaint();
+            
+            propPanel.add(this);
+            this.setPreferredSize(new Dimension(propPanel.getWidth() - 4, propPanel.getParent().getHeight()/2));
+            this.revalidate();
+            propPanel.revalidate();
+          }
+        }
+      }
+    }
+    
+/*    if (SwingTools.showConfirmDialog((JComponent)parentView, 
             this, this.dialogTitle, this.nameTextField) == JOptionPane.OK_OPTION) {
       this.controller.modifyFurniture();
-    }
+    }*/
+  }
+  
+  /**
+   * 2017/02/05
+   * 属性修改时同步更新平面视图
+   */
+  private void modifyView() {
+    this.controller.modifyFurniture();
   }
 }

@@ -20,6 +20,7 @@
 package com.eteks.sweethome3d.swing;
 
 import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -47,6 +48,7 @@ import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
@@ -89,6 +91,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolTip;
 import javax.swing.JViewport;
@@ -107,6 +110,7 @@ import com.eteks.sweethome3d.model.Polyline;
 import com.eteks.sweethome3d.model.TextureImage;
 import com.eteks.sweethome3d.model.UserPreferences;
 import com.eteks.sweethome3d.tools.OperatingSystem;
+import com.eteks.sweethome3d.viewcontroller.View;
 
 /**
  * Gathers some useful tools for Swing.
@@ -1112,5 +1116,81 @@ public class SwingTools {
         return null;
       }
     }
+  }
+  
+  /**
+   * 2017/02/07
+   * 将当前对象添加到属性面板中
+   * @param parentView
+   * @param thisCpt
+   */
+  public static void addComponent2PropPanel(View parentView, Component thisCpt) {
+    // 2017/02/05 显示属性框
+    if (parentView != null) {
+      Component parentComponent = ((Component)parentView).getParent();
+      
+      if (parentComponent instanceof JSplitPane) {
+        Component subCom = ((JSplitPane)parentComponent).getComponent(1);
+        
+        if (subCom instanceof JSplitPane) {
+          Component targetCom = ((JSplitPane)subCom).getComponent(0);
+          
+          if (targetCom instanceof JPanel) {
+            final JPanel propPanel = ((JPanel)targetCom);
+            // 找到面板
+            propPanel.removeAll();
+            propPanel.repaint();
+            
+            propPanel.add(thisCpt);
+            thisCpt.setPreferredSize(new Dimension(propPanel.getWidth() - 4, propPanel.getParent().getHeight()/2));
+            thisCpt.revalidate();
+            propPanel.revalidate();
+          }
+        }
+      }
+    }
+  }
+  
+  /**
+   * 
+   * 2017/02/07
+   * 添加对象监听器
+   * 
+   */
+  public static void addResizeComponentListener(final JPanel thisPanel) {
+    // 尺寸变化
+    thisPanel.addComponentListener(new ComponentListener() {
+      public void componentResized(ComponentEvent e) {
+        Container pc = thisPanel.getParent();
+        thisPanel.setPreferredSize(new Dimension(pc.getWidth() - 4, pc.getParent().getHeight()/2));
+        thisPanel.revalidate();
+      }
+  
+      public void componentMoved(ComponentEvent e) {
+        Container pc = thisPanel.getParent();
+        thisPanel.setPreferredSize(new Dimension(pc.getWidth() - 4, pc.getParent().getHeight()/2));
+        thisPanel.revalidate();
+      }
+  
+      public void componentShown(ComponentEvent e) {
+      }
+  
+      public void componentHidden(ComponentEvent e) {
+      }
+    });
+  }
+  
+  /**
+   * 2017/02/07
+   * 初始化属性面板
+   * @return
+   */
+  public static JPanel initPropPanel() {
+    JPanel panel = new BeyeRoundedPanel(new BorderLayout(), 10);
+    panel.setBorder(new BeyeRoundedBorder(10));
+    Color base = UIManager.getColor("Panel.background");
+    panel.setBackground(BeyeUtilities.deriveColorHSB(base, 0, 0, -.06f));
+    
+    return panel;
   }
 }

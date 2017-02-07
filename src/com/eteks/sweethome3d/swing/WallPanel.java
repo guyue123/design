@@ -19,6 +19,7 @@
  */
 package com.eteks.sweethome3d.swing;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -51,7 +52,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
-import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -128,11 +128,19 @@ public class WallPanel extends JPanel implements DialogView {
    */
   public WallPanel(UserPreferences preferences,
                    WallController controller) {
-    super(new GridBagLayout());
+    // 2017/02/07
+    super(new BorderLayout());
+    // super(new GridBagLayout());
+    
     this.controller = controller;
     createComponents(preferences, controller);
     setMnemonics(preferences);
-    layoutComponents(preferences, controller);
+    
+    // 2017/02/06
+    layoutComponents2(preferences, controller);
+    //layoutComponents(preferences, controller);
+    
+    SwingTools.addResizeComponentListener(this);
   }
 
   /**
@@ -156,6 +164,7 @@ public class WallPanel extends JPanel implements DialogView {
         public void propertyChange(PropertyChangeEvent ev) {
           xStartSpinnerModel.setNullable(ev.getNewValue() == null);
           xStartSpinnerModel.setLength((Float)ev.getNewValue());
+          modifyView();
         }
       };
     controller.addPropertyChangeListener(WallController.Property.X_START, xStartChangeListener);
@@ -164,7 +173,7 @@ public class WallPanel extends JPanel implements DialogView {
           controller.removePropertyChangeListener(WallController.Property.X_START, xStartChangeListener);
           controller.setXStart(xStartSpinnerModel.getLength());
           controller.addPropertyChangeListener(WallController.Property.X_START, xStartChangeListener);
-          modifyWallsView();
+          modifyView();
         }
       });
     
@@ -180,6 +189,7 @@ public class WallPanel extends JPanel implements DialogView {
         public void propertyChange(PropertyChangeEvent ev) {
           yStartSpinnerModel.setNullable(ev.getNewValue() == null);
           yStartSpinnerModel.setLength((Float)ev.getNewValue());
+          modifyView();
         }
       };
     controller.addPropertyChangeListener(WallController.Property.Y_START, yStartChangeListener);
@@ -188,7 +198,7 @@ public class WallPanel extends JPanel implements DialogView {
           controller.removePropertyChangeListener(WallController.Property.Y_START, yStartChangeListener);
           controller.setYStart(yStartSpinnerModel.getLength());
           controller.addPropertyChangeListener(WallController.Property.Y_START, yStartChangeListener);
-          modifyWallsView();
+          modifyView();
         }
       });
     
@@ -204,6 +214,7 @@ public class WallPanel extends JPanel implements DialogView {
         public void propertyChange(PropertyChangeEvent ev) {
           xEndSpinnerModel.setNullable(ev.getNewValue() == null);
           xEndSpinnerModel.setLength((Float)ev.getNewValue());
+          modifyView();
         }
       };
     controller.addPropertyChangeListener(WallController.Property.X_END, xEndChangeListener);
@@ -212,7 +223,7 @@ public class WallPanel extends JPanel implements DialogView {
           controller.removePropertyChangeListener(WallController.Property.X_END, xEndChangeListener);
           controller.setXEnd(xEndSpinnerModel.getLength());
           controller.addPropertyChangeListener(WallController.Property.X_END, xEndChangeListener);
-          modifyWallsView();
+          modifyView();
         }
       });
     
@@ -228,6 +239,7 @@ public class WallPanel extends JPanel implements DialogView {
         public void propertyChange(PropertyChangeEvent ev) {
           yEndSpinnerModel.setNullable(ev.getNewValue() == null);
           yEndSpinnerModel.setLength((Float)ev.getNewValue());
+          modifyView();
         }
       };
     controller.addPropertyChangeListener(WallController.Property.Y_END, yEndChangeListener);
@@ -236,7 +248,7 @@ public class WallPanel extends JPanel implements DialogView {
           controller.removePropertyChangeListener(WallController.Property.Y_END, yEndChangeListener);
           controller.setYEnd(yEndSpinnerModel.getLength());
           controller.addPropertyChangeListener(WallController.Property.Y_END, yEndChangeListener);
-          modifyWallsView();
+          modifyView();
         }
       });
 
@@ -253,6 +265,7 @@ public class WallPanel extends JPanel implements DialogView {
         public void propertyChange(PropertyChangeEvent ev) {
           distanceToEndPointSpinnerModel.setNullable(ev.getNewValue() == null);
           distanceToEndPointSpinnerModel.setLength((Float)ev.getNewValue());
+          modifyView();
         }
       };
     controller.addPropertyChangeListener(WallController.Property.DISTANCE_TO_END_POINT, 
@@ -264,7 +277,7 @@ public class WallPanel extends JPanel implements DialogView {
           controller.setDistanceToEndPoint(distanceToEndPointSpinnerModel.getLength());
           controller.addPropertyChangeListener(WallController.Property.DISTANCE_TO_END_POINT, 
               distanceToEndPointChangeListener);
-          modifyWallsView();
+          modifyView();
         }
       });
 
@@ -275,15 +288,15 @@ public class WallPanel extends JPanel implements DialogView {
         public void stateChanged(ChangeEvent ev) {
           if (leftSideColorRadioButton.isSelected()) {
             controller.setLeftSidePaint(WallController.WallPaint.COLORED);
+            modifyView();
           }
-          
-          modifyWallsView();
         }
       });
     controller.addPropertyChangeListener(WallController.Property.LEFT_SIDE_PAINT, 
         new PropertyChangeListener() {
           public void propertyChange(PropertyChangeEvent ev) {
             updateLeftSideColorRadioButtons(controller);
+            modifyView();
           }
         });
     
@@ -296,12 +309,14 @@ public class WallPanel extends JPanel implements DialogView {
           public void propertyChange(PropertyChangeEvent ev) {
             controller.setLeftSideColor(leftSideColorButton.getColor());
             controller.setLeftSidePaint(WallController.WallPaint.COLORED);
+            modifyView();
           }
         });
     controller.addPropertyChangeListener(WallController.Property.LEFT_SIDE_COLOR, 
         new PropertyChangeListener() {
           public void propertyChange(PropertyChangeEvent ev) {
             leftSideColorButton.setColor(controller.getLeftSideColor());
+            modifyView();
           }
         });
 
@@ -311,9 +326,8 @@ public class WallPanel extends JPanel implements DialogView {
         public void stateChanged(ChangeEvent ev) {
           if (leftSideTextureRadioButton.isSelected()) {
             controller.setLeftSidePaint(WallController.WallPaint.TEXTURED);
+            modifyView();
           }
-          
-          modifyWallsView();
         }
       });
     
@@ -331,14 +345,14 @@ public class WallPanel extends JPanel implements DialogView {
         public void stateChanged(ChangeEvent ev) {
           if (leftSideMattRadioButton.isSelected()) {
             controller.setLeftSideShininess(0f);
+            modifyView();
           }
-          
-          modifyWallsView();
         }
       });
     PropertyChangeListener leftSideShininessListener = new PropertyChangeListener() {
         public void propertyChange(PropertyChangeEvent ev) {
           updateLeftSideShininessRadioButtons(controller);
+          modifyView();
         }
       };
     controller.addPropertyChangeListener(WallController.Property.LEFT_SIDE_SHININESS, 
@@ -350,9 +364,8 @@ public class WallPanel extends JPanel implements DialogView {
         public void stateChanged(ChangeEvent ev) {
           if (leftSideShinyRadioButton.isSelected()) {
             controller.setLeftSideShininess(0.25f);
+            modifyView();
           }
-          
-          modifyWallsView();
         }
       });
     controller.addPropertyChangeListener(WallController.Property.LEFT_SIDE_SHININESS, 
@@ -370,6 +383,7 @@ public class WallPanel extends JPanel implements DialogView {
             editBaseboard((JComponent)ev.getSource(), 
                 preferences.getLocalizedString(WallPanel.class, "leftSideBaseboardDialog.title"),
                 controller.getLeftSideBaseboardController());
+            modifyView();
           }
         }));
     
@@ -380,15 +394,15 @@ public class WallPanel extends JPanel implements DialogView {
         public void stateChanged(ChangeEvent e) {
           if (rightSideColorRadioButton.isSelected()) {
             controller.setRightSidePaint(WallController.WallPaint.COLORED);
+            modifyView();
           }
-          
-          modifyWallsView();
         }
       });
     controller.addPropertyChangeListener(WallController.Property.RIGHT_SIDE_PAINT, 
         new PropertyChangeListener() {
           public void propertyChange(PropertyChangeEvent ev) {
             updateRightSideColorRadioButtons(controller);
+            modifyView();
           }
         });
 
@@ -401,12 +415,14 @@ public class WallPanel extends JPanel implements DialogView {
           public void propertyChange(PropertyChangeEvent ev) {
             controller.setRightSideColor(rightSideColorButton.getColor());
             controller.setRightSidePaint(WallController.WallPaint.COLORED);
+            modifyView();
           }
         });
     controller.addPropertyChangeListener(WallController.Property.RIGHT_SIDE_COLOR, 
         new PropertyChangeListener() {
           public void propertyChange(PropertyChangeEvent ev) {
             rightSideColorButton.setColor(controller.getRightSideColor());
+            modifyView();
           }
         });
     
@@ -416,9 +432,8 @@ public class WallPanel extends JPanel implements DialogView {
         public void stateChanged(ChangeEvent e) {
           if (rightSideTextureRadioButton.isSelected()) {
             controller.setRightSidePaint(WallController.WallPaint.TEXTURED);
+            modifyView();
           }
-          
-          modifyWallsView();
         }
       });
   
@@ -436,14 +451,14 @@ public class WallPanel extends JPanel implements DialogView {
         public void stateChanged(ChangeEvent ev) {
           if (rightSideMattRadioButton.isSelected()) {
             controller.setRightSideShininess(0f);
+            modifyView();
           }
-          
-          modifyWallsView();
         }
       });
     PropertyChangeListener rightSideShininessListener = new PropertyChangeListener() {
         public void propertyChange(PropertyChangeEvent ev) {
           updateRightSideShininessRadioButtons(controller);
+          modifyView();
         }
       };
     controller.addPropertyChangeListener(WallController.Property.RIGHT_SIDE_SHININESS, 
@@ -455,9 +470,8 @@ public class WallPanel extends JPanel implements DialogView {
         public void stateChanged(ChangeEvent ev) {
           if (rightSideShinyRadioButton.isSelected()) {
             controller.setRightSideShininess(0.25f);
+            modifyView();
           }
-          
-          modifyWallsView();
         }
       });
     controller.addPropertyChangeListener(WallController.Property.RIGHT_SIDE_SHININESS, 
@@ -475,6 +489,7 @@ public class WallPanel extends JPanel implements DialogView {
             editBaseboard((JComponent)ev.getSource(), 
                 preferences.getLocalizedString(WallPanel.class, "rightSideBaseboardDialog.title"), 
                 controller.getRightSideBaseboardController());
+            modifyView();
           }
         }));
     
@@ -523,14 +538,14 @@ public class WallPanel extends JPanel implements DialogView {
     this.patternComboBox.addItemListener(new ItemListener() {
         public void itemStateChanged(ItemEvent ev) {
           controller.setPattern((TextureImage)patternComboBox.getSelectedItem());
-          
-          modifyWallsView();
+          modifyView();
         }
       });
     controller.addPropertyChangeListener(WallController.Property.PATTERN, 
         new PropertyChangeListener() {
           public void propertyChange(PropertyChangeEvent ev) {
             patternComboBox.setSelectedItem(controller.getPattern());
+            modifyView();
           }
         });
     
@@ -542,9 +557,8 @@ public class WallPanel extends JPanel implements DialogView {
         public void stateChanged(ChangeEvent ev) {
           if (topDefaultColorRadioButton.isSelected()) {
             controller.setTopPaint(WallController.WallPaint.DEFAULT);
+            modifyView();
           }
-          
-          modifyWallsView();
         }
       });
     this.topColorRadioButton = new JRadioButton(SwingTools.getLocalizedLabelText(preferences, 
@@ -553,15 +567,15 @@ public class WallPanel extends JPanel implements DialogView {
         public void stateChanged(ChangeEvent ev) {
           if (topColorRadioButton.isSelected()) {
             controller.setTopPaint(WallController.WallPaint.COLORED);
+            modifyView();
           }
-          
-          modifyWallsView();
         }
       });
     controller.addPropertyChangeListener(WallController.Property.TOP_PAINT, 
         new PropertyChangeListener() {
           public void propertyChange(PropertyChangeEvent ev) {
             updateTopColorRadioButtons(controller);
+            modifyView();
           }
         });
     this.topColorButton = new ColorButton(preferences);
@@ -573,12 +587,14 @@ public class WallPanel extends JPanel implements DialogView {
           public void propertyChange(PropertyChangeEvent ev) {
             controller.setTopColor(topColorButton.getColor());
             controller.setTopPaint(WallController.WallPaint.COLORED);
+            modifyView();
           }
         });
     controller.addPropertyChangeListener(WallController.Property.TOP_COLOR, 
         new PropertyChangeListener() {
           public void propertyChange(PropertyChangeEvent ev) {
             topColorButton.setColor(controller.getTopColor());
+            modifyView();
           }
         });
     
@@ -594,15 +610,15 @@ public class WallPanel extends JPanel implements DialogView {
         public void stateChanged(ChangeEvent ev) {
           if (rectangularWallRadioButton.isSelected()) {
             controller.setShape(WallController.WallShape.RECTANGULAR_WALL);
+            modifyView();
           }
-          
-          modifyWallsView();
         }
       });
     controller.addPropertyChangeListener(WallController.Property.SHAPE, 
         new PropertyChangeListener() {
           public void propertyChange(PropertyChangeEvent ev) {
             updateWallShapeRadioButtons(controller);
+            modifyView();
           }
         });
 
@@ -617,6 +633,7 @@ public class WallPanel extends JPanel implements DialogView {
         public void propertyChange(PropertyChangeEvent ev) {
           rectangularWallHeightSpinnerModel.setNullable(ev.getNewValue() == null);
           rectangularWallHeightSpinnerModel.setLength((Float)ev.getNewValue());
+          modifyView();
         }
       };
     controller.addPropertyChangeListener(WallController.Property.RECTANGULAR_WALL_HEIGHT, 
@@ -628,8 +645,7 @@ public class WallPanel extends JPanel implements DialogView {
           controller.setRectangularWallHeight(rectangularWallHeightSpinnerModel.getLength());
           controller.addPropertyChangeListener(WallController.Property.RECTANGULAR_WALL_HEIGHT, 
               rectangularWallHeightChangeListener);
-          
-          modifyWallsView();
+          modifyView();
         }
       });
    
@@ -639,9 +655,8 @@ public class WallPanel extends JPanel implements DialogView {
         public void stateChanged(ChangeEvent ev) {
           if (slopingWallRadioButton.isSelected()) {
             controller.setShape(WallController.WallShape.SLOPING_WALL);
+            modifyView();
           }
-          
-          modifyWallsView();
         }
       });
     ButtonGroup wallHeightButtonGroup = new ButtonGroup();
@@ -661,6 +676,7 @@ public class WallPanel extends JPanel implements DialogView {
         public void propertyChange(PropertyChangeEvent ev) {
           slopingWallHeightAtStartSpinnerModel.setNullable(ev.getNewValue() == null);
           slopingWallHeightAtStartSpinnerModel.setLength((Float)ev.getNewValue());
+          modifyView();
         }
       };
     controller.addPropertyChangeListener(WallController.Property.SLOPING_WALL_HEIGHT_AT_START, 
@@ -672,8 +688,7 @@ public class WallPanel extends JPanel implements DialogView {
           controller.setSlopingWallHeightAtStart(slopingWallHeightAtStartSpinnerModel.getLength());
           controller.addPropertyChangeListener(WallController.Property.SLOPING_WALL_HEIGHT_AT_START, 
               slopingWallHeightAtStartChangeListener);
-          
-          modifyWallsView();
+          modifyView();
         }
       });
     
@@ -689,6 +704,7 @@ public class WallPanel extends JPanel implements DialogView {
         public void propertyChange(PropertyChangeEvent ev) {
           slopingWallHeightAtEndSpinnerModel.setNullable(ev.getNewValue() == null);
           slopingWallHeightAtEndSpinnerModel.setLength((Float)ev.getNewValue());
+          modifyView();
         }
       };
     controller.addPropertyChangeListener(WallController.Property.SLOPING_WALL_HEIGHT_AT_END, 
@@ -700,8 +716,7 @@ public class WallPanel extends JPanel implements DialogView {
           controller.setSlopingWallHeightAtEnd(slopingWallHeightAtEndSpinnerModel.getLength());
           controller.addPropertyChangeListener(WallController.Property.SLOPING_WALL_HEIGHT_AT_END, 
               slopingWallHeightAtEndChangeListener);
-          
-          modifyWallsView();
+          modifyView();
         }
       });
 
@@ -717,6 +732,7 @@ public class WallPanel extends JPanel implements DialogView {
         public void propertyChange(PropertyChangeEvent ev) {
           thicknessSpinnerModel.setNullable(ev.getNewValue() == null);
           thicknessSpinnerModel.setLength((Float)ev.getNewValue());
+          modifyView();
         }
       };
     controller.addPropertyChangeListener(WallController.Property.THICKNESS, 
@@ -728,8 +744,7 @@ public class WallPanel extends JPanel implements DialogView {
           controller.setThickness(thicknessSpinnerModel.getLength());
           controller.addPropertyChangeListener(WallController.Property.THICKNESS, 
               thicknessChangeListener);
-          
-          modifyWallsView();
+          modifyView();
         }
       });
     
@@ -745,6 +760,7 @@ public class WallPanel extends JPanel implements DialogView {
         public void propertyChange(PropertyChangeEvent ev) {
           arcExtentSpinnerModel.setNullable(ev.getNewValue() == null);
           arcExtentSpinnerModel.setValue(((Number)ev.getNewValue()).floatValue());
+          modifyView();
         }
       };
     controller.addPropertyChangeListener(WallController.Property.ARC_EXTENT_IN_DEGREES, 
@@ -756,8 +772,7 @@ public class WallPanel extends JPanel implements DialogView {
           controller.setArcExtentInDegrees(((Number)arcExtentSpinnerModel.getValue()).floatValue());
           controller.addPropertyChangeListener(WallController.Property.ARC_EXTENT_IN_DEGREES, 
               arcExtentChangeListener);
-          
-          modifyWallsView();
+          modifyView();
         }
       });
     
@@ -943,6 +958,250 @@ public class WallPanel extends JPanel implements DialogView {
           preferences.getLocalizedString(WallPanel.class, "arcExtentLabel.mnemonic")).getKeyCode());
       this.arcExtentLabel.setLabelFor(this.arcExtentSpinner);
     }
+  }
+  
+  /**
+   * 2017/02/06
+   * Layouts panel components in panel with their labels. 
+   */
+  private void layoutComponents2(UserPreferences preferences, 
+                                final WallController controller) {
+    // tabbed Panel
+    JTabbedPane tabbedpane = new JTabbedPane();
+    JPanel panel = SwingTools.initPropPanel();
+    panel.add(tabbedpane);
+    
+    add(panel);
+    
+    int labelAlignment = OperatingSystem.isMacOSX() 
+        ? GridBagConstraints.LINE_END
+        : GridBagConstraints.LINE_START;
+
+    Insets rowInsets;
+    if (OperatingSystem.isMacOSXLeopardOrSuperior()) {
+      // User smaller insets for Mac OS X 10.5
+      rowInsets = new Insets(0, 0, 0, 0);
+    } else {
+      rowInsets = new Insets(0, 0, 5, 0);
+    }
+
+    
+    // Third row
+    JScrollPane scrollPane2 = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    JPanel box2 = new JPanel(new GridBagLayout());
+    
+    JPanel leftSidePanel = createTitledPanel(
+        preferences.getLocalizedString(WallPanel.class, "leftSidePanel.title"),
+        new JComponent [] {this.leftSideColorRadioButton, this.leftSideColorButton, 
+                           this.leftSideTextureRadioButton, this.leftSideTextureComponent}, false);
+    leftSidePanel.add(new JSeparator(), new GridBagConstraints(
+        0, 2, 2, 1, 1, 0, GridBagConstraints.CENTER,
+        GridBagConstraints.HORIZONTAL, new Insets(3, 0, 3, 0), 0, 0));
+    leftSidePanel.add(this.leftSideMattRadioButton, new GridBagConstraints(
+        0, 3, 1, 1, 1, 0, GridBagConstraints.LINE_START,
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 5), 0, 0));
+    leftSidePanel.add(this.leftSideShinyRadioButton, new GridBagConstraints(
+        1, 3, 1, 1, 1, 0, GridBagConstraints.LINE_START,
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    leftSidePanel.add(this.leftSideBaseboardButton, new GridBagConstraints(
+        0, 4, 2, 1, 1, 0, GridBagConstraints.CENTER,
+        GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 0, 0));
+    box2.add(leftSidePanel, new GridBagConstraints(
+        0, 0, 1, 1, 1, 0, GridBagConstraints.LINE_START,
+        GridBagConstraints.HORIZONTAL, rowInsets, 0, 0));
+    
+    JPanel rightSidePanel = createTitledPanel(
+        preferences.getLocalizedString(WallPanel.class, "rightSidePanel.title"),
+        new JComponent [] {this.rightSideColorRadioButton, this.rightSideColorButton, 
+                           this.rightSideTextureRadioButton, this.rightSideTextureComponent}, false);
+    rightSidePanel.add(new JSeparator(), new GridBagConstraints(
+        0, 2, 2, 1, 1, 0, GridBagConstraints.CENTER,
+        GridBagConstraints.HORIZONTAL, new Insets(3, 0, 3, 0), 0, 0));
+    rightSidePanel.add(this.rightSideMattRadioButton, new GridBagConstraints(
+        0, 3, 1, 1, 1, 0, GridBagConstraints.LINE_START,
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 5), 0, 0));
+    rightSidePanel.add(this.rightSideShinyRadioButton, new GridBagConstraints(
+        1, 3, 1, 1, 1, 0, GridBagConstraints.LINE_START,
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    rightSidePanel.add(this.rightSideBaseboardButton, new GridBagConstraints(
+        0, 4, 2, 1, 1, 0, GridBagConstraints.CENTER,
+        GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 0, 0));
+    box2.add(rightSidePanel, new GridBagConstraints(
+        0, 1, 1, 1, 1, 0, GridBagConstraints.LINE_START,
+        GridBagConstraints.HORIZONTAL, rowInsets, 0, 0));
+    
+    // Last row
+    box2.add(this.wallOrientationLabel, new GridBagConstraints(
+        0, 2, 2, 1, 0, 0, GridBagConstraints.CENTER,
+        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+    
+    
+    
+    scrollPane2.add(box2);
+    scrollPane2.setViewportView(box2);
+    scrollPane2.setBorder(null);
+    tabbedpane.add("墙面", scrollPane2);
+    
+    JScrollPane scrollPane4 = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    JPanel box4 = new JPanel(new GridBagLayout());
+    JPanel heightPanel = SwingTools.createTitledPanel(
+        preferences.getLocalizedString(WallPanel.class, "heightPanel.title"));   
+    // First row of height panel
+    heightPanel.add(this.rectangularWallRadioButton, new GridBagConstraints(
+        0, 0, 3, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 2, 0), 0, 0));
+    // Second row of height panel
+    // Add a dummy label to align second and fourth row on radio buttons text
+    int spinnerPadX = OperatingSystem.isMacOSX()  ? -20  : -10;
+    heightPanel.add(new JLabel(), new GridBagConstraints(
+        3, 0, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.NONE, new Insets(0, 0, 5, 0), new JRadioButton().getPreferredSize().width, 0));
+    heightPanel.add(this.rectangularWallHeightLabel, new GridBagConstraints(
+        4, 0, 1, 1, 1, 0, labelAlignment, 
+        GridBagConstraints.NONE, new Insets(0, 0, 5, 5), 0, 0));
+    heightPanel.add(this.rectangularWallHeightSpinner, new GridBagConstraints(
+        5, 0, 1, 1, 1, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 5, 5), spinnerPadX, 0));
+    // Third column of height panel
+    heightPanel.add(this.slopingWallRadioButton, new GridBagConstraints(
+        0, 1, 3, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.NONE, new Insets(0, 0, 2, 0), 0, 0));
+    // Second row of height panel
+    heightPanel.add(new JLabel(), new GridBagConstraints(
+        3, 1, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.NONE, new Insets(0, 0, 5, 0), new JRadioButton().getPreferredSize().width, 0));
+    heightPanel.add(this.slopingWallHeightAtStartLabel, new GridBagConstraints(
+        4, 1, 1, 1, 1, 0, labelAlignment, 
+        GridBagConstraints.NONE, new Insets(0, 0, 5, 5), 0, 0));
+    heightPanel.add(this.slopingWallHeightAtStartSpinner, new GridBagConstraints(
+        5, 1, 1, 1, 1, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 5, 0), spinnerPadX, 0));
+    // Third row of height panel
+    heightPanel.add(this.slopingWallHeightAtEndLabel, new GridBagConstraints(
+        4, 2, 1, 1, 1, 0, labelAlignment, 
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 5), 0, 0));
+    heightPanel.add(this.slopingWallHeightAtEndSpinner, new GridBagConstraints(
+        5, 2, 1, 1, 1, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), spinnerPadX, 0));
+    box4.add(heightPanel, new GridBagConstraints(
+        0, 5, 2, 1, 1, 0, GridBagConstraints.LINE_START,
+        GridBagConstraints.HORIZONTAL, rowInsets, 0, 0));    
+    
+    // Sixth row
+    JPanel ticknessAndArcExtentPanel = new JPanel(new GridBagLayout());
+    ticknessAndArcExtentPanel.add(this.thicknessLabel, new GridBagConstraints(
+        0, 0, 1, 1, 0, 0, labelAlignment, 
+        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0));
+    ticknessAndArcExtentPanel.add(this.thicknessSpinner, new GridBagConstraints(
+        1, 0, 1, 1, 1, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 10), 0, 0));
+    ticknessAndArcExtentPanel.add(this.arcExtentLabel, new GridBagConstraints(
+        2, 0, 1, 1, 0, 0, labelAlignment, 
+        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0));
+    ticknessAndArcExtentPanel.add(this.arcExtentSpinner, new GridBagConstraints(
+        3, 0, 1, 1, 1, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    box4.add(ticknessAndArcExtentPanel, new GridBagConstraints(
+        0, 4, 2, 1, 0, 0, GridBagConstraints.CENTER, 
+        GridBagConstraints.NONE, new Insets(5, 8, 10, 8), 0, 0));
+    
+    scrollPane4.add(box4);
+ //   box4.setPreferredSize(new Dimension(150, 100));
+    scrollPane4.setViewportView(box4);
+ //   scrollPane4.setPreferredSize(new Dimension(150, 200));
+    scrollPane4.setBorder(null);
+    tabbedpane.add("墙体", scrollPane4);
+    
+    // Forth row
+    JScrollPane scrollPane3 = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    JPanel box3 = new JPanel(new GridBagLayout());
+    JPanel topPanel = SwingTools.createTitledPanel(preferences.getLocalizedString(
+        WallPanel.class, "topPanel.title"));
+    int leftInset = new JRadioButton().getPreferredSize().width;
+    topPanel.add(this.patternLabel, new GridBagConstraints(
+        0, 0, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.NONE, new Insets(0, leftInset, 3, 5), 0, 0));
+    topPanel.add(this.patternComboBox, new GridBagConstraints(
+        1, 0, 3, 1, 1, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.NONE, new Insets(0, 0, 3, 0), 0, 0));
+    topPanel.add(this.topColorLabel, new GridBagConstraints(
+        0, 1, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.NONE, new Insets(0, leftInset, 0, 5), 0, 0));
+    topPanel.add(this.topDefaultColorRadioButton, new GridBagConstraints(
+        1, 1, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 10), 0, 0));
+    topPanel.add(this.topColorRadioButton, new GridBagConstraints(
+        1, 2, 1, 1, 0, 0, GridBagConstraints.LINE_END, 
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 5), 0, 0));
+    topPanel.add(this.topColorButton, new GridBagConstraints(
+        2, 2, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    box3.add(topPanel, new GridBagConstraints(
+        0, 0, 3, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.HORIZONTAL, rowInsets, 0, 0));
+    
+    
+    scrollPane3.add(box3);
+ //   box3.setPreferredSize(new Dimension(150, 200));
+    scrollPane3.setViewportView(box3);
+  //  scrollPane3.setPreferredSize(new Dimension(150, 200));
+    scrollPane3.setBorder(null);
+    tabbedpane.add("墙顶", scrollPane3);
+
+    
+    JScrollPane scrollPane1 = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    JPanel box1 = new JPanel(new GridBagLayout());
+    // scrollPane1.setLayout(new ScrollPaneLayout());
+    // scrollPane1.setBounds(0, 0, 300, 300);
+    // First row
+    final JPanel startPointPanel = createTitledPanel(
+        preferences.getLocalizedString(WallPanel.class, "startPointPanel.title"),
+        new JComponent [] {this.xStartLabel, this.xStartSpinner, 
+                           this.yStartLabel, this.yStartSpinner}, true);
+    box1.add(startPointPanel, new GridBagConstraints(
+        0, 0, 2, 1, 1, 0, GridBagConstraints.LINE_START,
+        GridBagConstraints.HORIZONTAL, rowInsets, 0, 0));
+    
+    // Second row
+    final JPanel endPointPanel = createTitledPanel(
+        preferences.getLocalizedString(WallPanel.class, "endPointPanel.title"),
+        new JComponent [] {this.xEndLabel, this.xEndSpinner, 
+                           this.yEndLabel, this.yEndSpinner}, true);
+    // Add distance label and spinner at the end of second row of endPointPanel
+    endPointPanel.add(this.distanceToEndPointLabel, new GridBagConstraints(
+        0, 1, 3, 1, 1, 0, GridBagConstraints.LINE_END, 
+        GridBagConstraints.NONE, new Insets(5, 0, 0, 5), 0, 0));
+    endPointPanel.add(this.distanceToEndPointSpinner, new GridBagConstraints(
+        3, 1, 1, 1, 1, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 0), 0, 0));
+
+    box1.add(endPointPanel, new GridBagConstraints(
+        0, 1, 2, 1, 0, 0, GridBagConstraints.LINE_START,
+        GridBagConstraints.HORIZONTAL, rowInsets, 0, 0));
+    
+    scrollPane1.add(box1);
+//    box1.setPreferredSize(new Dimension(370, 100));
+    scrollPane1.setViewportView(box1);
+  //  scrollPane1.setPreferredSize(new Dimension(370, 200));
+    scrollPane1.setBorder(null);
+    tabbedpane.add("坐标", scrollPane1);
+    
+    tabbedpane.revalidate();
+    
+    // Make startPointPanel and endPointPanel visible depending on editable points property
+    controller.addPropertyChangeListener(WallController.Property.EDITABLE_POINTS, 
+        new PropertyChangeListener() {
+          public void propertyChange(PropertyChangeEvent ev) {
+            startPointPanel.setVisible(controller.isEditablePoints());
+            endPointPanel.setVisible(controller.isEditablePoints());
+            arcExtentLabel.setVisible(controller.isEditablePoints());
+            arcExtentSpinner.setVisible(controller.isEditablePoints());
+          }
+        });
+    startPointPanel.setVisible(controller.isEditablePoints());
+    endPointPanel.setVisible(controller.isEditablePoints());
+    this.arcExtentLabel.setVisible(controller.isEditablePoints());
+    this.arcExtentSpinner.setVisible(controller.isEditablePoints());
   }
   
   /**
@@ -1203,41 +1462,7 @@ public class WallPanel extends JPanel implements DialogView {
     }
     
     // 2017/02/05 显示属性框
-    if (parentView != null) {
-      Component parentComponent = ((Component)parentView).getParent();
-      
-      if (parentComponent instanceof JSplitPane) {
-        Component subCom = ((JSplitPane)parentComponent).getComponent(1);
-        
-        if (subCom instanceof JSplitPane) {
-          Component targetCom = ((JSplitPane)subCom).getComponent(0);
-          
-          if (targetCom instanceof JPanel) {
-            JPanel propPanel = ((JPanel)targetCom);
-            // 找到面板
-            propPanel.removeAll();
-            propPanel.repaint();
-
-            
-            this.setPreferredSize(new Dimension(600, 600));
-            JScrollPane scrollPane = new JScrollPane(this);
-            scrollPane.setBounds(0, 0, 600, 600);
-            
-            JTabbedPane tabbedpane = new JTabbedPane();
-            tabbedpane.add("1", new JLabel("1"));
-            tabbedpane.add("2", new JLabel("2"));
-            tabbedpane.add("3", scrollPane);
-            
-            scrollPane.revalidate();
-            tabbedpane.revalidate();
-            
-            propPanel.revalidate();
-            
-            propPanel.add(tabbedpane);
-          }
-        }
-      }
-    }
+    SwingTools.addComponent2PropPanel(parentView, this);
     
 
 /*    JFormattedTextField thicknessTextField = 
@@ -1252,7 +1477,7 @@ public class WallPanel extends JPanel implements DialogView {
    * 2017/02/05
    * 属性修改时同步更新平面视图
    */
-  private void modifyWallsView() {
+  private void modifyView() {
     this.controller.modifyWalls();
   }
 }

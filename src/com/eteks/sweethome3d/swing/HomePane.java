@@ -50,6 +50,7 @@ import java.awt.dnd.DragSource;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
@@ -2890,8 +2891,8 @@ public class HomePane extends JRootPane implements HomeView {
           tabbedpane.add(preferences.getLocalizedString(HomePane.class, "tabbedPane.planView.title"), planView);
         } else {
           // 2017/02/05 右侧上部：物件，墙壁，房间，虚拟参观者，线条等的属性，右侧下部：物件列表
-          JPanel  emptyPane = new JPanel();
-          add(emptyPane, BorderLayout.CENTER);
+          JPanel  emptyPane = new JPanel(new BorderLayout());
+          //add(emptyPane, BorderLayout.CENTER);
           
           final JSplitPane rightPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, emptyPane, furniturePane);
           rightPane.setMinimumSize(new Dimension());
