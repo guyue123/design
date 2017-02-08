@@ -19,6 +19,7 @@
  */
 package com.eteks.sweethome3d.swing;
 
+import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -31,10 +32,11 @@ import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.event.ChangeEvent;
@@ -45,6 +47,7 @@ import javax.swing.event.DocumentListener;
 import com.eteks.sweethome3d.model.UserPreferences;
 import com.eteks.sweethome3d.tools.OperatingSystem;
 import com.eteks.sweethome3d.viewcontroller.BaseboardChoiceController;
+import com.eteks.sweethome3d.viewcontroller.BaseboardChoiceController.Property;
 import com.eteks.sweethome3d.viewcontroller.DialogView;
 import com.eteks.sweethome3d.viewcontroller.RoomController;
 import com.eteks.sweethome3d.viewcontroller.TextureChoiceController;
@@ -92,12 +95,21 @@ public class RoomPanel extends JPanel implements DialogView {
    */
   public RoomPanel(UserPreferences preferences,
                    RoomController controller) {
-    super(new GridBagLayout());
+    // 2017/02/07
+    super(new BorderLayout());
+   // super(new GridBagLayout());
+    
     this.controller = controller;
     createComponents(preferences, controller);
     setMnemonics(preferences);
-    layoutComponents(preferences);
+    
+    // 2017/02/07
+    layoutComponents2(preferences);
+    //layoutComponents(preferences);
+    
     this.firstWallChange = true;
+    
+    SwingTools.addResizeComponentListener(this);
   }
 
   /**
@@ -232,7 +244,7 @@ public class RoomPanel extends JPanel implements DialogView {
         });
       
       this.floorTextureComponent = (JComponent)controller.getFloorTextureController().getView();
-      
+
       ButtonGroup floorButtonColorGroup = new ButtonGroup();
       floorButtonColorGroup.add(this.floorColorRadioButton);
       floorButtonColorGroup.add(this.floorTextureRadioButton);
@@ -527,6 +539,10 @@ public class RoomPanel extends JPanel implements DialogView {
             }
           });
     }
+    
+    // 2017/02/08
+    triggerModifyView(controller);
+    
     this.dialogTitle = preferences.getLocalizedString(RoomPanel.class, "room.title");
   }
 
@@ -685,6 +701,111 @@ public class RoomPanel extends JPanel implements DialogView {
   /**
    * Layouts panel components in panel with their labels. 
    */
+  private void layoutComponents2(UserPreferences preferences) {
+    // tabbed Panel
+    JTabbedPane tabbedpane = new JTabbedPane();
+    JPanel panel = SwingTools.initPropPanel();
+    panel.add(tabbedpane);
+
+    add(panel);
+    
+    int labelAlignment = OperatingSystem.isMacOSX() 
+        ? GridBagConstraints.LINE_END
+        : GridBagConstraints.LINE_START;
+    
+    JScrollPane scrollPane1 = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    JPanel box1 = new JPanel(new GridBagLayout());
+    // First row
+    if (this.nameLabel != null || this.areaVisibleCheckBox != null) {
+      JPanel nameAndAreaPanel = SwingTools.createTitledPanel(preferences.getLocalizedString(
+          RoomPanel.class, "nameAndAreaPanel.title"));
+      if (this.nameLabel != null) {
+        nameAndAreaPanel.add(this.nameLabel, new GridBagConstraints(
+            0, 0, 1, 1, 0, 0, labelAlignment, 
+            GridBagConstraints.HORIZONTAL, new Insets(0, 8, 0, 5), 0, 0));
+        nameAndAreaPanel.add(this.nameTextField, new GridBagConstraints(
+            1, 0, 1, 1, 1, 0, GridBagConstraints.LINE_START, 
+            GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 10), 0, 0));
+      }
+      if (this.areaVisibleCheckBox != null) {
+        nameAndAreaPanel.add(this.areaVisibleCheckBox, new GridBagConstraints(
+            2, 0, 1, 1, 1, 0, GridBagConstraints.LINE_START, 
+            GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+      }
+      Insets rowInsets;
+      if (OperatingSystem.isMacOSXLeopardOrSuperior()) {
+        // User smaller insets for Mac OS X 10.5
+        rowInsets = new Insets(0, 0, 0, 0);
+      } else {
+        rowInsets = new Insets(0, 0, 5, 0);
+      }
+      box1.add(nameAndAreaPanel, new GridBagConstraints(
+          0, 0, 3, 1, 0, 0, GridBagConstraints.LINE_START, 
+          GridBagConstraints.HORIZONTAL, rowInsets, 0, 0));
+    }
+    // Last row
+    if (this.floorVisibleCheckBox != null || this.floorColorRadioButton != null || this.floorMattRadioButton != null) {
+      JPanel floorPanel = createVerticalTitledPanel(preferences.getLocalizedString(
+          RoomPanel.class, "floorPanel.title"),
+          new JComponent [][] {{this.floorVisibleCheckBox, null,
+                                this.floorColorRadioButton, this.floorColorButton, 
+                                this.floorTextureRadioButton, this.floorTextureComponent},
+                                {this.floorMattRadioButton, this.floorShinyRadioButton}});
+      box1.add(floorPanel, new GridBagConstraints(
+          0, 1, 1, 1, 1, 0, GridBagConstraints.NORTH,
+          GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    }      
+    if (this.ceilingVisibleCheckBox != null || this.ceilingColorRadioButton != null || this.ceilingMattRadioButton != null) {
+      JPanel ceilingPanel = createVerticalTitledPanel(preferences.getLocalizedString(
+          RoomPanel.class, "ceilingPanel.title"),
+          new JComponent [][] {{this.ceilingVisibleCheckBox, null,
+                                this.ceilingColorRadioButton, this.ceilingColorButton, 
+                                this.ceilingTextureRadioButton, this.ceilingTextureComponent},
+                                {this.ceilingMattRadioButton, this.ceilingShinyRadioButton}});
+      box1.add(ceilingPanel, new GridBagConstraints(
+          1, 1, 1, 1, 1, 0, GridBagConstraints.NORTH,
+          GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    }  
+    scrollPane1.add(box1);
+    scrollPane1.setViewportView(box1);
+    scrollPane1.setBorder(null);
+    tabbedpane.add("基本信息", scrollPane1);
+    
+    JScrollPane scrollPane2 = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    JPanel box2 = new JPanel(new GridBagLayout());
+    if (this.wallSidesColorRadioButton != null || this.wallSidesMattRadioButton != null) {
+      JPanel wallSidesPanel = createVerticalTitledPanel(preferences.getLocalizedString(
+          RoomPanel.class, "wallSidesPanel.title"),
+          new JComponent [][] {{this.splitSurroundingWallsCheckBox, null,
+                               this.wallSidesColorRadioButton, this.wallSidesColorButton, 
+                               this.wallSidesTextureRadioButton, this.wallSidesTextureComponent},
+                               {this.wallSidesMattRadioButton, this.wallSidesShinyRadioButton}});
+      box2.add(wallSidesPanel, new GridBagConstraints(
+          2, 1, 1, 1, 1, 0, GridBagConstraints.NORTH,
+          GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    }
+    
+    
+    if (this.wallSidesBaseboardComponent != null) {
+      JPanel wallSidesBaseboardPanel = SwingTools.createTitledPanel(preferences.getLocalizedString(
+          RoomPanel.class, "wallSidesBaseboardPanel.title"));
+      wallSidesBaseboardPanel.add(this.wallSidesBaseboardComponent, new GridBagConstraints(
+          0, 0, 1, 1, 0, 0, GridBagConstraints.CENTER,
+          GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+      box2.add(wallSidesBaseboardPanel, new GridBagConstraints(
+          3, 0, 1, 2, 0, 1, GridBagConstraints.NORTH,
+          GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    }
+    
+    scrollPane2.add(box2);
+    scrollPane2.setViewportView(box2);
+    scrollPane2.setBorder(null);
+    tabbedpane.add("墙壁、墙裙", scrollPane2);
+  }
+  
+  /**
+   * Layouts panel components in panel with their labels. 
+   */
   private void layoutComponents(UserPreferences preferences) {
     int labelAlignment = OperatingSystem.isMacOSX() 
         ? GridBagConstraints.LINE_END
@@ -809,10 +930,73 @@ public class RoomPanel extends JPanel implements DialogView {
    * Displays this panel in a modal dialog box. 
    */
   public void displayView(View parentView) {
-    if (SwingTools.showConfirmDialog((JComponent)parentView, 
+    // 2017/02/05 显示属性框
+    SwingTools.addComponent2PropPanel(parentView, this);
+/*    if (SwingTools.showConfirmDialog((JComponent)parentView, 
             this, this.dialogTitle, this.nameTextField) == JOptionPane.OK_OPTION
         && this.controller != null) {
       this.controller.modifyRooms();
+    }*/
+  }
+  
+  /**
+   * 2017/02/05
+   * 属性修改时同步更新平面视图
+   */
+  private void modifyView() {
+    this.controller.modifyRooms();
+  }
+  
+  /**
+   * 2017/02/08
+   * 属性改变触发视图更新
+   */
+  private void triggerModifyView(final RoomController controller) {
+    for (com.eteks.sweethome3d.viewcontroller.RoomController.Property prop : RoomController.Property.values()) {
+      controller.addPropertyChangeListener(prop, 
+          new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent ev) {
+              modifyView();
+            }
+          });
     }
+    
+    controller.getWallSidesTextureController().addPropertyChangeListener(TextureChoiceController.Property.TEXTURE, 
+        new PropertyChangeListener() {
+          public void propertyChange(PropertyChangeEvent ev) {
+            modifyView();
+          }
+        });
+    
+    controller.getFloorTextureController().addPropertyChangeListener(TextureChoiceController.Property.TEXTURE, 
+        new PropertyChangeListener() {
+          public void propertyChange(PropertyChangeEvent ev) {
+            modifyView();
+          }
+        });
+    
+    controller.getCeilingTextureController().addPropertyChangeListener(TextureChoiceController.Property.TEXTURE, 
+        new PropertyChangeListener() {
+          public void propertyChange(PropertyChangeEvent ev) {
+            modifyView();
+          }
+        });
+    
+    // 2017/02/08 全部同步更新视图
+    for (Property prop : BaseboardChoiceController.Property.values()) {
+      controller.getWallSidesBaseboardController().addPropertyChangeListener(prop, 
+          new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent ev) {
+              modifyView();
+            }
+          });
+    }
+    
+    controller.getWallSidesBaseboardController().getTextureController().addPropertyChangeListener(TextureChoiceController.Property.TEXTURE, 
+        new PropertyChangeListener() {
+          public void propertyChange(PropertyChangeEvent ev) {
+            modifyView();
+          }
+        });
   }
 }
