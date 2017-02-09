@@ -5967,7 +5967,7 @@ public class PlanController extends FurnitureController implements Controller {
    * @param shiftDown
    * @param item
    */
-  private void modifyItems(boolean shiftDown, Selectable item) {
+  public void modifyItems(boolean shiftDown, Selectable item) {
     // If shift isn't pressed, and an item is under cursor position
     if (!shiftDown && item != null) {
       // Modify selected item on a double click

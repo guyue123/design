@@ -19,6 +19,7 @@
  */
 package com.eteks.sweethome3d.swing;
 
+import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -28,12 +29,11 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
@@ -74,11 +74,17 @@ public class ObserverCameraPanel extends JPanel implements DialogView {
    */
   public ObserverCameraPanel(UserPreferences preferences,
                              ObserverCameraController controller) {
-    super(new GridBagLayout());
+    // 2017/02/09
+    super(new BorderLayout());
+    //super(new GridBagLayout());
+    
     this.controller = controller;
     createComponents(preferences, controller);
     setMnemonics(preferences);
-    layoutComponents(preferences);
+    
+    // 2017/02/09
+    layoutComponents2(preferences);
+    //layoutComponents(preferences);
   }
 
   /**
@@ -226,6 +232,10 @@ public class ObserverCameraPanel extends JPanel implements DialogView {
           }
         });
 
+    
+    // 2017/02/09
+    triggerModifyView(controller);
+    
     this.dialogTitle = preferences.getLocalizedString(
         ObserverCameraPanel.class, "observerCamera.title");
   }
@@ -256,6 +266,112 @@ public class ObserverCameraPanel extends JPanel implements DialogView {
       this.adjustObserverCameraElevationCheckBox.setMnemonic(KeyStroke.getKeyStroke(preferences.getLocalizedString(
           ObserverCameraPanel.class, "adjustObserverCameraElevationCheckBox.mnemonic")).getKeyCode());
     }
+  }
+  
+  
+  /**
+   * Layouts panel components in panel with their labels. 
+   */
+  private void layoutComponents2(UserPreferences preferences) {
+    // tabbed Panel
+    JTabbedPane tabbedpane = new JTabbedPane();
+    JPanel panel = SwingTools.initPropPanel();
+    panel.add(tabbedpane);
+
+    add(panel);
+    
+    int labelAlignment = OperatingSystem.isMacOSX() 
+        ? GridBagConstraints.LINE_END
+        : GridBagConstraints.LINE_START;
+    
+    Insets labelInsets = new Insets(0, 0, 5, 5);
+    Insets componentInsets = new Insets(0, 0, 5, 0);
+    
+    Insets rowInsets;
+    if (OperatingSystem.isMacOSXLeopardOrSuperior()) {
+      // User smaller insets for Mac OS X 10.5
+      rowInsets = new Insets(0, 0, 0, 0);
+    } else {
+      rowInsets = new Insets(0, 0, 5, 0);
+    }
+    
+    JScrollPane scrollPane1 = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    JPanel box1 = new JPanel(new GridBagLayout());
+    
+    JPanel anglesPanel = SwingTools.createTitledPanel(preferences.getLocalizedString(
+        ObserverCameraPanel.class, "anglesPanel.title"));
+    anglesPanel.add(this.yawLabel, new GridBagConstraints(
+        0, 0, 1, 1, 0, 0, labelAlignment, 
+        GridBagConstraints.NONE, labelInsets, 0, 0));
+    anglesPanel.add(this.yawSpinner, new GridBagConstraints(
+        1, 0, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.HORIZONTAL, componentInsets, -10, 0));
+    anglesPanel.add(this.pitchLabel, new GridBagConstraints(
+        0, 1, 1, 1, 0, 0, labelAlignment, 
+        GridBagConstraints.NONE, labelInsets, 0, 0));
+    anglesPanel.add(this.pitchSpinner, new GridBagConstraints(
+        1, 1, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.HORIZONTAL, componentInsets, 0, 0));
+    anglesPanel.add(this.fieldOfViewLabel, new GridBagConstraints(
+        0, 2, 1, 1, 0, 0, labelAlignment, 
+        GridBagConstraints.NONE, labelInsets, 0, 0));
+    anglesPanel.add(this.fieldOfViewSpinner, new GridBagConstraints(
+        1, 2, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.HORIZONTAL, componentInsets, 0, 0));
+    
+    // Third row
+    box1.add(this.elevationLabel, new GridBagConstraints(
+        0, 0, 1, 1, 0, 0, labelAlignment, 
+        GridBagConstraints.NONE, labelInsets, 0, 0));
+    box1.add(this.elevationSpinner, new GridBagConstraints(
+        1, 0, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.HORIZONTAL, componentInsets, 0, 0));
+    
+    box1.add(anglesPanel, new GridBagConstraints(
+        0, 1, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.HORIZONTAL, rowInsets, 0, 0));
+
+    if (controller.isObserverCameraElevationAdjustedEditable()) {
+      box1.add(this.adjustObserverCameraElevationCheckBox, new GridBagConstraints(
+          0, 1, 2, 1, 0, 0, GridBagConstraints.LINE_START, 
+          GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+    }
+    
+    scrollPane1.add(box1);
+    scrollPane1.setViewportView(box1);
+    scrollPane1.setBorder(null);
+    tabbedpane.add("基本信息", scrollPane1);
+    
+    JScrollPane scrollPane2 = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    JPanel box2 = new JPanel(new GridBagLayout());
+    JPanel locationPanel = SwingTools.createTitledPanel(preferences.getLocalizedString(
+        ObserverCameraPanel.class, "locationPanel.title"));
+    // First row
+    
+    locationPanel.add(this.xLabel, new GridBagConstraints(
+        0, 0, 1, 1, 0, 0, labelAlignment, 
+        GridBagConstraints.NONE, labelInsets, 0, 0));
+    
+    locationPanel.add(this.xSpinner, new GridBagConstraints(
+        1, 0, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.HORIZONTAL, componentInsets, -15, 0));
+    // Second row
+    locationPanel.add(this.yLabel, new GridBagConstraints(
+        0, 1, 1, 1, 0, 0, labelAlignment, 
+        GridBagConstraints.NONE, labelInsets, 0, 0));
+    locationPanel.add(this.ySpinner, new GridBagConstraints(
+        1, 1, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.HORIZONTAL, componentInsets, -15, 0));
+
+
+    box2.add(locationPanel, new GridBagConstraints(
+        0, 0, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.HORIZONTAL, rowInsets, 0, 0));
+    
+    scrollPane2.add(box2);
+    scrollPane2.setViewportView(box2);
+    scrollPane2.setBorder(null);
+    tabbedpane.add("坐标", scrollPane2);
   }
   
   /**
@@ -336,12 +452,37 @@ public class ObserverCameraPanel extends JPanel implements DialogView {
    * Displays this panel in a modal dialog box. 
    */
   public void displayView(View parentView) {
-    JFormattedTextField elevationSpinnerTextField = 
+    // 2017/02/05 显示属性框
+    SwingTools.addComponent2PropPanel(parentView, this);
+/*    JFormattedTextField elevationSpinnerTextField = 
         ((JSpinner.DefaultEditor)this.elevationSpinner.getEditor()).getTextField();
     if (SwingTools.showConfirmDialog((JComponent)parentView, this, this.dialogTitle, 
             elevationSpinnerTextField) == JOptionPane.OK_OPTION
         && this.controller != null) {
       this.controller.modifyObserverCamera();
+    }*/
+  }
+  
+  /**
+   * 2017/02/05
+   * 属性修改时同步更新平面视图
+   */
+  private void modifyView() {
+    this.controller.modifyObserverCamera();
+  }
+  
+  /**
+   * 2017/02/08
+   * 属性改变触发视图更新
+   */
+  private void triggerModifyView(final ObserverCameraController controller) {
+    for (com.eteks.sweethome3d.viewcontroller.ObserverCameraController.Property prop : ObserverCameraController.Property.values()) {
+      controller.addPropertyChangeListener(prop, 
+          new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent ev) {
+              modifyView();
+            }
+          });
     }
   }
 }
