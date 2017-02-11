@@ -2414,7 +2414,8 @@ public class HomePane extends JRootPane implements HomeView {
    */
   private JComponent createMainPane(Home home, UserPreferences preferences, 
                                     HomeController controller) {
-    final JComponent catalogFurniturePane = createCatalogFurniturePane(home, preferences, controller);  
+    // 2017/02/11
+    final JComponent catalogFurniturePane = null;//createCatalogFurniturePane(home, preferences, controller);  
     final JComponent planView3DPane = createPlanView3DPane(home, preferences, controller);
     
 
@@ -2879,7 +2880,8 @@ public class HomePane extends JRootPane implements HomeView {
       
       // 2017/02/04
       final JComponent furniturePane = createFurnitureView(home, preferences, controller);
-    
+      final JComponent catalogFurniturePane = createCatalogFurniturePane(home, preferences, controller);
+      
       final JComponent planView3DPane;
       boolean detachedView3D = Boolean.parseBoolean(home.getProperty(view3D.getClass().getName() + DETACHED_VIEW_VISUAL_PROPERTY));
       if (planView != null) {
@@ -2887,7 +2889,7 @@ public class HomePane extends JRootPane implements HomeView {
         JTabbedPane tabbedpane = new JTabbedPane();
         add(tabbedpane, BorderLayout.CENTER);
         
-        if (furniturePane == null) {
+        if (furniturePane == null && catalogFurniturePane == null) {
           tabbedpane.add(preferences.getLocalizedString(HomePane.class, "tabbedPane.planView.title"), planView);
         } else {
           // 2017/02/05 右侧上部：物件，墙壁，房间，虚拟参观者，线条等的属性，右侧下部：物件列表
@@ -2906,7 +2908,13 @@ public class HomePane extends JRootPane implements HomeView {
           configureSplitPane(planViewPane, home, 
               PLAN_PANE_DIVIDER_LOCATION_VISUAL_PROPERTY, 0.85, false, controller);
           
-          tabbedpane.add(preferences.getLocalizedString(HomePane.class, "tabbedPane.planView.title"), planViewPane);
+          final JSplitPane mainPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, catalogFurniturePane, planViewPane);
+          // Set default divider location
+          mainPane.setDividerLocation(120);
+          configureSplitPane(mainPane, home, 
+              MAIN_PANE_DIVIDER_LOCATION_VISUAL_PROPERTY, 0.3, true, controller);
+          
+          tabbedpane.add(preferences.getLocalizedString(HomePane.class, "tabbedPane.planView.title"), mainPane);
         }
         tabbedpane.add(preferences.getLocalizedString(HomePane.class, "tabbedPane.3dView.title"), view3D);
         

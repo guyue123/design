@@ -633,18 +633,6 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
   }
   
   /**
-   * 修改对象显示属性
-   * @param home
-   * @param controller
-   */
-  private void modifyFirstSelectedItem(final Home home, final PlanController controller) {
-    List<Selectable>  items = home.getSelectedItems();
-    if (items != null && !items.isEmpty()) {
-      controller.modifyItems(false, items.get(0));
-    }
-  }
-
-  /**
    * Adds home items and selection listeners on this component to receive  
    * changes notifications from home. 
    */
@@ -674,9 +662,6 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
           } else {
             revalidate();
           }
-          
-          // 2017/02/09 操作对象时更新属性
-          modifyFirstSelectedItem(home, controller);
         }
       };
     for (HomePieceOfFurniture piece : home.getFurniture()) {
@@ -737,9 +722,6 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
             wallAreasCache = null;
             repaint();
           }
-          
-          // 2017/02/09 操作对象时更新属性
-          modifyFirstSelectedItem(home, controller);
         }
       };
     for (Wall wall : home.getWalls()) {
@@ -784,9 +766,6 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
                          || Room.Property.FLOOR_VISIBLE.name().equals(propertyName))) {
             repaint(); 
           }
-          
-          // 2017/02/09 操作对象时更新属性
-          modifyFirstSelectedItem(home, controller);
         }
       };
     for (Room room : home.getRooms()) {
@@ -816,9 +795,6 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
            } else {
              revalidate();
            }
-           
-           // 2017/02/09 操作对象时更新属性
-           modifyFirstSelectedItem(home, controller);
          }
        };
      for (Polyline polyline : home.getPolylines()) {
@@ -859,8 +835,6 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
     final PropertyChangeListener labelChangeListener = new PropertyChangeListener() {
         public void propertyChange(PropertyChangeEvent ev) {
           revalidate();
-          // 2017/02/09 操作对象时更新属性
-          modifyFirstSelectedItem(home, controller);
         }
       };
     for (Label label : home.getLabels()) {
@@ -897,9 +871,6 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
             sortedLevelRooms = null;
             repaint();
           }
-          
-          // 2017/02/09 操作对象时更新属性
-          modifyFirstSelectedItem(home, controller);
         }
       };
     for (Level level : home.getLevels()) {
@@ -934,9 +905,6 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
               || ObserverCamera.Property.HEIGHT.name().equals(propertyName)) {
             revalidate();
           }
-          
-          // 2017/02/09 操作对象时更新属性
-          modifyFirstSelectedItem(home, controller);
         }
       });
     home.getCompass().addPropertyChangeListener(new PropertyChangeListener() {
@@ -949,9 +917,6 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
               || Compass.Property.VISIBLE.name().equals(propertyName)) {
             revalidate();
           }
-          
-          // 2017/02/09 操作对象时更新属性
-          modifyFirstSelectedItem(home, controller);
         }
       });
     home.addSelectionListener(new SelectionListener () {

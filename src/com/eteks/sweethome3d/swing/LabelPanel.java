@@ -19,6 +19,7 @@
  */
 package com.eteks.sweethome3d.swing;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -29,12 +30,12 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.ButtonGroup;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.event.ChangeEvent;
@@ -53,7 +54,7 @@ import com.eteks.sweethome3d.viewcontroller.View;
  * @author Emmanuel Puybaret
  */
 public class LabelPanel extends JPanel implements DialogView {
-  private final boolean         labelModification;
+  private boolean         labelModification;
   private final LabelController controller;
   private JLabel                textLabel;
   private JTextField            textTextField;
@@ -80,12 +81,20 @@ public class LabelPanel extends JPanel implements DialogView {
   public LabelPanel(boolean modification,
                     UserPreferences preferences,
                     LabelController controller) {
-    super(new GridBagLayout());
+    // 2017/02/07
+    super(new BorderLayout());
+   // super(new GridBagLayout());
+    
     this.labelModification = modification;
     this.controller = controller;
     createComponents(modification, preferences, controller);
     setMnemonics(preferences);
-    layoutComponents(controller, preferences);
+    
+    // 2017/02/11
+    //layoutComponents(controller, preferences);
+    layoutComponents2(controller, preferences);
+    
+    SwingTools.addResizeComponentListener(this);
   }
 
   /**
@@ -282,6 +291,9 @@ public class LabelPanel extends JPanel implements DialogView {
         modification 
             ? "labelModification.title"
             : "labelCreation.title");
+    
+    // 2017/02/11
+    triggerModifyView(controller);
   }
 
   private void update3DViewComponents(LabelController controller) {
@@ -322,6 +334,96 @@ public class LabelPanel extends JPanel implements DialogView {
           LabelPanel.class, "elevationLabel.mnemonic")).getKeyCode());
       this.elevationLabel.setLabelFor(this.elevationSpinner);
     }
+  }
+  
+  /**
+   * Layouts panel components in panel with their labels. 
+   */
+  private void layoutComponents2(final LabelController controller, UserPreferences preferences) {
+    // tabbed Panel
+    JTabbedPane tabbedpane = new JTabbedPane();
+    JPanel panel = SwingTools.initPropPanel();
+    panel.add(tabbedpane);
+
+    add(panel);
+    
+    int labelAlignment = OperatingSystem.isMacOSX() 
+        ? GridBagConstraints.LINE_END
+        : GridBagConstraints.LINE_START;
+    
+    JScrollPane scrollPane1 = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    JPanel box1 = new JPanel(new GridBagLayout());
+    
+    JPanel nameAndStylePanel = SwingTools.createTitledPanel(
+        preferences.getLocalizedString(LabelPanel.class, "textAndStylePanel.title"));
+    nameAndStylePanel.add(this.textLabel, new GridBagConstraints(
+        0, 0, 1, 1, 0, 0, labelAlignment, 
+        GridBagConstraints.NONE, new Insets(0, 0, 5, 5), 0, 0));
+    nameAndStylePanel.add(this.textTextField, new GridBagConstraints(
+        1, 0, 3, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 5, 0), 0, 0));
+    nameAndStylePanel.add(this.fontNameLabel, new GridBagConstraints(
+        0, 1, 1, 1, 0, 0, labelAlignment, 
+        GridBagConstraints.NONE, new Insets(0, 0, 5, 5), 0, 0));
+    Dimension preferredSize = this.fontNameComboBox.getPreferredSize();
+    preferredSize.width = Math.min(preferredSize.width, this.textTextField.getPreferredSize().width);
+    this.fontNameComboBox.setPreferredSize(preferredSize);
+    nameAndStylePanel.add(this.fontNameComboBox, new GridBagConstraints(
+        1, 1, 3, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 5, 0), 0, 0));
+    nameAndStylePanel.add(this.fontSizeLabel, new GridBagConstraints(
+        0, 2, 1, 1, 0, 0, labelAlignment, 
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 5), 0, 0));
+    nameAndStylePanel.add(this.fontSizeSpinner, new GridBagConstraints(
+        1, 2, 1, 1, 1, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 5, 0));
+    nameAndStylePanel.add(this.colorLabel, new GridBagConstraints(
+        2, 2, 1, 1, 0, 0, labelAlignment, 
+        GridBagConstraints.NONE, new Insets(0, 10, 0, 5), 0, 0));
+    nameAndStylePanel.add(this.colorButton, new GridBagConstraints(
+        3, 2, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.NONE, new Insets(0, 0, 0, OperatingSystem.isMacOSX()  ? 6  : 0), 0, 0));
+    int rowGap = OperatingSystem.isMacOSXLeopardOrSuperior() ? 0 : 5;
+    box1.add(nameAndStylePanel, new GridBagConstraints(
+        0, 1, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.BOTH, new Insets(0, 0, rowGap, 0), 0, 0));
+    
+    JScrollPane scrollPane2 = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    JPanel box2 = new JPanel(new GridBagLayout());
+    
+    JPanel rendering3DPanel = SwingTools.createTitledPanel(
+        preferences.getLocalizedString(LabelPanel.class, "rendering3DPanel.title"));
+    rendering3DPanel.add(this.visibleIn3DViewCheckBox, new GridBagConstraints(
+        0, 0, 3, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.NONE, new Insets(0, OperatingSystem.isMacOSX() ? -8 : 0, 5, 0), 0, 0));
+    rendering3DPanel.add(this.pitchLabel, new GridBagConstraints(
+        0, 1, 1, 1, 0, 0, labelAlignment, 
+        GridBagConstraints.NONE, new Insets(0, 0, 5, 5), 0, 0));
+    rendering3DPanel.add(this.pitch0DegreeRadioButton, new GridBagConstraints(
+        1, 1, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.NONE, new Insets(0, 0, 5, 5), 0, 0));
+    rendering3DPanel.add(this.pitch90DegreeRadioButton, new GridBagConstraints(
+        2, 1, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.NONE, new Insets(0, 0, 5, 0), 0, 0));
+    rendering3DPanel.add(this.elevationLabel, new GridBagConstraints(
+        0, 3, 1, 1, 0, 0, labelAlignment, 
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 5), 0, 0));
+    rendering3DPanel.add(this.elevationSpinner, new GridBagConstraints(
+        1, 3, 2, 1, 1, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    box2.add(rendering3DPanel, new GridBagConstraints(
+        0, 2, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+    
+    scrollPane1.add(box1);
+    scrollPane1.setViewportView(box1);
+    scrollPane1.setBorder(null);
+    tabbedpane.add("基本信息", scrollPane1);
+    
+    scrollPane2.add(box2);
+    scrollPane2.setViewportView(box2);
+    scrollPane2.setBorder(null);
+    tabbedpane.add("3D渲染", scrollPane2);
   }
   
   /**
@@ -395,7 +497,10 @@ public class LabelPanel extends JPanel implements DialogView {
    * Displays this panel in a modal dialog box. 
    */
   public void displayView(View parentView) {
-    if (SwingTools.showConfirmDialog((JComponent)parentView, 
+    // 2017/02/05 显示属性框
+    SwingTools.addComponent2PropPanel(parentView, this);
+    
+/*    if (SwingTools.showConfirmDialog((JComponent)parentView, 
             this, this.dialogTitle, this.textTextField) == JOptionPane.OK_OPTION
         && this.controller != null) {
       if (this.labelModification) {
@@ -403,6 +508,34 @@ public class LabelPanel extends JPanel implements DialogView {
       } else {
         this.controller.createLabel();
       }
+    }*/
+  }
+  
+  /**
+   * 2017/02/05
+   * 属性修改时同步更新平面视图
+   */
+  private void modifyView() {
+    if (this.labelModification) {
+      this.controller.modifyLabels();
+    } else {
+      this.controller.createLabel();
+      labelModification = true;
+    }
+  }
+  
+  /**
+   * 2017/02/08
+   * 属性改变触发视图更新
+   */
+  private void triggerModifyView(final LabelController controller) {
+    for (com.eteks.sweethome3d.viewcontroller.LabelController.Property prop : LabelController.Property.values()) {
+      controller.addPropertyChangeListener(prop, 
+          new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent ev) {
+              modifyView();
+            }
+          });
     }
   }
 }

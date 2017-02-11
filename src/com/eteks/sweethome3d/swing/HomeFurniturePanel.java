@@ -1193,7 +1193,7 @@ public class HomeFurniturePanel extends JPanel implements DialogView {
 
     if (locationPanel.getComponentCount() > 0) {
       box4.add(locationPanel, new GridBagConstraints(
-          0, 1, 1, 1, 1, 0, labelAlignment, GridBagConstraints.BOTH, new Insets(
+          0, 0, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, new Insets(
           0, 0, rowGap, 0), 0, 0));
       
       scrollPane4.add(box4);

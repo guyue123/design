@@ -4224,7 +4224,7 @@ public class PlanController extends FurnitureController implements Controller {
     
     // 2017/02/07
     if (!items.isEmpty()) {
-      modifyItems(false, items.get(0));
+      modifyItems(wasShiftDownLastMousePress(), items.get(0));
     }
   }
   
@@ -4957,6 +4957,9 @@ public class PlanController extends FurnitureController implements Controller {
           super.undo();
           label.setAngle(oldAngle);
           selectAndShowItems(Arrays.asList(new Label [] {label}));
+
+          // 2017/02/11
+          modifyItems(false, label);
         }
         
         @Override
@@ -4964,6 +4967,9 @@ public class PlanController extends FurnitureController implements Controller {
           super.redo();
           label.setAngle(newAngle);
           selectAndShowItems(Arrays.asList(new Label [] {label}));
+          
+          // 2017/02/11
+          modifyItems(false, label);
         }      
   
         @Override
@@ -5091,6 +5097,9 @@ public class PlanController extends FurnitureController implements Controller {
             ((HomeDoorOrWindow)piece).setBoundToWall(oldDoorOrWindowBoundToWall);
           }
           selectAndShowItems(Arrays.asList(new HomePieceOfFurniture [] {piece}));
+          
+          // 2017/02/11
+          modifyItems(false, piece);
         }
         
         @Override
@@ -5104,6 +5113,9 @@ public class PlanController extends FurnitureController implements Controller {
           }
           piece.setElevation(newElevation);
           selectAndShowItems(Arrays.asList(new HomePieceOfFurniture [] {piece}));
+          
+          // 2017/02/11
+          modifyItems(false, piece);
         }      
   
         @Override
@@ -5190,6 +5202,9 @@ public class PlanController extends FurnitureController implements Controller {
           super.undo();
           moveWallPoint(wall, oldX, oldY, startPoint);
           selectAndShowItems(Arrays.asList(new Wall [] {wall}));
+          
+          // 2017/02/11
+          modifyItems(false, wall);
         }
         
         @Override
@@ -5197,6 +5212,9 @@ public class PlanController extends FurnitureController implements Controller {
           super.redo();
           moveWallPoint(wall, newX, newY, startPoint);
           selectAndShowItems(Arrays.asList(new Wall [] {wall}));
+          
+          // 2017/02/11
+          modifyItems(false, wall);
         }      
   
         @Override
@@ -5224,6 +5242,9 @@ public class PlanController extends FurnitureController implements Controller {
           super.undo();
           moveRoomPoint(room, oldX, oldY, pointIndex);
           selectAndShowItems(Arrays.asList(new Room [] {room}));
+          
+          // 2017/02/11
+          modifyItems(false, room);
         }
         
         @Override
@@ -5231,6 +5252,9 @@ public class PlanController extends FurnitureController implements Controller {
           super.redo();
           moveRoomPoint(room, newX, newY, pointIndex);
           selectAndShowItems(Arrays.asList(new Room [] {room}));
+          
+          // 2017/02/11
+          modifyItems(false, room);
         }      
   
         @Override
@@ -5326,6 +5350,9 @@ public class PlanController extends FurnitureController implements Controller {
           room.setAreaXOffset(oldAreaXOffset);
           room.setAreaYOffset(oldAreaYOffset);
           selectAndShowItems(Arrays.asList(new Room [] {room}));
+          
+          // 2017/02/11
+          modifyItems(false, room);
         }
         
         @Override
@@ -5334,6 +5361,9 @@ public class PlanController extends FurnitureController implements Controller {
           room.setAreaXOffset(newAreaXOffset);
           room.setAreaYOffset(newAreaYOffset);
           selectAndShowItems(Arrays.asList(new Room [] {room}));
+          
+          // 2017/02/11
+          modifyItems(false, room);
         }      
   
         @Override
@@ -5358,6 +5388,9 @@ public class PlanController extends FurnitureController implements Controller {
           super.undo();
           room.setAreaAngle(oldAreaAngle);
           selectAndShowItems(Arrays.asList(new Room [] {room}));
+          
+          // 2017/02/11
+          modifyItems(false, room);
         }
         
         @Override
@@ -5365,6 +5398,9 @@ public class PlanController extends FurnitureController implements Controller {
           super.redo();
           room.setAreaAngle(newAreaAngle);
           selectAndShowItems(Arrays.asList(new Room [] {room}));
+          
+          // 2017/02/11
+          modifyItems(false, room);
         }      
   
         @Override
@@ -5394,6 +5430,9 @@ public class PlanController extends FurnitureController implements Controller {
             ((HomeDoorOrWindow)piece).setBoundToWall(oldDoorOrWindowBoundToWall);
           }
           selectAndShowItems(Arrays.asList(new HomePieceOfFurniture [] {piece}));
+          
+          // 2017/02/11
+          modifyItems(false, piece);
         }
         
         @Override
@@ -5401,6 +5440,9 @@ public class PlanController extends FurnitureController implements Controller {
           super.redo();
           piece.setAngle(newAngle);
           selectAndShowItems(Arrays.asList(new HomePieceOfFurniture [] {piece}));
+          
+          // 2017/02/11
+          modifyItems(false, piece);
         }      
   
         @Override
@@ -5425,6 +5467,9 @@ public class PlanController extends FurnitureController implements Controller {
           super.undo();
           piece.setElevation(oldElevation);
           selectAndShowItems(Arrays.asList(new HomePieceOfFurniture [] {piece}));
+          
+          // 2017/02/11
+          modifyItems(false, piece);
         }
         
         @Override
@@ -5432,6 +5477,9 @@ public class PlanController extends FurnitureController implements Controller {
           super.redo();
           piece.setElevation(newElevation);
           selectAndShowItems(Arrays.asList(new HomePieceOfFurniture [] {piece}));
+          
+          // 2017/02/11
+          modifyItems(false, piece);
         }      
   
         @Override
@@ -5484,6 +5532,10 @@ public class PlanController extends FurnitureController implements Controller {
       public void undo() throws CannotUndoException {
         super.undo();
         resizedPiece.reset();
+        
+        // 2017/02/11
+        modifyItems(false, resizedPiece.getPieceOfFurniture());
+        
         selectAndShowItems(Arrays.asList(new HomePieceOfFurniture [] {resizedPiece.getPieceOfFurniture()}));
       }
       
@@ -5500,6 +5552,9 @@ public class PlanController extends FurnitureController implements Controller {
           ((HomeDoorOrWindow)piece).setBoundToWall(doorOrWindowBoundToWall);
         }
         selectAndShowItems(Arrays.asList(new HomePieceOfFurniture [] {piece}));
+        
+        // 2017/02/11
+        modifyItems(false, piece);
       }      
  
       @Override
@@ -5705,6 +5760,9 @@ public class PlanController extends FurnitureController implements Controller {
           super.undo();
           polyline.setPoint(oldX, oldY, pointIndex);
           selectAndShowItems(Arrays.asList(new Polyline [] {polyline}));
+          
+          // 2017/02/11
+          modifyItems(false, polyline);
         }
         
         @Override
@@ -5712,6 +5770,9 @@ public class PlanController extends FurnitureController implements Controller {
           super.redo();
           polyline.setPoint(newX, newY, pointIndex);
           selectAndShowItems(Arrays.asList(new Polyline [] {polyline}));
+          
+          // 2017/02/11
+          modifyItems(false, polyline);
         }      
   
         @Override
@@ -5737,6 +5798,9 @@ public class PlanController extends FurnitureController implements Controller {
           super.undo();
           compass.setNorthDirection(oldNorthDirection);
           selectAndShowItems(Arrays.asList(new Compass [] {compass}));
+          
+          // 2017/02/11
+          modifyItems(false, compass);
         }
         
         @Override
@@ -5744,6 +5808,9 @@ public class PlanController extends FurnitureController implements Controller {
           super.redo();
           compass.setNorthDirection(newNorthDirection);
           selectAndShowItems(Arrays.asList(new Compass [] {compass}));
+          
+          // 2017/02/11
+          modifyItems(false, compass);
         }      
   
         @Override
@@ -5769,6 +5836,9 @@ public class PlanController extends FurnitureController implements Controller {
           super.undo();
           compass.setDiameter(oldDiameter);
           selectAndShowItems(Arrays.asList(new Compass [] {compass}));
+          
+          // 2017/02/11
+          modifyItems(false, compass);
         }
         
         @Override
@@ -5776,6 +5846,9 @@ public class PlanController extends FurnitureController implements Controller {
           super.redo();
           compass.setDiameter(newDiameter);
           selectAndShowItems(Arrays.asList(new Compass [] {compass}));
+          
+          // 2017/02/11
+          modifyItems(false, compass);
         }      
   
         @Override
@@ -5967,7 +6040,7 @@ public class PlanController extends FurnitureController implements Controller {
    * @param shiftDown
    * @param item
    */
-  public void modifyItems(boolean shiftDown, Selectable item) {
+  private void modifyItems(boolean shiftDown, Selectable item) {
     // If shift isn't pressed, and an item is under cursor position
     if (!shiftDown && item != null) {
       // Modify selected item on a double click
@@ -5993,10 +6066,10 @@ public class PlanController extends FurnitureController implements Controller {
    * 2017/02/06重绘属性面板
    * @param item
    */
-  private void removePropPanel(Selectable item) {
+  private void removePropPanel(Selectable item, boolean shiftDown) {
     if (item == null || !(item instanceof Wall || item instanceof HomePieceOfFurniture || 
         item instanceof Room || item instanceof Polyline || item instanceof Label ||
-        item instanceof Compass || item instanceof ObserverCamera)) {
+        item instanceof Compass || item instanceof ObserverCamera) || shiftDown) {
       // 移除右侧属性列表
       Component parentComponent = ((Component)getView()).getParent();
       
@@ -6821,10 +6894,15 @@ public class PlanController extends FurnitureController implements Controller {
           }          
         }
         
-        // 2017/02/05 单击事件
+        // 2017/02/05 单击事件显示属性窗口
+        List<Selectable> selectedItems = home.getSelectedItems();
         Selectable item = getSelectableItemAt(x, y);
-        modifyItems(shiftDown, item);
-        removePropPanel(item);
+        if (selectedItems.size() > 1) {
+          removePropPanel(null, shiftDown);
+        } else {
+          modifyItems(shiftDown, item);
+          removePropPanel(item, shiftDown);
+        }
         
       } else if (clickCount == 2) {
         //  2017/02/05 改成单击事件
@@ -6851,8 +6929,6 @@ public class PlanController extends FurnitureController implements Controller {
         }*/
       }
     }
-
- 
     
     @Override
     public void exit() {
@@ -6925,7 +7001,7 @@ public class PlanController extends FurnitureController implements Controller {
       if (Collections.disjoint(selectableItemsAndGroupsFurnitureUnderCursor, this.oldSelection)) {
         // Select only the item with highest priority under cursor position
         selectItem(getSelectableItemAt(getXLastMousePress(), getYLastMousePress(), false));
-      }       
+      }
       List<Selectable> selectedItems = home.getSelectedItems();
       this.movedItems = new ArrayList<Selectable>(selectedItems.size());
       this.basePlanModification = false;
@@ -6988,7 +7064,10 @@ public class PlanController extends FurnitureController implements Controller {
           } else {
             getView().setDimensionLinesFeedback(null);
           }
-        } 
+        }
+        
+        // 2017/02/11
+        modifyItems(false, movedPieceOfFurniture);
       } else { 
         moveItems(this.movedItems, x - this.xLastMouseMove, y - this.yLastMouseMove);
       }
@@ -7032,6 +7111,9 @@ public class PlanController extends FurnitureController implements Controller {
           if (itemUnderCursor != null) {
             // Select only the item under cursor position
             selectItem(itemUnderCursor);
+            
+            // 2017/02/05 单击事件
+            modifyItems(false, itemUnderCursor);
           }
         }
       }
@@ -7319,6 +7401,13 @@ public class PlanController extends FurnitureController implements Controller {
       }    
       // Update selection
       selectItems(selectedItems, home.isAllLevelsSelection() && shiftDown);
+      
+      // 2017/02/10
+      if (!selectedItems.isEmpty() && selectedItems.size() == 1) {
+        modifyItems(shiftDown, selectedItems.get(0));
+      } else {
+        removePropPanel(null, shiftDown);        
+      }
     }
   }
 
@@ -7477,6 +7566,9 @@ public class PlanController extends FurnitureController implements Controller {
       getView().setDraggedItemsFeedback(draggedItemsFeedback);
       this.xLastMouseMove = x;
       this.yLastMouseMove = y;
+      
+      // 2017/02/05 单击事件
+      modifyItems(false, draggedPieceOfFurniture);
     }
 
     @Override
@@ -8288,11 +8380,17 @@ public class PlanController extends FurnitureController implements Controller {
       showWallAngleFeedback(this.selectedWall, true);
       // Ensure point at (x,y) is visible
       planView.makePointVisible(x, y);
+      
+      // 2017/02/11
+      modifyItems(false, selectedWall);
     }
 
     @Override
     public void releaseMouse(float x, float y) {
       postWallResize(this.selectedWall, this.oldX, this.oldY, this.startPoint);
+      
+      // 2017/02/11
+      modifyItems(false, selectedWall);
       setState(getSelectionState());
     }
 
@@ -8313,6 +8411,9 @@ public class PlanController extends FurnitureController implements Controller {
     @Override
     public void escape() {
       moveWallPoint(this.selectedWall, this.oldX, this.oldY, this.startPoint);
+      // 2017/02/11
+      modifyItems(false, selectedWall);
+      
       setState(getSelectionState());
     }
 
@@ -8395,12 +8496,19 @@ public class PlanController extends FurnitureController implements Controller {
         PlanView planView = getView();
         planView.makePointVisible(x, y);
         planView.setToolTipFeedback(getToolTipFeedbackText(newAngle), x, y);
+        
+        // 2017/02/11
+        modifyItems(false, selectedPiece);
       }
     }
 
     @Override
     public void releaseMouse(float x, float y) {
       postPieceOfFurnitureRotation(this.selectedPiece, this.oldAngle, this.doorOrWindowBoundToWall);
+      
+      // 2017/02/11
+      modifyItems(false, selectedPiece);
+      
       setState(getSelectionState());
     }
 
@@ -8425,6 +8533,10 @@ public class PlanController extends FurnitureController implements Controller {
       if (this.selectedPiece instanceof HomeDoorOrWindow) {
         ((HomeDoorOrWindow)this.selectedPiece).setBoundToWall(this.doorOrWindowBoundToWall);
       }
+      
+      // 2017/02/11
+      modifyItems(false, selectedPiece);
+      
       setState(getSelectionState());
     }
     
@@ -8502,11 +8614,17 @@ public class PlanController extends FurnitureController implements Controller {
       // Ensure point at (x,y) is visible
       planView.makePointVisible(x, y);
       planView.setToolTipFeedback(getToolTipFeedbackText(newElevation), x, y);
+      
+      // 2017/02/11
+      modifyItems(false, selectedPiece);
     }
 
     @Override
     public void releaseMouse(float x, float y) {
       postPieceOfFurnitureElevation(this.selectedPiece, this.oldElevation);
+      
+      // 2017/02/11
+      modifyItems(false, selectedPiece);
       setState(getSelectionState());
     }
 
@@ -8522,6 +8640,10 @@ public class PlanController extends FurnitureController implements Controller {
     @Override
     public void escape() {
       this.selectedPiece.setElevation(this.oldElevation);
+      
+      // 2017/02/11
+      modifyItems(false, selectedPiece);
+      
       setState(getSelectionState());
     }
 
@@ -8621,6 +8743,9 @@ public class PlanController extends FurnitureController implements Controller {
       // Ensure point at (x,y) is visible
       planView.makePointVisible(x, y);
       planView.setToolTipFeedback(getToolTipFeedbackText(newHeight), x, y);
+      
+      // 2017/02/11
+      modifyItems(false, selectedPiece);
     }
 
     @Override
@@ -8641,6 +8766,9 @@ public class PlanController extends FurnitureController implements Controller {
     @Override
     public void escape() {
       this.resizedPiece.reset();
+      // 2017/02/11
+      modifyItems(false, resizedPiece.getPieceOfFurniture());
+      
       setState(getSelectionState());
     }
 
@@ -8771,6 +8899,9 @@ public class PlanController extends FurnitureController implements Controller {
       // Ensure point at (x,y) is visible
       planView.makePointVisible(x, y);
       planView.setToolTipFeedback(getToolTipFeedbackText(newWidth, newDepth), x, y);
+      
+      // 2017/02/11
+      modifyItems(false, selectedPiece);
     }
 
     @Override
@@ -8797,6 +8928,9 @@ public class PlanController extends FurnitureController implements Controller {
     @Override
     public void escape() {
       this.resizedPiece.reset();
+      // 2017/02/11
+      modifyItems(false, resizedPiece.getPieceOfFurniture());
+      
       setState(getSelectionState());
     }
 
@@ -9127,6 +9261,9 @@ public class PlanController extends FurnitureController implements Controller {
         this.xLastMouseMove = x;
         this.yLastMouseMove = y;      
         this.angleLastMouseMove = angleMouseMove;
+        
+        // 2017/02/11
+        modifyItems(false, selectedCamera);
       }
     }
 
@@ -9138,6 +9275,8 @@ public class PlanController extends FurnitureController implements Controller {
     @Override
     public void escape() {
       this.selectedCamera.setYaw(this.oldYaw);
+      // 2017/02/11
+      modifyItems(false, selectedCamera);
       setState(getSelectionState());
     }
     
@@ -9199,6 +9338,8 @@ public class PlanController extends FurnitureController implements Controller {
       this.selectedCamera.setPitch(newPitch);
       
       getView().setToolTipFeedback(getToolTipFeedbackText(newPitch), x, y);
+      // 2017/02/11
+      modifyItems(false, selectedCamera);
     }
 
     @Override
@@ -9209,6 +9350,9 @@ public class PlanController extends FurnitureController implements Controller {
     @Override
     public void escape() {
       this.selectedCamera.setPitch(this.oldPitch);
+      // 2017/02/11
+      modifyItems(false, selectedCamera);
+      
       setState(getSelectionState());
     }
     
@@ -9271,6 +9415,8 @@ public class PlanController extends FurnitureController implements Controller {
       // Update camera elevation
       this.selectedCamera.setZ(newElevation);
       getView().setToolTipFeedback(getToolTipFeedbackText(newElevation), x, y);
+      // 2017/02/11
+      modifyItems(false, selectedCamera);
     }
 
     @Override
@@ -9281,6 +9427,9 @@ public class PlanController extends FurnitureController implements Controller {
     @Override
     public void escape() {
       this.selectedCamera.setZ(this.oldElevation);
+      // 2017/02/11
+      modifyItems(false, selectedCamera);
+      
       setState(getSelectionState());
     }
     
@@ -10324,6 +10473,9 @@ public class PlanController extends FurnitureController implements Controller {
       
       // Ensure point at (x,y) is visible
       planView.makePointVisible(x, y);
+      
+      // 2017/02/11
+      modifyItems(false, newRoom);
     }
     
     /**
@@ -10356,6 +10508,9 @@ public class PlanController extends FurnitureController implements Controller {
       } else {
         endRoomSide();
       }
+      
+      // 2017/02/11
+      modifyItems(false, newRoom);
     }
 
     private void validateDrawnRoom() {
@@ -10751,11 +10906,17 @@ public class PlanController extends FurnitureController implements Controller {
       showRoomAngleFeedback(this.selectedRoom, this.roomPointIndex);
       // Ensure point at (x,y) is visible
       planView.makePointVisible(x, y);
+      
+      // 2017/02/11
+      modifyItems(false, selectedRoom);
     }
 
     @Override
     public void releaseMouse(float x, float y) {
       postRoomResize(this.selectedRoom, this.oldX, this.oldY, this.roomPointIndex);
+      // 2017/02/11
+      modifyItems(false, selectedRoom);
+      
       setState(getSelectionState());
     }
 
@@ -10776,6 +10937,9 @@ public class PlanController extends FurnitureController implements Controller {
     @Override
     public void escape() {
       moveRoomPoint(this.selectedRoom, this.oldX, this.oldY, this.roomPointIndex);
+      // 2017/02/11
+      modifyItems(false, selectedRoom);
+      
       setState(getSelectionState());
     }
 
@@ -11007,11 +11171,17 @@ public class PlanController extends FurnitureController implements Controller {
 
       // Ensure point at (x,y) is visible
       getView().makePointVisible(x, y);
+      
+      // 2017/02/11
+      modifyItems(false, selectedRoom);
     }
 
     @Override
     public void releaseMouse(float x, float y) {
       postRoomAreaOffset(this.selectedRoom, this.oldAreaXOffset, this.oldAreaYOffset);
+      // 2017/02/11
+      modifyItems(false, selectedRoom);
+      
       setState(getSelectionState());
     }
 
@@ -11025,6 +11195,10 @@ public class PlanController extends FurnitureController implements Controller {
     public void escape() {
       this.selectedRoom.setAreaXOffset(this.oldAreaXOffset);
       this.selectedRoom.setAreaYOffset(this.oldAreaYOffset);
+      
+      // 2017/02/11
+      modifyItems(false, selectedRoom);
+      
       setState(getSelectionState());
     }
 
@@ -11089,12 +11263,18 @@ public class PlanController extends FurnitureController implements Controller {
         // Update room area new angle
         this.selectedRoom.setAreaAngle(newAngle); 
         getView().makePointVisible(x, y);
+        
+        // 2017/02/11
+        modifyItems(false, selectedRoom);
       }
     }
 
     @Override
     public void releaseMouse(float x, float y) {
       postRoomAreaRotation(this.selectedRoom, this.oldAreaAngle);
+      // 2017/02/11
+      modifyItems(false, selectedRoom);
+      
       setState(getSelectionState());
     }
 
@@ -11116,6 +11296,9 @@ public class PlanController extends FurnitureController implements Controller {
     @Override
     public void escape() {
       this.selectedRoom.setAreaAngle(this.oldAreaAngle);
+      // 2017/02/11
+      modifyItems(false, selectedRoom);
+      
       setState(getSelectionState());
     }
 
@@ -11678,11 +11861,18 @@ public class PlanController extends FurnitureController implements Controller {
       }
       // Ensure point at (x,y) is visible
       planView.makePointVisible(x, y);
+      
+      // 2017/02/11
+      modifyItems(false, selectedPolyline);
     }
 
     @Override
     public void releaseMouse(float x, float y) {
       postPolylineResize(this.selectedPolyline, this.oldX, this.oldY, this.polylinePointIndex);
+      
+      // 2017/02/11
+      modifyItems(false, selectedPolyline);
+      
       setState(getSelectionState());
     }
 
@@ -11703,6 +11893,10 @@ public class PlanController extends FurnitureController implements Controller {
     @Override
     public void escape() {
       this.selectedPolyline.setPoint(this.oldX, this.oldY, this.polylinePointIndex);
+      
+      // 2017/02/11
+      modifyItems(false, selectedPolyline);
+      
       setState(getSelectionState());
     }
 
@@ -11795,12 +11989,19 @@ public class PlanController extends FurnitureController implements Controller {
         // Update label text new angle
         this.selectedLabel.setAngle(newAngle); 
         getView().makePointVisible(x, y);
+        
+        // 2017/02/11
+        modifyItems(false, selectedLabel);
       }
     }
 
     @Override
     public void releaseMouse(float x, float y) {
       postLabelRotation(this.selectedLabel, this.oldAngle);
+      
+      // 2017/02/11
+      modifyItems(false, selectedLabel);
+      
       setState(getSelectionState());
     }
 
@@ -11822,6 +12023,9 @@ public class PlanController extends FurnitureController implements Controller {
     @Override
     public void escape() {
       this.selectedLabel.setAngle(this.oldAngle);
+      // 2017/02/11
+      modifyItems(false, selectedLabel);
+      
       setState(getSelectionState());
     }
 
@@ -11895,11 +12099,18 @@ public class PlanController extends FurnitureController implements Controller {
       // Ensure point at (x,y) is visible
       planView.makePointVisible(x, y);
       planView.setToolTipFeedback(getToolTipFeedbackText(newElevation), x, y);
+      
+      // 2017/02/11
+      modifyItems(false, selectedLabel);
     }
 
     @Override
     public void releaseMouse(float x, float y) {
       postLabelElevation(this.selectedLabel, this.oldElevation);
+      
+      // 2017/02/11
+      modifyItems(false, selectedLabel);
+      
       setState(getSelectionState());
     }
 
@@ -11915,6 +12126,10 @@ public class PlanController extends FurnitureController implements Controller {
     @Override
     public void escape() {
       this.selectedLabel.setElevation(this.oldElevation);
+      
+      // 2017/02/11
+      modifyItems(false, selectedLabel);
+      
       setState(getSelectionState());
     }
 
@@ -11987,18 +12202,29 @@ public class PlanController extends FurnitureController implements Controller {
         PlanView planView = getView();
         planView.makePointVisible(x, y);
         planView.setToolTipFeedback(getToolTipFeedbackText(newNorthDirection), x, y);
+        
+        // 2017/02/11
+        modifyItems(false, selectedCompass);
       }
     }
 
     @Override
     public void releaseMouse(float x, float y) {
       postCompassRotation(this.selectedCompass, this.oldNorthDirection);
+      
+      // 2017/02/11
+      modifyItems(false, selectedCompass);
+      
       setState(getSelectionState());
     }
 
     @Override
     public void escape() {
       this.selectedCompass.setNorthDirection(this.oldNorthDirection);
+      
+      // 2017/02/11
+      modifyItems(false, selectedCompass);
+      
       setState(getSelectionState());
     }
     
@@ -12071,17 +12297,28 @@ public class PlanController extends FurnitureController implements Controller {
       // Ensure point at (x,y) is visible
       planView.makePointVisible(x, y);
       planView.setToolTipFeedback(getToolTipFeedbackText(newDiameter), x, y);
+      
+      // 2017/02/11
+      modifyItems(false, selectedCompass);
     }
 
     @Override
     public void releaseMouse(float x, float y) {
       postCompassResize(this.selectedCompass, this.oldDiameter);
+      
+      // 2017/02/11
+      modifyItems(false, selectedCompass);
+      
       setState(getSelectionState());
     }
 
     @Override
     public void escape() {
       this.selectedCompass.setDiameter(this.oldDiameter);
+      
+      // 2017/02/11
+      modifyItems(false, selectedCompass);
+      
       setState(getSelectionState());
     }
 

@@ -6,6 +6,7 @@
 package com.eteks.sweethome3d.swing;
 
 import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -28,12 +29,12 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -70,11 +71,19 @@ public class PolylinePanel extends JPanel implements DialogView {
    */
   public PolylinePanel(UserPreferences preferences,
                               PolylineController controller) {
-    super(new GridBagLayout());
+    // 2017/02/07
+    super(new BorderLayout());
+   // super(new GridBagLayout());
+    
     this.controller = controller;
     createComponents(preferences, controller);
     setMnemonics(preferences);
-    layoutComponents();
+    
+    // 2017/02/07
+    layoutComponents2();
+    //layoutComponents();
+    
+    SwingTools.addResizeComponentListener(this);
   }
   
   /**
@@ -350,6 +359,7 @@ public class PolylinePanel extends JPanel implements DialogView {
 
 
     this.dialogTitle = preferences.getLocalizedString(PolylinePanel.class, "polyline.title");
+    triggerModifyView(controller);
   }
   
   /**
@@ -373,6 +383,69 @@ public class PolylinePanel extends JPanel implements DialogView {
           PolylinePanel.class, "colorLabel.mnemonic")).getKeyCode());
       this.colorLabel.setLabelFor(this.colorButton);
     }
+  }
+  
+  /**
+   * Layouts panel components in panel with their labels. 
+   */
+  private void layoutComponents2() {
+    // tabbed Panel
+    JTabbedPane tabbedpane = new JTabbedPane();
+    JPanel panel = SwingTools.initPropPanel();
+    panel.add(tabbedpane);
+
+    add(panel);
+    
+    
+    int labelAlignment = OperatingSystem.isMacOSX() 
+        ? GridBagConstraints.LINE_END
+        : GridBagConstraints.LINE_START;
+    Insets labelInsets = new Insets(0, 0, 5, 5);
+    
+    JScrollPane scrollPane1 = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    JPanel box1 = new JPanel(new GridBagLayout());
+    
+    // First row
+    box1.add(this.thicknessLabel, new GridBagConstraints(
+        0, 0, 1, 1, 0, 0, labelAlignment, 
+        GridBagConstraints.NONE, labelInsets, 0, 0));
+    Insets rightComponentInsets = new Insets(0, 0, 5, 0);
+    box1.add(this.thicknessSpinner, new GridBagConstraints(
+        1, 0, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.HORIZONTAL, rightComponentInsets, 0, 0));
+    // Second row
+    box1.add(this.arrowsStyleLabel, new GridBagConstraints(
+        0, 1, 1, 1, 0, 0, labelAlignment, 
+        GridBagConstraints.NONE, labelInsets, 0, 0));
+    box1.add(this.arrowsStyleComboBox, new GridBagConstraints(
+        1, 1, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.HORIZONTAL, rightComponentInsets, 0, 0));
+    // Third row
+    box1.add(this.joinStyleLabel, new GridBagConstraints(
+        0, 2, 1, 1, 0, 0, labelAlignment, 
+        GridBagConstraints.NONE, labelInsets, 0, 0));
+    box1.add(this.joinStyleComboBox, new GridBagConstraints(
+        1, 2, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.HORIZONTAL, rightComponentInsets, 0, 0));
+    // Fourth row
+    box1.add(this.dashStyleLabel, new GridBagConstraints(
+        0, 3, 1, 1, 0, 0, labelAlignment, 
+        GridBagConstraints.NONE, labelInsets, 0, 0));
+    box1.add(this.dashStyleComboBox, new GridBagConstraints(
+        1, 3, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.HORIZONTAL, rightComponentInsets, 0, 0));
+    // Last row
+    box1.add(this.colorLabel, new GridBagConstraints(
+        0, 4, 1, 1, 0, 0, labelAlignment, 
+        GridBagConstraints.NONE, new Insets(0, 0, 0, 5), 0, 0));
+    box1.add(this.colorButton, new GridBagConstraints(
+        1, 4, 1, 1, 0, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.HORIZONTAL, new Insets(0, OperatingSystem.isMacOSX() ? 2  : -1, 0, OperatingSystem.isMacOSX() ? 3  : -1), 0, 0));
+    
+    scrollPane1.add(box1);
+    scrollPane1.setViewportView(box1);
+    scrollPane1.setBorder(null);
+    tabbedpane.add("基本信息", scrollPane1);
   }
   
   /**
@@ -425,11 +498,14 @@ public class PolylinePanel extends JPanel implements DialogView {
    * Displays this panel in a dialog box. 
    */
   public void displayView(View parentView) {
-    if (SwingTools.showConfirmDialog((JComponent)parentView, this, this.dialogTitle, 
+    // 2017/02/05 显示属性框
+    SwingTools.addComponent2PropPanel(parentView, this);
+    
+/*    if (SwingTools.showConfirmDialog((JComponent)parentView, this, this.dialogTitle, 
           ((JSpinner.DefaultEditor)this.thicknessSpinner.getEditor()).getTextField()) == JOptionPane.OK_OPTION
         && this.controller != null) {
       this.controller.modifyPolylines();
-    }
+    }*/
   }
   
   /**
@@ -490,6 +566,29 @@ public class PolylinePanel extends JPanel implements DialogView {
         }
       }
       return arrowsStyle.toArray(new ArrowsStyle [arrowsStyle.size()]);
+    }
+  }
+  
+  /**
+   * 2017/02/05
+   * 属性修改时同步更新平面视图
+   */
+  private void modifyView() {
+    this.controller.modifyPolylines();
+  }
+  
+  /**
+   * 2017/02/08
+   * 属性改变触发视图更新
+   */
+  private void triggerModifyView(final PolylineController controller) {
+    for (com.eteks.sweethome3d.viewcontroller.PolylineController.Property prop : PolylineController.Property.values()) {
+      controller.addPropertyChangeListener(prop, 
+          new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent ev) {
+              modifyView();
+            }
+          });
     }
   }
 }
