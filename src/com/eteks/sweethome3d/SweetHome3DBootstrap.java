@@ -19,6 +19,8 @@
  */
 package com.eteks.sweethome3d;
 
+import java.awt.Font;
+import java.awt.Insets;
 import java.io.File;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -28,6 +30,7 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 
 import org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper;
 
@@ -40,10 +43,8 @@ import com.eteks.sweethome3d.tools.ExtensionsClassLoader;
  */
 public class SweetHome3DBootstrap {
   public static void main(String [] args) throws Exception {
-    
-    //设置本属性将改变窗口边框样式定义
-    BeautyEyeLNFHelper.frameBorderStyle = BeautyEyeLNFHelper.FrameBorderStyle.osLookAndFeelDecorated;
-    org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper.launchBeautyEyeLNF();
+    // 2017/02/12
+    setLookFeel();
     
     Class sweetHome3DBootstrapClass = SweetHome3DBootstrap.class;
     List<String> extensionJarsAndDlls = new ArrayList<String>(Arrays.asList(new String [] {
@@ -204,5 +205,58 @@ public class SweetHome3DBootstrap {
         applicationClass.getMethod("main", Array.newInstance(String.class, 0).getClass());
     // Call application class main method with reflection
     applicationClassMain.invoke(null, new Object [] {args});
+  }
+  
+  /**
+   * 2017/02/12
+   * @throws Exception
+   */
+  private static void setLookFeel() throws Exception {
+    //设置本属性将改变窗口边框样式定义
+    BeautyEyeLNFHelper.frameBorderStyle = BeautyEyeLNFHelper.FrameBorderStyle.generalNoTranslucencyShadow;
+    org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper.launchBeautyEyeLNF();
+    
+    //改变InsetsUIResource参数的值即可实现
+    UIManager.put("ToggleButton.margin", new javax.swing.plaf.InsetsUIResource(1,1,1,1));
+        
+    /** UIManager中UI字体相关的key */
+    String[] DEFAULT_FONT  = new String[]{
+        "Table.font"
+        ,"TableHeader.font"
+        ,"CheckBox.font"
+        ,"Tree.font"
+        ,"Viewport.font"
+        ,"ProgressBar.font"
+        ,"RadioButtonMenuItem.font"
+        ,"ToolBar.font"
+        ,"ColorChooser.font"
+        ,"ToggleButton.font"
+        ,"Panel.font"
+        ,"TextArea.font"
+        ,"Menu.font"
+        ,"TableHeader.font"
+        // ,"TextField.font"
+        ,"OptionPane.font"
+        ,"MenuBar.font"
+        ,"Button.font"
+        ,"Label.font"
+        ,"PasswordField.font"
+        ,"ScrollPane.font"
+        ,"MenuItem.font"
+        ,"ToolTip.font"
+        ,"List.font"
+        ,"EditorPane.font"
+        ,"Table.font"
+        ,"TabbedPane.font"
+        ,"RadioButton.font"
+        ,"CheckBoxMenuItem.font"
+        ,"TextPane.font"
+        ,"PopupMenu.font"
+        ,"TitledBorder.font"
+        ,"ComboBox.font"
+    };
+    // 调整默认字体
+    for (int i = 0; i < DEFAULT_FONT.length; i++)
+        UIManager.put(DEFAULT_FONT[i],new Font("微软雅黑", Font.PLAIN,12));
   }
 }

@@ -28,6 +28,7 @@ import java.awt.Cursor;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.FlowLayout;
 import java.awt.FocusTraversalPolicy;
 import java.awt.Font;
 import java.awt.Frame;
@@ -36,7 +37,6 @@ import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -50,7 +50,6 @@ import java.awt.dnd.DragSource;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
@@ -144,6 +143,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import javax.swing.event.ChangeEvent;
@@ -1968,6 +1968,58 @@ public class HomePane extends JRootPane implements HomeView {
     }
     addActionToMenu(ActionType.DELETE_RECENT_HOMES, openRecentHomeMenu);
   }
+  
+  /**
+   * 2017/02/12
+   * Returns the tool bar displayed in this pane.
+   */
+  private JToolBar createDesignToolBar(Home home) {
+    final JToolBar toolBar = new UnfocusableToolBar();
+   
+    addToggleActionToToolBar(ActionType.SELECT, toolBar);
+    addToggleActionToToolBar(ActionType.PAN, toolBar);
+    
+    addToggleActionToToolBar(ActionType.CREATE_WALLS, toolBar);
+    addToggleActionToToolBar(ActionType.CREATE_ROOMS, toolBar);
+    addToggleActionToToolBar(ActionType.CREATE_POLYLINES, toolBar);
+    addToggleActionToToolBar(ActionType.CREATE_DIMENSION_LINES, toolBar);
+    addToggleActionToToolBar(ActionType.CREATE_LABELS, toolBar);
+    //toolBar.add(Box.createRigidArea(new Dimension(1, 1)));
+    
+    addActionToToolBar(ActionType.INCREASE_TEXT_SIZE, toolBar);
+    addActionToToolBar(ActionType.DECREASE_TEXT_SIZE, toolBar);
+    addToggleActionToToolBar(ActionType.TOGGLE_BOLD_STYLE, toolBar);
+    addToggleActionToToolBar(ActionType.TOGGLE_ITALIC_STYLE, toolBar);
+    //toolBar.add(Box.createRigidArea(new Dimension(1, 1)));
+    
+    addActionToToolBar(ActionType.ZOOM_IN, toolBar);
+    addActionToToolBar(ActionType.ZOOM_OUT, toolBar);
+    toolBar.addSeparator();
+    
+    // Add plugin actions buttons
+    for (Action pluginAction : this.pluginActions) {
+      if (Boolean.TRUE.equals(pluginAction.getValue(PluginAction.Property.TOOL_BAR.name()))) {
+        addActionToToolBar(new ResourceAction.ToolBarAction(pluginAction), toolBar);
+      }
+    }
+
+    // Remove useless separators 
+    for (int i = toolBar.getComponentCount() - 1; i > 0; i--) {
+      Component child = toolBar.getComponent(i);
+      if (child instanceof JSeparator
+          && (i == toolBar.getComponentCount() - 1
+              || toolBar.getComponent(i - 1) instanceof JSeparator)) {
+        toolBar.remove(i);
+      } 
+    }
+
+    if (OperatingSystem.isMacOSXLeopardOrSuperior() && OperatingSystem.isJavaVersionBetween("1.7", "1.7.0_40")) {
+      // Reduce tool bar height to balance segmented buttons with higher insets 
+      toolBar.setPreferredSize(new Dimension(0, toolBar.getPreferredSize().height - 4));
+    }
+
+    return toolBar;
+  }
 
   /**
    * Returns the tool bar displayed in this pane.
@@ -1990,10 +2042,11 @@ public class HomePane extends JRootPane implements HomeView {
     addActionToToolBar(ActionType.PASTE, toolBar);
     toolBar.addSeparator();
 
-    addActionToToolBar(ActionType.ADD_HOME_FURNITURE, toolBar);
-    toolBar.addSeparator();
+    // 2017/02/12
+    //addActionToToolBar(ActionType.ADD_HOME_FURNITURE, toolBar);
+    //toolBar.addSeparator();
    
-    addToggleActionToToolBar(ActionType.SELECT, toolBar);
+/*    addToggleActionToToolBar(ActionType.SELECT, toolBar);
     addToggleActionToToolBar(ActionType.PAN, toolBar);
     addToggleActionToToolBar(ActionType.CREATE_WALLS, toolBar);
     addToggleActionToToolBar(ActionType.CREATE_ROOMS, toolBar);
@@ -2009,7 +2062,7 @@ public class HomePane extends JRootPane implements HomeView {
     toolBar.add(Box.createRigidArea(new Dimension(2, 2)));
     
     addActionToToolBar(ActionType.ZOOM_IN, toolBar);
-    addActionToToolBar(ActionType.ZOOM_OUT, toolBar);
+    addActionToToolBar(ActionType.ZOOM_OUT, toolBar);*/
     toolBar.addSeparator();
     addActionToToolBar(ActionType.CREATE_PHOTO, toolBar);
     addActionToToolBar(ActionType.CREATE_VIDEO, toolBar);
@@ -2522,13 +2575,13 @@ public class HomePane extends JRootPane implements HomeView {
     if (catalogView != null) {
       // Create catalog view popup menu
       JPopupMenu catalogViewPopup = new JPopupMenu();
-      addActionToPopupMenu(ActionType.COPY, catalogViewPopup);
-      catalogViewPopup.addSeparator();
+      //addActionToPopupMenu(ActionType.COPY, catalogViewPopup);
+      //catalogViewPopup.addSeparator();
       addActionToPopupMenu(ActionType.DELETE, catalogViewPopup);
       catalogViewPopup.addSeparator();
-      addActionToPopupMenu(ActionType.ADD_HOME_FURNITURE, catalogViewPopup);
+      //addActionToPopupMenu(ActionType.ADD_HOME_FURNITURE, catalogViewPopup);
       addActionToPopupMenu(ActionType.ADD_FURNITURE_TO_GROUP, catalogViewPopup);
-      addActionToPopupMenu(ActionType.MODIFY_FURNITURE, catalogViewPopup);
+      //addActionToPopupMenu(ActionType.MODIFY_FURNITURE, catalogViewPopup);
       catalogViewPopup.addSeparator();
       addActionToPopupMenu(ActionType.IMPORT_FURNITURE, catalogViewPopup);
       SwingTools.hideDisabledMenuItems(catalogViewPopup);
@@ -2591,17 +2644,17 @@ public class HomePane extends JRootPane implements HomeView {
       addActionToPopupMenu(ActionType.PASTE_STYLE, furnitureViewPopup);
       furnitureViewPopup.addSeparator();
       addActionToPopupMenu(ActionType.DELETE, furnitureViewPopup);
-      addActionToPopupMenu(ActionType.SELECT_ALL, furnitureViewPopup);
+     // addActionToPopupMenu(ActionType.SELECT_ALL, furnitureViewPopup);
       furnitureViewPopup.addSeparator();
-      addActionToPopupMenu(ActionType.MODIFY_FURNITURE, furnitureViewPopup);
+     // addActionToPopupMenu(ActionType.MODIFY_FURNITURE, furnitureViewPopup);
       addActionToPopupMenu(ActionType.GROUP_FURNITURE, furnitureViewPopup);
       addActionToPopupMenu(ActionType.UNGROUP_FURNITURE, furnitureViewPopup);
       furnitureViewPopup.add(createAlignOrDistributeMenu(home, preferences, true));
-      addActionToPopupMenu(ActionType.RESET_FURNITURE_ELEVATION, furnitureViewPopup);
+      //addActionToPopupMenu(ActionType.RESET_FURNITURE_ELEVATION, furnitureViewPopup);
       furnitureViewPopup.addSeparator();
-      furnitureViewPopup.add(createFurnitureSortMenu(home, preferences));
-      furnitureViewPopup.add(createFurnitureDisplayPropertyMenu(home, preferences));
-      furnitureViewPopup.addSeparator();
+      //furnitureViewPopup.add(createFurnitureSortMenu(home, preferences));
+      //furnitureViewPopup.add(createFurnitureDisplayPropertyMenu(home, preferences));
+      //furnitureViewPopup.addSeparator();
       addActionToPopupMenu(ActionType.EXPORT_TO_CSV, furnitureViewPopup);
       SwingTools.hideDisabledMenuItems(furnitureViewPopup);
       furnitureView.setComponentPopupMenu(furnitureViewPopup);
@@ -2694,7 +2747,7 @@ public class HomePane extends JRootPane implements HomeView {
       addActionToPopupMenu(ActionType.PASTE_STYLE, planViewPopup);
       planViewPopup.addSeparator();
       addActionToPopupMenu(ActionType.DELETE, planViewPopup);
-      Action selectObjectAction = this.menuActionMap.get(MenuActionType.SELECT_OBJECT_MENU);
+     /* Action selectObjectAction = this.menuActionMap.get(MenuActionType.SELECT_OBJECT_MENU);
       final JMenu selectObjectMenu;
       if (selectObjectAction.getValue(Action.NAME) != null) {
         selectObjectMenu = new JMenu(selectObjectAction);
@@ -2724,37 +2777,37 @@ public class HomePane extends JRootPane implements HomeView {
         }
       } else {
         selectObjectMenu = null;
-      }
-      addActionToPopupMenu(ActionType.SELECT_ALL, planViewPopup);
-      addActionToPopupMenu(ActionType.SELECT_ALL_AT_ALL_LEVELS, planViewPopup);
+      }*/
+      //addActionToPopupMenu(ActionType.SELECT_ALL, planViewPopup);
+      //addActionToPopupMenu(ActionType.SELECT_ALL_AT_ALL_LEVELS, planViewPopup);
       planViewPopup.addSeparator();
-      addToggleActionToPopupMenu(ActionType.SELECT, true, planViewPopup);
-      addToggleActionToPopupMenu(ActionType.PAN, true, planViewPopup);
-      addToggleActionToPopupMenu(ActionType.CREATE_WALLS, true, planViewPopup);
-      addToggleActionToPopupMenu(ActionType.CREATE_ROOMS, true, planViewPopup);
-      addToggleActionToPopupMenu(ActionType.CREATE_POLYLINES, true, planViewPopup);
-      addToggleActionToPopupMenu(ActionType.CREATE_DIMENSION_LINES, true, planViewPopup);
-      addToggleActionToPopupMenu(ActionType.CREATE_LABELS, true, planViewPopup);
-      planViewPopup.addSeparator();
+      //addToggleActionToPopupMenu(ActionType.SELECT, true, planViewPopup);
+      //addToggleActionToPopupMenu(ActionType.PAN, true, planViewPopup);
+      //addToggleActionToPopupMenu(ActionType.CREATE_WALLS, true, planViewPopup);
+      //addToggleActionToPopupMenu(ActionType.CREATE_ROOMS, true, planViewPopup);
+      //addToggleActionToPopupMenu(ActionType.CREATE_POLYLINES, true, planViewPopup);
+      //addToggleActionToPopupMenu(ActionType.CREATE_DIMENSION_LINES, true, planViewPopup);
+      //addToggleActionToPopupMenu(ActionType.CREATE_LABELS, true, planViewPopup);
+      //planViewPopup.addSeparator();
       JMenuItem lockUnlockBasePlanMenuItem = createLockUnlockBasePlanMenuItem(home, true);
       if (lockUnlockBasePlanMenuItem != null) {
         planViewPopup.add(lockUnlockBasePlanMenuItem);
       }
-      addActionToPopupMenu(ActionType.MODIFY_FURNITURE, planViewPopup);
+      //addActionToPopupMenu(ActionType.MODIFY_FURNITURE, planViewPopup);
       addActionToPopupMenu(ActionType.GROUP_FURNITURE, planViewPopup);
       addActionToPopupMenu(ActionType.UNGROUP_FURNITURE, planViewPopup);
       planViewPopup.add(createAlignOrDistributeMenu(home, preferences, true));
-      addActionToPopupMenu(ActionType.RESET_FURNITURE_ELEVATION, planViewPopup);
-      addActionToPopupMenu(ActionType.MODIFY_COMPASS, planViewPopup);
-      addActionToPopupMenu(ActionType.MODIFY_WALL, planViewPopup);
-      addActionToPopupMenu(ActionType.REVERSE_WALL_DIRECTION, planViewPopup);
+      //addActionToPopupMenu(ActionType.RESET_FURNITURE_ELEVATION, planViewPopup);
+      //addActionToPopupMenu(ActionType.MODIFY_COMPASS, planViewPopup);
+      //addActionToPopupMenu(ActionType.MODIFY_WALL, planViewPopup);
+      //addActionToPopupMenu(ActionType.REVERSE_WALL_DIRECTION, planViewPopup);
       addActionToPopupMenu(ActionType.SPLIT_WALL, planViewPopup);
-      addActionToPopupMenu(ActionType.MODIFY_ROOM, planViewPopup);
+      //addActionToPopupMenu(ActionType.MODIFY_ROOM, planViewPopup);
       JMenuItem addRoomPointMenuItem = addActionToPopupMenu(ActionType.ADD_ROOM_POINT, planViewPopup);
       JMenuItem deleteRoomPointMenuItem = addActionToPopupMenu(ActionType.DELETE_ROOM_POINT, planViewPopup);
-      addActionToPopupMenu(ActionType.MODIFY_POLYLINE, planViewPopup);
-      addActionToPopupMenu(ActionType.MODIFY_LABEL, planViewPopup);
-      planViewPopup.add(createTextStyleMenu(home, preferences, true));
+      //addActionToPopupMenu(ActionType.MODIFY_POLYLINE, planViewPopup);
+      //addActionToPopupMenu(ActionType.MODIFY_LABEL, planViewPopup);
+      //planViewPopup.add(createTextStyleMenu(home, preferences, true));
       planViewPopup.addSeparator();
       JMenuItem importModifyBackgroundImageMenuItem = createImportModifyBackgroundImageMenuItem(home, true);
       if (importModifyBackgroundImageMenuItem != null) {
@@ -2775,15 +2828,15 @@ public class HomePane extends JRootPane implements HomeView {
       addActionToPopupMenu(ActionType.MODIFY_LEVEL, planViewPopup);
       addActionToPopupMenu(ActionType.DELETE_LEVEL, planViewPopup);
       planViewPopup.addSeparator();
-      addActionToPopupMenu(ActionType.ZOOM_OUT, planViewPopup);
-      addActionToPopupMenu(ActionType.ZOOM_IN, planViewPopup);
-      planViewPopup.addSeparator();
+      //addActionToPopupMenu(ActionType.ZOOM_OUT, planViewPopup);
+      //addActionToPopupMenu(ActionType.ZOOM_IN, planViewPopup);
+      //planViewPopup.addSeparator();
       addActionToPopupMenu(ActionType.EXPORT_TO_SVG, planViewPopup);
       SwingTools.hideDisabledMenuItems(planViewPopup);
-      if (selectObjectMenu != null) {
+/*      if (selectObjectMenu != null) {
         // Add a popup listener to manage Select object sub menu before the menu is hidden when empty
         addSelectObjectMenuItems(selectObjectMenu, controller.getPlanController(), preferences);
-      }
+      }*/
       if (addRoomPointMenuItem != null || deleteRoomPointMenuItem != null) {
         // Add a popup listener to manage ADD_ROOM_POINT and DELETE_ROOM_POINT actions according to selection
         updateRoomActions(addRoomPointMenuItem, deleteRoomPointMenuItem, controller.getPlanController(), preferences);
@@ -2858,10 +2911,10 @@ public class HomePane extends JRootPane implements HomeView {
       }
       addActionToPopupMenu(ActionType.DELETE_POINTS_OF_VIEW, view3DPopup);
       view3DPopup.addSeparator();
-      JMenuItem attachDetach3DViewMenuItem = createAttachDetach3DViewMenuItem(controller, true);
+/*      JMenuItem attachDetach3DViewMenuItem = createAttachDetach3DViewMenuItem(controller, true);
       if (attachDetach3DViewMenuItem != null) {
         view3DPopup.add(attachDetach3DViewMenuItem);
-      }
+      }*/
       addToggleActionToPopupMenu(ActionType.DISPLAY_ALL_LEVELS, true, view3DPopup);
       addToggleActionToPopupMenu(ActionType.DISPLAY_SELECTED_LEVEL, true, view3DPopup);
       addActionToPopupMenu(ActionType.MODIFY_3D_ATTRIBUTES, view3DPopup);
@@ -2881,6 +2934,11 @@ public class HomePane extends JRootPane implements HomeView {
       // 2017/02/04
       final JComponent furniturePane = createFurnitureView(home, preferences, controller);
       final JComponent catalogFurniturePane = createCatalogFurniturePane(home, preferences, controller);
+      final JToolBar designToolBar = createDesignToolBar(home);
+      designToolBar.setFloatable(false);
+      designToolBar.setBorder(null);
+      designToolBar.setLayout(new FlowLayout(FlowLayout.LEFT));//这里是关键
+      designToolBar.setPreferredSize(new Dimension(35, 0));
       
       final JComponent planView3DPane;
       boolean detachedView3D = Boolean.parseBoolean(home.getProperty(view3D.getClass().getName() + DETACHED_VIEW_VISUAL_PROPERTY));
@@ -2904,11 +2962,16 @@ public class HomePane extends JRootPane implements HomeView {
           
           final JSplitPane planViewPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, planView, rightPane);
           planViewPane.setMinimumSize(new Dimension());
-          planViewPane.setLastDividerLocation(160);
+         // planViewPane.setLastDividerLocation(200);
           configureSplitPane(planViewPane, home, 
-              PLAN_PANE_DIVIDER_LOCATION_VISUAL_PROPERTY, 0.85, false, controller);
+              PLAN_PANE_DIVIDER_LOCATION_VISUAL_PROPERTY, 0.75, false, controller);
           
-          final JSplitPane mainPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, catalogFurniturePane, planViewPane);
+          // 设计界面
+          JPanel designPanel = new JPanel(new BorderLayout());
+          designPanel.add(BorderLayout.WEST, designToolBar);
+          designPanel.add(BorderLayout.CENTER, planViewPane);
+          
+          final JSplitPane mainPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, catalogFurniturePane, designPanel);
           // Set default divider location
           mainPane.setDividerLocation(120);
           configureSplitPane(mainPane, home, 
@@ -3727,15 +3790,28 @@ public class HomePane extends JRootPane implements HomeView {
     String title = this.preferences.getLocalizedString(HomePane.class, actionTipKey + ".tipTitle");
     String message = this.preferences.getLocalizedString(HomePane.class, actionTipKey + ".tipMessage");
     if (message.length() > 0) {
-      JPanel tipPanel = new JPanel(new GridBagLayout());
+      // tabbed Panel
+      JTabbedPane tabbedpane = new JTabbedPane();
+      JPanel panel = SwingTools.initPropPanel();
+      panel.add(tabbedpane);
+
+      add(panel);
+      
+      JScrollPane scrollPane = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+      //JPanel tipPanel = new JPanel(new GridBagLayout());
+      JPanel tipPanel = new JPanel(new BorderLayout());
+      tipPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
+      tipPanel.setBackground(new Color(255, 255, 255));
+      tipPanel.setPreferredSize(new Dimension(0, 350));
       
       JLabel messageLabel = new JLabel(message);
-      tipPanel.add(messageLabel, new GridBagConstraints(
+      /*tipPanel.add(messageLabel, new GridBagConstraints(
           0, 0, 1, 1, 0, 0, GridBagConstraints.NORTH, 
-          GridBagConstraints.NONE, new Insets(0, 0, 10, 0), 0, 0));
+          GridBagConstraints.HORIZONTAL, new Insets(0, 0, 10, 0), 0, 0));*/
+      tipPanel.add(messageLabel, BorderLayout.NORTH);
       
       // Add a check box that lets user choose whether he wants to display again the tip or not
-      JCheckBox doNotDisplayTipCheckBox = new JCheckBox(
+/*      JCheckBox doNotDisplayTipCheckBox = new JCheckBox(
           SwingTools.getLocalizedLabelText(this.preferences, HomePane.class, "doNotDisplayTipCheckBox.text"));
       if (!OperatingSystem.isMacOSX()) {
         doNotDisplayTipCheckBox.setMnemonic(KeyStroke.getKeyStroke(
@@ -3743,11 +3819,20 @@ public class HomePane extends JRootPane implements HomeView {
       }
       tipPanel.add(doNotDisplayTipCheckBox, new GridBagConstraints(
           0, 1, 1, 1, 0, 1, GridBagConstraints.CENTER, 
-          GridBagConstraints.NONE, new Insets(0, 0, 5, 0), 0, 0));
+          GridBagConstraints.NONE, new Insets(0, 0, 5, 0), 0, 0));*/
       
-      SwingTools.showMessageDialog(this, tipPanel, title, 
-          JOptionPane.INFORMATION_MESSAGE, doNotDisplayTipCheckBox);
-      return doNotDisplayTipCheckBox.isSelected();
+/*      SwingTools.showMessageDialog(this, tipPanel, title, 
+          JOptionPane.INFORMATION_MESSAGE, doNotDisplayTipCheckBox);*/
+      // 2017/02/05 显示属性框
+
+      scrollPane.add(tipPanel);
+      scrollPane.setViewportView(tipPanel);
+      scrollPane.setBorder(null);
+      tabbedpane.add(title, scrollPane);
+      SwingTools.addComponent2PropPanel(controller.getPlanController().getView(), panel);
+      
+      return false;
+      //return doNotDisplayTipCheckBox.isSelected();
     } else {
       // Ignore untranslated tips
       return true;
