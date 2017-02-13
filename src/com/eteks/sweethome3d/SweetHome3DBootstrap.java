@@ -20,7 +20,6 @@
 package com.eteks.sweethome3d;
 
 import java.awt.Font;
-import java.awt.Insets;
 import java.io.File;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
