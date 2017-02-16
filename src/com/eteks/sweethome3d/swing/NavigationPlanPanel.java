@@ -65,6 +65,7 @@ public class NavigationPlanPanel extends JPanel{
   private void createComponents(final Home home, 
                                 final UserPreferences preferences) {
     final Dimension preferredSize = new Dimension(getToolkit().getScreenSize().width <= 1024 ? 324 : 404, 404);
+    home.getCompass().setVisible(false);
     this.planComponent = new PlanComponent(home, preferences, null) {
         private void updateScale() {
           if (getWidth() > 0 && getHeight() > 0) {
@@ -109,7 +110,7 @@ public class NavigationPlanPanel extends JPanel{
         @Override
         protected void paintComponent(Graphics g) {
           Graphics2D g2D = (Graphics2D)g;
-          g2D.setColor(getBackground());
+          g2D.setColor(new Color(255, 255, 255, 233));
           g2D.fillRect(0, 0, getWidth(), getHeight());
           super.paintComponent(g);
         }
@@ -119,7 +120,7 @@ public class NavigationPlanPanel extends JPanel{
                                       PaintMode paintMode) throws InterruptedIOException {
           Graphics2D g2D = (Graphics2D)g;
           Composite oldComposite = g2D.getComposite();
-          g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f));
+          g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.9f));
           super.paintHomeItems(g, planScale, backgroundColor, foregroundColor, paintMode);
           
           // Paint recorded camera path
@@ -168,73 +169,6 @@ public class NavigationPlanPanel extends JPanel{
     // First row
     add(this.planComponent, new GridBagConstraints(
         0, 0, 4, 1, 1, 1, labelAlignment, 
-        GridBagConstraints.BOTH, new Insets(0, 0, 5, 0), 0, 0));
-  }
-
-  /**
-   * Displays this panel in a non modal dialog.
-   */
-  public void displayView(View parentView) {
-    /*if (currentVideoPanel == this) {
-      SwingUtilities.getWindowAncestor(NavigationPlanPanel.this).toFront();
-    } else {
-      final JOptionPane optionPane = new JOptionPane(this, 
-          JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION,
-          null, new Object [] {}, null);
-      if (parentView != null) {
-        optionPane.setComponentOrientation(((JComponent)parentView).getComponentOrientation());
-      }
-      final JDialog dialog = optionPane.createDialog(SwingUtilities.getRootPane((Component)parentView), "");
-      dialog.setModal(false);
-      
-      Component homeRoot = SwingUtilities.getRoot((Component)parentView);
-      Point dialogLocation = null;
-      if (homeRoot != null) {
-        // Restore location if it exists
-        Number x = this.home.getNumericProperty(VIDEO_DIALOG_X_VISUAL_PROPERTY);
-        Number y = this.home.getNumericProperty(VIDEO_DIALOG_Y_VISUAL_PROPERTY);      
-
-        int windowRightBorder = homeRoot.getX() + homeRoot.getWidth();
-        Dimension screenSize = getToolkit().getScreenSize();
-        Insets screenInsets = getToolkit().getScreenInsets(getGraphicsConfiguration());
-        int screenRightBorder = screenSize.width - screenInsets.right;
-        // Check dialog isn't too high
-        int screenHeight = screenSize.height - screenInsets.top - screenInsets.bottom;
-        if (OperatingSystem.isLinux() && screenHeight == screenSize.height) {
-          // Let's consider that under Linux at least an horizontal bar exists 
-          screenHeight -= 30;
-        }
-        int screenBottomBorder = screenSize.height - screenInsets.bottom;
-        int dialogWidth = dialog.getWidth();
-        if (dialog.getHeight() > screenHeight) {
-          dialog.setSize(dialogWidth, screenHeight);
-        }
-        int dialogHeight = dialog.getHeight();
-        if (x != null && y != null 
-            && x.intValue() + dialogWidth <= screenRightBorder
-            && y.intValue() + dialogHeight <= screenBottomBorder) {
-          dialogLocation = new Point(x.intValue(), y.intValue());
-        } else if (screenRightBorder - windowRightBorder > dialogWidth / 2
-            || dialogHeight == screenHeight) {
-          // If there some space left at the right of the window
-          // move the dialog to the right of window
-          dialogLocation = new Point(Math.min(windowRightBorder + 5, screenRightBorder - dialogWidth), 
-              Math.max(Math.min(homeRoot.getY() + dialog.getInsets().top, 
-                  screenSize.height - dialogHeight - screenInsets.bottom), screenInsets.top));
-        }
-      }
-      if (dialogLocation != null
-          && SwingTools.isRectangleVisibleAtScreen(new Rectangle(dialogLocation, dialog.getSize()))) {
-        dialog.setLocationByPlatform(false);
-        dialog.setLocation(dialogLocation);
-      } else {
-        dialog.setLocationByPlatform(true);
-      }
-      
-      dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-
-      dialog.setVisible(true);
-      currentVideoPanel = this;
-    }*/
+        GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
   }
 }
