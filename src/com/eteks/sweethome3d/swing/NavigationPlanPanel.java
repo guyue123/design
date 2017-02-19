@@ -44,7 +44,6 @@ import com.eteks.sweethome3d.model.ObserverCamera;
 import com.eteks.sweethome3d.model.Selectable;
 import com.eteks.sweethome3d.model.UserPreferences;
 import com.eteks.sweethome3d.tools.OperatingSystem;
-import com.eteks.sweethome3d.viewcontroller.View;
 
 /**
  * A panel used for Navigation creation. 
@@ -165,10 +164,16 @@ public class NavigationPlanPanel extends JPanel{
     int labelAlignment = OperatingSystem.isMacOSX() 
         ? GridBagConstraints.LINE_END
         : GridBagConstraints.LINE_START;
-
+    
+    JPanel panel = new JPanel(new GridBagLayout());
     // First row
+    add(panel, new GridBagConstraints(
+        0, 0, 4, 1, 2, 1, labelAlignment, 
+        GridBagConstraints.BOTH, new Insets(0, 0, 1, 0), 0, 0));
+    
+    // second row
     add(this.planComponent, new GridBagConstraints(
-        0, 0, 4, 1, 1, 1, labelAlignment, 
+        0, 1, 4, 1, 1, 1, labelAlignment, 
         GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
   }
 }

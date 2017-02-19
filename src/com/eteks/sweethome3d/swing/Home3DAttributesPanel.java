@@ -20,6 +20,7 @@
 package com.eteks.sweethome3d.swing;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -29,7 +30,6 @@ import java.beans.PropertyChangeListener;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
@@ -41,6 +41,7 @@ import com.eteks.sweethome3d.model.UserPreferences;
 import com.eteks.sweethome3d.tools.OperatingSystem;
 import com.eteks.sweethome3d.viewcontroller.DialogView;
 import com.eteks.sweethome3d.viewcontroller.Home3DAttributesController;
+import com.eteks.sweethome3d.viewcontroller.TextureChoiceController;
 import com.eteks.sweethome3d.viewcontroller.View;
 
 /**
@@ -74,7 +75,10 @@ public class Home3DAttributesPanel extends JPanel implements DialogView {
    */
   public Home3DAttributesPanel(UserPreferences preferences,
                                Home3DAttributesController controller) {
-    super(new GridBagLayout());
+    // 2017/02/19
+    super(new BorderLayout());
+   // super(new GridBagLayout());
+    
     this.controller = controller;
     createComponents(preferences, controller);
     setMnemonics(preferences);
@@ -237,6 +241,9 @@ public class Home3DAttributesPanel extends JPanel implements DialogView {
     
     this.dialogTitle = preferences.getLocalizedString(
         Home3DAttributesPanel.class, "home3DAttributes.title");
+    
+    // 2017/02/19 
+    triggerModifyView(controller);
   }
 
   /**
@@ -296,7 +303,7 @@ public class Home3DAttributesPanel extends JPanel implements DialogView {
     int labelAlignment = OperatingSystem.isMacOSX() 
         ? GridBagConstraints.LINE_END
         : GridBagConstraints.LINE_START;
-    JPanel groundPanel = SwingTools.createTitledPanel(preferences.getLocalizedString(
+  /*  JPanel groundPanel = SwingTools.createTitledPanel(preferences.getLocalizedString(
         Home3DAttributesPanel.class, "groundPanel.title"));
     // First row
     Insets labelInsets = new Insets(0, 0, 2, 5);
@@ -343,7 +350,9 @@ public class Home3DAttributesPanel extends JPanel implements DialogView {
         GridBagConstraints.HORIZONTAL, rowInsets, 0, 0));
     
     JPanel renderingPanel = SwingTools.createTitledPanel(preferences.getLocalizedString(
-        Home3DAttributesPanel.class, "renderingPanel.title"));
+        Home3DAttributesPanel.class, "renderingPanel.title"));*/
+    JPanel renderingPanel = new JPanel(new GridBagLayout());
+    
     // Third row
     renderingPanel.add(this.brightnessLabel, new GridBagConstraints(
         0, 0, 1, 1, 0, 0, labelAlignment, 
@@ -372,19 +381,78 @@ public class Home3DAttributesPanel extends JPanel implements DialogView {
     renderingPanel.add(wallsTransparencyLabelsPanel, new GridBagConstraints(
         1, 3, 3, 1, 1, 0, GridBagConstraints.CENTER, 
         GridBagConstraints.HORIZONTAL, new Insets(OperatingSystem.isWindows() ? 0 : -3, 0, 10, 0), 0, 0));
-    add(renderingPanel, new GridBagConstraints(
-        0, 2, 2, 1, 0, 0, GridBagConstraints.LINE_START, 
-        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+    add(renderingPanel);
   }
 
   /**
    * Displays this panel in a modal dialog box. 
    */
   public void displayView(View parentView) {
-    if (SwingTools.showConfirmDialog((JComponent)parentView, 
+      if (parentView != null) {
+        JComponent view3D = (JComponent)parentView;
+        
+        Component c1 = view3D.getComponent(0);
+        if (!(c1 instanceof JPanel)) {
+          return;
+        }
+        
+        JPanel jp = (JPanel)c1;
+        Component c2 = jp.getComponent(0);
+        if (c2 instanceof NavigationPlanPanel) {
+          NavigationPlanPanel npp = (NavigationPlanPanel)c2;
+          
+          JPanel pbox = (JPanel)npp.getComponent(0);
+          
+          pbox.add(this, new GridBagConstraints(
+            0, 1, 4, 1, 2, 1, GridBagConstraints.LINE_START, 
+            GridBagConstraints.BOTH, new Insets(0, 0, 1, 0), 0, 0));
+          
+          view3D.revalidate();
+        }
+      }
+    
+/*    if (SwingTools.showConfirmDialog((JComponent)parentView, 
             this, this.dialogTitle, this.wallsTransparencySlider) == JOptionPane.OK_OPTION
         && this.controller != null) {
       this.controller.modify3DAttributes();
+    }*/
+  }
+  
+  
+  /**
+   * 2017/02/05
+   * 属性修改时同步更新平面视图
+   */
+  private void modifyView() {
+    this.controller.modify3DAttributes();
+  }
+  
+  /**
+   * 2017/02/08
+   * 属性改变触发视图更新
+   */
+  private void triggerModifyView(final Home3DAttributesController controller) {
+    for (com.eteks.sweethome3d.viewcontroller.Home3DAttributesController.Property prop : Home3DAttributesController.Property.values()) {
+      controller.addPropertyChangeListener(prop, 
+          new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent ev) {
+              modifyView();
+            }
+          });
     }
+    
+    controller.getSkyTextureController().addPropertyChangeListener(TextureChoiceController.Property.TEXTURE, 
+        new PropertyChangeListener() {
+          public void propertyChange(PropertyChangeEvent ev) {
+            modifyView();
+          }
+        });
+    
+    controller.getGroundTextureController().addPropertyChangeListener(TextureChoiceController.Property.TEXTURE, 
+        new PropertyChangeListener() {
+          public void propertyChange(PropertyChangeEvent ev) {
+            modifyView();
+          }
+        });
   }
 }

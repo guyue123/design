@@ -110,7 +110,6 @@ import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
@@ -483,7 +482,7 @@ public class HomeComponent3D extends JComponent implements com.eteks.sweethome3d
             
             // 2017/02/14
             int nppWidth = Math.max(200, navigationPlanPanel.getWidth());
-            int nppHeight = Math.max(200, navigationPlanPanel.getHeight());
+            int nppHeight = Math.max(500, navigationPlanPanel.getHeight());
             int nppX = (component3D.getHeight() - nppHeight) - 10;
             int nppY = (component3D.getWidth() - nppWidth) - 10;
             navigationPlanPanel.setBounds(nppY, nppX, nppWidth, nppHeight);
@@ -573,23 +572,12 @@ public class HomeComponent3D extends JComponent implements com.eteks.sweethome3d
   private JComponent createNavigationPlanPanel(Home home, 
                                            UserPreferences preferences, 
                                            HomeController3D controller) {
-    JPanel navigationPanel = new JPanel(new GridBagLayout()) {
-        @Override
-        public void applyComponentOrientation(ComponentOrientation o) {
-          // Ignore orientation
-        }
-      };
-      
       // 2017/02/14
       if (this.navigationPlanPanel == null) {
         this.navigationPlanPanel = new NavigationPlanPanel(this.home, preferences);
       }
-      navigationPlanPanel.setPreferredSize(new Dimension(200, 200));
-      navigationPanel.add(navigationPlanPanel);
-      navigationPlanPanel.setVisible(true);
-      
      
-    return navigationPanel;
+    return navigationPlanPanel;
   }
 
   /**

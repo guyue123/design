@@ -216,7 +216,7 @@ public class SweetHome3DBootstrap {
     org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper.launchBeautyEyeLNF();
     
     //改变InsetsUIResource参数的值即可实现
-    UIManager.put("ToggleButton.margin", new javax.swing.plaf.InsetsUIResource(1,1,1,1));
+    UIManager.put("ToggleButton.margin", new javax.swing.plaf.InsetsUIResource(5,5,5,5));
         
     /** UIManager中UI字体相关的key */
     String[] DEFAULT_FONT  = new String[]{

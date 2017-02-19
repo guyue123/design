@@ -2020,6 +2020,27 @@ public class HomePane extends JRootPane implements HomeView {
 
     return toolBar;
   }
+  
+  
+  /**
+   * 
+   * 2017/02/19
+   * Returns the tool bar displayed in this pane.
+   */
+  private JToolBar create3dViewToolBar(Home home) {
+    final JToolBar toolBar = new UnfocusableToolBar();
+    toolBar.setPreferredSize(new Dimension(0, 35));
+  
+    addActionToToolBar(ActionType.CREATE_PHOTO, toolBar);
+    addActionToToolBar(ActionType.CREATE_VIDEO, toolBar);
+ 
+    if (OperatingSystem.isMacOSXLeopardOrSuperior() && OperatingSystem.isJavaVersionBetween("1.7", "1.7.0_40")) {
+      // Reduce tool bar height to balance segmented buttons with higher insets 
+      toolBar.setPreferredSize(new Dimension(0, toolBar.getPreferredSize().height - 4));
+    }
+
+    return toolBar;
+  }
 
   /**
    * Returns the tool bar displayed in this pane.
@@ -2917,7 +2938,7 @@ public class HomePane extends JRootPane implements HomeView {
       }*/
       addToggleActionToPopupMenu(ActionType.DISPLAY_ALL_LEVELS, true, view3DPopup);
       addToggleActionToPopupMenu(ActionType.DISPLAY_SELECTED_LEVEL, true, view3DPopup);
-      addActionToPopupMenu(ActionType.MODIFY_3D_ATTRIBUTES, view3DPopup);
+      //addActionToPopupMenu(ActionType.MODIFY_3D_ATTRIBUTES, view3DPopup);
       view3DPopup.addSeparator();
       addActionToPopupMenu(ActionType.CREATE_PHOTO, view3DPopup);
       addActionToPopupMenu(ActionType.CREATE_PHOTOS_AT_POINTS_OF_VIEW, view3DPopup);
@@ -2934,6 +2955,8 @@ public class HomePane extends JRootPane implements HomeView {
       // 2017/02/04
       final JComponent furniturePane = createFurnitureView(home, preferences, controller);
       final JComponent catalogFurniturePane = createCatalogFurniturePane(home, preferences, controller);
+      
+      // 工具条
       final JToolBar designToolBar = createDesignToolBar(home);
       designToolBar.setFloatable(false);
       designToolBar.setBorder(null);
@@ -2979,6 +3002,9 @@ public class HomePane extends JRootPane implements HomeView {
           
           tabbedpane.add(preferences.getLocalizedString(HomePane.class, "tabbedPane.planView.title"), mainPane);
         }
+        
+        // 2017/02/19 设置右侧面板
+        setView3dRightPanel(controller, home, view3D);
         tabbedpane.add(preferences.getLocalizedString(HomePane.class, "tabbedPane.3dView.title"), view3D);
         
         planView3DPane = tabbedpane;
@@ -3063,6 +3089,33 @@ public class HomePane extends JRootPane implements HomeView {
     } else {
       return planView;
     }    
+  }
+  
+  /**
+   * 设置3D视图的右侧面板
+   */
+  private void setView3dRightPanel(HomeController controller, Home home, JComponent view3D) {
+    Component c1 = view3D.getComponent(0);
+    if (!(c1 instanceof JPanel)) {
+      return;
+    }
+    
+    JPanel jp = (JPanel)c1;
+    Component c2 = jp.getComponent(0);
+    if (c2 instanceof NavigationPlanPanel) {
+      NavigationPlanPanel npp = (NavigationPlanPanel)c2;
+      
+      JPanel pbox = (JPanel)npp.getComponent(0);
+      
+      // 工具条
+      pbox.add(create3dViewToolBar(home), new GridBagConstraints(
+        0, 0, 4, 1, 2, 1, GridBagConstraints.LINE_START, 
+        GridBagConstraints.BOTH, new Insets(0, 0, 1, 0), 0, 0));
+      
+      controller.getHomeController3D().modifyAttributes();
+      
+      view3D.revalidate();
+    }
   }
 
   /**
