@@ -1394,7 +1394,7 @@ public class VideoPanel extends JPanel implements DialogView {
               ? PhotoRenderer.Quality.LOW
               : PhotoRenderer.Quality.HIGH);        
       } else {
-        frameGenerator = new Image3DGenerator(home, width, height, this.object3dFactory, quality == 1); 
+        frameGenerator = new Image3DGenerator(home, width, height, this.object3dFactory, quality == 1, this.preferences); 
       }
       if (!Thread.currentThread().isInterrupted()) {
         ImageDataSource sourceStream = new ImageDataSource((VideoFormat)this.videoFormatComboBox.getSelectedItem(), 
@@ -1827,9 +1827,9 @@ public class VideoPanel extends JPanel implements DialogView {
 
     public Image3DGenerator(Home home, int width, int height,
                             Object3DFactory object3dFactory, 
-                            boolean displayShadowOnFloor) {
+                            boolean displayShadowOnFloor, final UserPreferences preferences) {
       this.home = home;
-      this.homeComponent3D = new HomeComponent3D(home, null, object3dFactory, displayShadowOnFloor, null);
+      this.homeComponent3D = new HomeComponent3D(home, preferences, object3dFactory, displayShadowOnFloor, null);
       this.homeComponent3D.startOffscreenImagesCreation();
       this.image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
     }

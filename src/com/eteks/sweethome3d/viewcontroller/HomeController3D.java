@@ -266,6 +266,16 @@ public class HomeController3D implements Controller {
     new Home3DAttributesController(this.home, this.preferences, 
         this.viewFactory, this.contentManager, this.undoSupport).displayView(getView());    
   }
+  
+  
+  /**
+   * 2017/03/01
+   * Controls the edition of 3D attributes. 
+   */
+  public Home3DAttributesController initHome3DAttributesController() {
+    return new Home3DAttributesController(this.home, this.preferences, 
+        this.viewFactory, this.contentManager, this.undoSupport);    
+  }
 
   /**
    * Changes current state of controller.

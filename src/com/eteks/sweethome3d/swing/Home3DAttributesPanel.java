@@ -20,7 +20,6 @@
 package com.eteks.sweethome3d.swing;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -30,6 +29,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
@@ -203,6 +203,8 @@ public class Home3DAttributesPanel extends JPanel implements DialogView {
     this.brightnessSlider.setPaintTicks(true);
     this.brightnessSlider.setMajorTickSpacing(17);
     this.brightnessSlider.setValue(controller.getLightColor() & 0xFF);
+    // 2017/03/01
+    this.brightnessSlider.setOrientation(JSlider.VERTICAL);
     this.brightnessSlider.addChangeListener(new ChangeListener() {
         public void stateChanged(ChangeEvent ev) {
           int brightness = brightnessSlider.getValue();
@@ -227,6 +229,8 @@ public class Home3DAttributesPanel extends JPanel implements DialogView {
     this.wallsTransparencySlider.setPaintTicks(true);
     this.wallsTransparencySlider.setMajorTickSpacing(17);
     this.wallsTransparencySlider.setValue((int)(controller.getWallsAlpha() * 255));
+    // 2017/03/01
+    this.wallsTransparencySlider.setOrientation(JSlider.VERTICAL);
     this.wallsTransparencySlider.addChangeListener(new ChangeListener() {
         public void stateChanged(ChangeEvent ev) {
           controller.setWallsAlpha(wallsTransparencySlider.getValue() / 255f);
@@ -355,32 +359,33 @@ public class Home3DAttributesPanel extends JPanel implements DialogView {
     
     // Third row
     renderingPanel.add(this.brightnessLabel, new GridBagConstraints(
-        0, 0, 1, 1, 0, 0, labelAlignment, 
+        0, 3, 3, 1, 0, 0, labelAlignment, 
         GridBagConstraints.NONE, new Insets(0, 0, 0, 5), 0, 0));
     renderingPanel.add(this.brightnessSlider, new GridBagConstraints(
-        1, 0, 3, 1, 1, 0, GridBagConstraints.LINE_START, 
-        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-    JPanel brightnessLabelsPanel = new JPanel(new BorderLayout(20, 0));
+        0, 0, 1, 2, 1, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 5), 0, 0));
+    JPanel brightnessLabelsPanel = new JPanel(new BorderLayout(0, 20));
     brightnessLabelsPanel.setOpaque(false);
-    brightnessLabelsPanel.add(this.darkBrightnessLabel, BorderLayout.WEST);
-    brightnessLabelsPanel.add(this.brightBrightnessLabel, BorderLayout.EAST);
+    brightnessLabelsPanel.add(this.darkBrightnessLabel, BorderLayout.SOUTH);
+    brightnessLabelsPanel.add(this.brightBrightnessLabel, BorderLayout.NORTH);
     renderingPanel.add(brightnessLabelsPanel, new GridBagConstraints(
-        1, 1, 3, 1, 1, 0, GridBagConstraints.CENTER, 
-        GridBagConstraints.HORIZONTAL, new Insets(OperatingSystem.isWindows() ? 0 : -3, 0, 3, 0), 0, 0));
+        1, 0, 1, 2, 1, 0, GridBagConstraints.WEST, 
+        GridBagConstraints.VERTICAL, new Insets(OperatingSystem.isWindows() ? 0 : -3, 0, 0, 0), 0, 0));
+    
     // Last row
     renderingPanel.add(this.wallsTransparencyLabel, new GridBagConstraints(
-        0, 2, 1, 1, 0, 0, labelAlignment, 
+        0, 7, 3, 1, 0, 0, labelAlignment, 
         GridBagConstraints.NONE, new Insets(0, 0, 0, 5), 0, 0));
     renderingPanel.add(this.wallsTransparencySlider, new GridBagConstraints(
-        1, 2, 3, 1, 1, 0, GridBagConstraints.LINE_START, 
-        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-    JPanel wallsTransparencyLabelsPanel = new JPanel(new BorderLayout(20, 0));
+        0, 4, 1, 2, 1, 0, GridBagConstraints.LINE_START, 
+        GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 5), 0, 0));
+    JPanel wallsTransparencyLabelsPanel = new JPanel(new BorderLayout(0, 20));
     wallsTransparencyLabelsPanel.setOpaque(false);
-    wallsTransparencyLabelsPanel.add(this.opaqueWallsTransparencyLabel, BorderLayout.WEST);
-    wallsTransparencyLabelsPanel.add(this.invisibleWallsTransparencyLabel, BorderLayout.EAST);
+    wallsTransparencyLabelsPanel.add(this.opaqueWallsTransparencyLabel, BorderLayout.SOUTH);
+    wallsTransparencyLabelsPanel.add(this.invisibleWallsTransparencyLabel, BorderLayout.NORTH);
     renderingPanel.add(wallsTransparencyLabelsPanel, new GridBagConstraints(
-        1, 3, 3, 1, 1, 0, GridBagConstraints.CENTER, 
-        GridBagConstraints.HORIZONTAL, new Insets(OperatingSystem.isWindows() ? 0 : -3, 0, 10, 0), 0, 0));
+        1, 4, 1, 2, 1, 0, GridBagConstraints.WEST, 
+        GridBagConstraints.VERTICAL, new Insets(OperatingSystem.isWindows() ? 0 : -3, 0, 0, 0), 0, 0));
     add(renderingPanel);
   }
 
@@ -388,34 +393,11 @@ public class Home3DAttributesPanel extends JPanel implements DialogView {
    * Displays this panel in a modal dialog box. 
    */
   public void displayView(View parentView) {
-      if (parentView != null) {
-        JComponent view3D = (JComponent)parentView;
-        
-        Component c1 = view3D.getComponent(0);
-        if (!(c1 instanceof JPanel)) {
-          return;
-        }
-        
-        JPanel jp = (JPanel)c1;
-        Component c2 = jp.getComponent(0);
-        if (c2 instanceof NavigationPlanPanel) {
-          NavigationPlanPanel npp = (NavigationPlanPanel)c2;
-          
-          JPanel pbox = (JPanel)npp.getComponent(0);
-          
-          pbox.add(this, new GridBagConstraints(
-            0, 1, 4, 1, 2, 1, GridBagConstraints.LINE_START, 
-            GridBagConstraints.BOTH, new Insets(0, 0, 1, 0), 0, 0));
-          
-          view3D.revalidate();
-        }
-      }
-    
-/*    if (SwingTools.showConfirmDialog((JComponent)parentView, 
+    if (SwingTools.showConfirmDialog((JComponent)parentView, 
             this, this.dialogTitle, this.wallsTransparencySlider) == JOptionPane.OK_OPTION
         && this.controller != null) {
       this.controller.modify3DAttributes();
-    }*/
+    }
   }
   
   

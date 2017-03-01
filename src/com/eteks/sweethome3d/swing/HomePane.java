@@ -101,7 +101,6 @@ import javax.media.j3d.VirtualUniverse;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
@@ -198,6 +197,7 @@ import com.eteks.sweethome3d.plugin.PluginManager;
 import com.eteks.sweethome3d.tools.OperatingSystem;
 import com.eteks.sweethome3d.viewcontroller.ContentManager;
 import com.eteks.sweethome3d.viewcontroller.FurnitureController;
+import com.eteks.sweethome3d.viewcontroller.Home3DAttributesController;
 import com.eteks.sweethome3d.viewcontroller.HomeController;
 import com.eteks.sweethome3d.viewcontroller.HomeController3D;
 import com.eteks.sweethome3d.viewcontroller.HomeView;
@@ -2047,26 +2047,6 @@ public class HomePane extends JRootPane implements HomeView {
   }
   
   /**
-   * 
-   * 2017/02/19
-   * Returns the tool bar displayed in this pane.
-   */
-  private JToolBar create3dViewToolBar(Home home) {
-    final JToolBar toolBar = new UnfocusableToolBar();
-    toolBar.setPreferredSize(new Dimension(0, 35));
-  
-    addActionToToolBar(ActionType.CREATE_PHOTO, toolBar);
-    addActionToToolBar(ActionType.CREATE_VIDEO, toolBar);
- 
-    if (OperatingSystem.isMacOSXLeopardOrSuperior() && OperatingSystem.isJavaVersionBetween("1.7", "1.7.0_40")) {
-      // Reduce tool bar height to balance segmented buttons with higher insets 
-      toolBar.setPreferredSize(new Dimension(0, toolBar.getPreferredSize().height - 4));
-    }
-
-    return toolBar;
-  }
-
-  /**
    * Returns the tool bar displayed in this pane.
    */
   private JToolBar createToolBar(Home home) {
@@ -2948,7 +2928,7 @@ public class HomePane extends JRootPane implements HomeView {
       JPopupMenu view3DPopup = new JPopupMenu();
       addToggleActionToPopupMenu(ActionType.VIEW_FROM_TOP, true, view3DPopup);
       addToggleActionToPopupMenu(ActionType.VIEW_FROM_OBSERVER, true, view3DPopup);
-      addActionToPopupMenu(ActionType.MODIFY_OBSERVER, view3DPopup);
+      //addActionToPopupMenu(ActionType.MODIFY_OBSERVER, view3DPopup);
       addActionToPopupMenu(ActionType.STORE_POINT_OF_VIEW, view3DPopup);
       JMenu goToPointOfViewMenu = createGoToPointOfViewMenu(home, preferences, controller);
       if (goToPointOfViewMenu != null) {
@@ -2956,17 +2936,17 @@ public class HomePane extends JRootPane implements HomeView {
       }
       addActionToPopupMenu(ActionType.DELETE_POINTS_OF_VIEW, view3DPopup);
       view3DPopup.addSeparator();
-/*      JMenuItem attachDetach3DViewMenuItem = createAttachDetach3DViewMenuItem(controller, true);
+      JMenuItem attachDetach3DViewMenuItem = createAttachDetach3DViewMenuItem(controller, true);
       if (attachDetach3DViewMenuItem != null) {
         view3DPopup.add(attachDetach3DViewMenuItem);
-      }*/
+      }
       addToggleActionToPopupMenu(ActionType.DISPLAY_ALL_LEVELS, true, view3DPopup);
       addToggleActionToPopupMenu(ActionType.DISPLAY_SELECTED_LEVEL, true, view3DPopup);
       //addActionToPopupMenu(ActionType.MODIFY_3D_ATTRIBUTES, view3DPopup);
-      view3DPopup.addSeparator();
-      addActionToPopupMenu(ActionType.CREATE_PHOTO, view3DPopup);
-      addActionToPopupMenu(ActionType.CREATE_PHOTOS_AT_POINTS_OF_VIEW, view3DPopup);
-      addActionToPopupMenu(ActionType.CREATE_VIDEO, view3DPopup);
+      //view3DPopup.addSeparator();
+      //addActionToPopupMenu(ActionType.CREATE_PHOTO, view3DPopup);
+      //addActionToPopupMenu(ActionType.CREATE_PHOTOS_AT_POINTS_OF_VIEW, view3DPopup);
+      //addActionToPopupMenu(ActionType.CREATE_VIDEO, view3DPopup);
       view3DPopup.addSeparator();
       addActionToPopupMenu(ActionType.EXPORT_TO_OBJ, view3DPopup);
       SwingTools.hideDisabledMenuItems(view3DPopup);
@@ -3124,7 +3104,9 @@ public class HomePane extends JRootPane implements HomeView {
     JPanel ap = create3dViewActionPanel(home);
     designPanel.add(BorderLayout.EAST, ap);
     
-    controller.getHomeController3D().modifyAttributes();
+    Home3DAttributesController attrController = controller.getHomeController3D().initHome3DAttributesController();
+    Home3DAttributesPanel homeAttrPanel = (Home3DAttributesPanel)attrController.getView();
+    ap.add(homeAttrPanel);
     
     return designPanel;
   }
