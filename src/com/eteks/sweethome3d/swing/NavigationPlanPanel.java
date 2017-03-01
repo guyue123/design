@@ -36,7 +36,6 @@ import java.io.InterruptedIOException;
 import java.lang.ref.WeakReference;
 import java.util.Locale;
 
-import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
 import com.eteks.sweethome3d.model.Home;
@@ -128,9 +127,12 @@ public class NavigationPlanPanel extends JPanel{
           g2D.setComposite(oldComposite);
         }
       };
-    this.planComponent.setSelectedItemsOutlinePainted(false);
+/*    this.planComponent.setSelectedItemsOutlinePainted(false);
     this.planComponent.setBackgroundPainted(false);
-    this.planComponent.setBorder(BorderFactory.createEtchedBorder());
+    this.planComponent.setBorder(BorderFactory.createEtchedBorder());*/
+      this.planComponent.setSelectedItemsOutlinePainted(false);
+      this.planComponent.setBackgroundPainted(false);
+      this.planComponent.setOpaque(false);
   }
   
 
@@ -165,15 +167,8 @@ public class NavigationPlanPanel extends JPanel{
         ? GridBagConstraints.LINE_END
         : GridBagConstraints.LINE_START;
     
-    JPanel panel = new JPanel(new GridBagLayout());
-    // First row
-    add(panel, new GridBagConstraints(
-        0, 0, 4, 1, 2, 1, labelAlignment, 
-        GridBagConstraints.BOTH, new Insets(0, 0, 1, 0), 0, 0));
-    
-    // second row
     add(this.planComponent, new GridBagConstraints(
-        0, 1, 4, 1, 1, 1, labelAlignment, 
+        0, 0, 4, 1, 1, 1, labelAlignment, 
         GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
   }
 }

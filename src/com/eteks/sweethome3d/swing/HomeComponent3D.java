@@ -20,6 +20,7 @@
 package com.eteks.sweethome3d.swing;
 
 import java.awt.AlphaComposite;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.ComponentOrientation;
@@ -33,7 +34,6 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.Point;
@@ -106,10 +106,12 @@ import javax.media.j3d.View;
 import javax.media.j3d.VirtualUniverse;
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
@@ -214,7 +216,7 @@ public class HomeComponent3D extends JComponent implements com.eteks.sweethome3d
   private ComponentListener                        navigationPanelListener;
   private BufferedImage                            navigationPanelImage;
   private Area                                     lightScopeOutsideWallsAreaCache;
-  // 2017/02/14
+  
   private JComponent                               navigationPlanPanel;
   /**
    * Creates a 3D component that displays <code>home</code> walls, rooms and furniture, 
@@ -376,9 +378,6 @@ public class HomeComponent3D extends JComponent implements com.eteks.sweethome3d
             removeAll();
             component3D = null;
             navigationPanel = null;
-            
-            // 2017/02/14
-            navigationPlanPanel = null;
           }
         }
         
@@ -446,6 +445,9 @@ public class HomeComponent3D extends JComponent implements com.eteks.sweethome3d
                   J3DGraphics2D g2D = canvas3D.getGraphics2D();
                   g2D.drawImage(navigationPanelImage, null, by, bx);
                   
+                  // 2017/02/25
+                  setPanelPosition();
+                  
                   g2D.flush(true);
                 }
               }
@@ -472,30 +474,21 @@ public class HomeComponent3D extends JComponent implements com.eteks.sweethome3d
           component3D.setBounds(0, 0, Math.max(1, parent.getWidth()), Math.max(1, parent.getHeight()));
           if (navigationPanel != null 
               && navigationPanel.isVisible()) {
-            // Ensure that navigationPanel is always in top corner             
-            Dimension preferredSize = navigationPanel.getPreferredSize();
-            
-            // 2017/02/13
-            int bx = (component3D.getHeight() - navigationPanel.getHeight()) - 10;
-            int by = (component3D.getWidth() - navigationPanel.getWidth())/2;
-            navigationPanel.setBounds(by, bx, preferredSize.width, preferredSize.height);
-            
-            // 2017/02/14
-            int nppWidth = Math.max(200, navigationPlanPanel.getWidth());
-            int nppHeight = Math.max(500, navigationPlanPanel.getHeight());
-            int nppX = (component3D.getHeight() - nppHeight) - 10;
-            int nppY = (component3D.getWidth() - nppWidth) - 10;
-            navigationPlanPanel.setBounds(nppY, nppX, nppWidth, nppHeight);
+            // 2017/02/25
+            setPanelPosition();
           }
         }
+
+
       });
     
-    // 2017/02/16 添加导航盘
-    this.navigationPlanPanel = createNavigationPlanPanel(this.home, preferences, controller);
-    canvasPanel.add(navigationPlanPanel);
+    // 2017/02/08
+    this.createNavigationPlanPanel(home, preferences, controller);
+    canvasPanel.add(this.navigationPlanPanel); 
     
-    canvasPanel.add(this.component3D);    
-    setLayout(new GridLayout());
+    canvasPanel.add(this.component3D);  
+    
+    setLayout(new BorderLayout());
     add(canvasPanel);
     if (controller != null) {
       addMouseListeners(controller, this.component3D);
@@ -515,6 +508,27 @@ public class HomeComponent3D extends JComponent implements com.eteks.sweethome3d
       setFocusable(true);
       SwingTools.installFocusBorder(this);
     }
+  }
+  
+  /**
+   * 2017/02/25
+   * 设置面板位置
+   */
+  private void setPanelPosition() {
+    // Ensure that navigationPanel is always in top corner             
+    Dimension preferredSize = navigationPanel.getPreferredSize();
+    
+    // 2017/02/13
+    int bx = (component3D.getHeight() - navigationPanel.getHeight()) - 10;
+    int by = (component3D.getWidth() - navigationPanel.getWidth())/2;
+    navigationPanel.setBounds(by, bx, preferredSize.width, preferredSize.height);
+    
+    // 2017/02/14
+    int nppWidth = Math.max(200, navigationPlanPanel.getWidth());
+    int nppHeight = Math.max(200, navigationPlanPanel.getHeight());
+    int nppX = (component3D.getHeight() - nppHeight) - 10;
+    int nppY = (component3D.getWidth() - nppWidth) - 10;
+    navigationPlanPanel.setBounds(nppY, nppX, nppWidth, nppHeight);
   }
 
   /**
@@ -565,7 +579,7 @@ public class HomeComponent3D extends JComponent implements com.eteks.sweethome3d
       }
     }
   }
-  
+
   /**
    * Returns the component displayed as navigation panel by this 3D view.
    */
@@ -576,10 +590,10 @@ public class HomeComponent3D extends JComponent implements com.eteks.sweethome3d
       if (this.navigationPlanPanel == null) {
         this.navigationPlanPanel = new NavigationPlanPanel(this.home, preferences);
       }
-     
+      
     return navigationPlanPanel;
   }
-
+  
   /**
    * Returns the component displayed as navigation panel by this 3D view.
    */
@@ -603,14 +617,14 @@ public class HomeComponent3D extends JComponent implements com.eteks.sweethome3d
           } else {
             // Draw a surrounding oval if no navigation panel icon is defined
             Graphics2D g2D = (Graphics2D)g;
-            g2D.setColor(Color.BLACK);
+            g2D.setColor(Color.WHITE);
             g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2D.drawOval(x + 3, y + 3, width - 6, height - 6);
           }
         }
   
         public Insets getBorderInsets(Component c) {
-          return new Insets(2, 2, 2, 2);
+          return new Insets(5, 5, 5, 5);
         }
   
         public boolean isBorderOpaque() {
@@ -726,30 +740,6 @@ public class HomeComponent3D extends JComponent implements com.eteks.sweethome3d
         });
     }
   }
-  
-  /**
-   * Sets the component that will be drawn upon the heavyweight 3D component shown by this component.
-   * Mouse events will targeted to the navigation panel when needed.
-   * Supports transparent components. 
-   */
-  private void setNavigationPlanPanelVisible(boolean visible) {
-    if (this.navigationPlanPanel != null) {
-      this.navigationPlanPanel.setVisible(visible);
-      if (visible) {
-        // Add the navigation panel to this component to be able to paint it 
-        // but show it behind canvas 3D
-        this.component3D.getParent().add(this.navigationPlanPanel);
-        
-      } else {
-        if (this.navigationPlanPanel.getParent() != null) {
-          this.navigationPlanPanel.getParent().remove(this.navigationPlanPanel);
-        }
-      }
-      revalidate();
-      this.component3D.repaint();
-    }
-    
-  }
 
   /**
    * Sets the component that will be drawn upon the heavyweight 3D component shown by this component.
@@ -828,7 +818,9 @@ public class HomeComponent3D extends JComponent implements com.eteks.sweethome3d
         return;
       }
     }
+
     this.navigationPanelImage = null;
+    
   }
 
   /**

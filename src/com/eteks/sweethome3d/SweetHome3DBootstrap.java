@@ -26,9 +26,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
-import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 import org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper;
@@ -60,17 +58,7 @@ public class SweetHome3DBootstrap {
     if (operatingSystemName.startsWith("Mac OS X")) {
       if (javaVersion.startsWith("1.6")
           && System.getProperty("com.eteks.sweethome3d.deploymentInformation", "").startsWith("Java Web Start")) {
-        // Refuse to let Sweet Home 3D run under Mac OS X with Java Web Start 6
-        String message = Locale.getDefault().getLanguage().equals(Locale.FRENCH.getLanguage())
-            ? "Sweet Home 3D ne peut pas fonctionner avec Java\n"
-            + "Web Start 6 sous Mac OS X de façon fiable.\n" 
-            + "Merci de télécharger le programme d'installation depuis\n" 
-            + "http://www.sweethome3d.com/fr/download.jsp"
-            : "Sweet Home 3D can't reliably run with Java Web Start 6\n" 
-            + "under Mac OS X.\n" 
-            + "Please download the installer version from\n" 
-            + "http://www.sweethome3d.com/download.jsp";
-        JOptionPane.showMessageDialog(null, message);
+
         System.exit(1);
       } else if (javaVersion.startsWith("1.5")
           || javaVersion.startsWith("1.6")) {
@@ -92,15 +80,6 @@ public class SweetHome3DBootstrap {
           && Integer.parseInt(javaVersion.substring(java7Prefix.length(), java7Prefix.length() + 2)) < 40
           || javaVersion.length() == java7Prefix.length() + 1 // Test whether version is on 1 digit (i.e. < 40)
           || !Character.isDigit(javaVersion.charAt(java7Prefix.length() + 1)))) {
-        // Refuse to let Sweet Home 3D run under Mac OS X with Java 7 before version 7u40 
-        String message = Locale.getDefault().getLanguage().equals(Locale.FRENCH.getLanguage())
-            ? "Sous Mac OS X, Sweet Home 3D ne peut fonctionner avec Java 7\n" 
-            + "qu'à partir de la version Java 7u40. Merci de mettre à jour\n" 
-            + "votre version de Java ou de lancer Sweet Home 3D sous Java 6."
-            : "Under Mac OS X, Sweet Home 3D can run with Java 7 only\n" 
-            + "from version Java 7u40. Please, update you Java version\n" 
-            + "or run Sweet Home 3D under Java 6.";
-        JOptionPane.showMessageDialog(null, message);
         System.exit(1);
       } else { // Java >= 1.7.0_40    
         extensionJarsAndDlls.addAll(Arrays.asList(new String [] {

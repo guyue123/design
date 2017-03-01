@@ -101,6 +101,7 @@ import javax.media.j3d.VirtualUniverse;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
@@ -2027,6 +2028,29 @@ public class HomePane extends JRootPane implements HomeView {
    * 2017/02/19
    * Returns the tool bar displayed in this pane.
    */
+  private JPanel create3dViewActionPanel(Home home) {
+    final JPanel actionBox = new JPanel(new BorderLayout());
+    actionBox.setPreferredSize(new Dimension(100, 0));
+    
+    final JPanel actionPanel = new JPanel(new GridBagLayout());
+    Action action1 = getActionMap().get(ActionType.CREATE_PHOTO);
+    if (action1!= null && action1.getValue(Action.NAME) != null) {
+      actionPanel.add(new JButton(new ResourceAction.ToolBarAction(action1)));
+    }
+    
+    Action action2 = getActionMap().get(ActionType.CREATE_VIDEO);
+    if (action2!= null && action2.getValue(Action.NAME) != null) {
+      actionPanel.add(new JButton(new ResourceAction.ToolBarAction(action2)));
+    }
+    actionBox.add(BorderLayout.NORTH, actionPanel);
+    return actionBox;
+  }
+  
+  /**
+   * 
+   * 2017/02/19
+   * Returns the tool bar displayed in this pane.
+   */
   private JToolBar create3dViewToolBar(Home home) {
     final JToolBar toolBar = new UnfocusableToolBar();
     toolBar.setPreferredSize(new Dimension(0, 35));
@@ -3004,8 +3028,7 @@ public class HomePane extends JRootPane implements HomeView {
         }
         
         // 2017/02/19 设置右侧面板
-        setView3dRightPanel(controller, home, view3D);
-        tabbedpane.add(preferences.getLocalizedString(HomePane.class, "tabbedPane.3dView.title"), view3D);
+        tabbedpane.add(preferences.getLocalizedString(HomePane.class, "tabbedPane.3dView.title"), createView3dRightPanel(view3D));
         
         planView3DPane = tabbedpane;
        
@@ -3094,28 +3117,16 @@ public class HomePane extends JRootPane implements HomeView {
   /**
    * 设置3D视图的右侧面板
    */
-  private void setView3dRightPanel(HomeController controller, Home home, JComponent view3D) {
-    Component c1 = view3D.getComponent(0);
-    if (!(c1 instanceof JPanel)) {
-      return;
-    }
+  private JPanel createView3dRightPanel(JComponent view3D) {
+    JPanel designPanel = new JPanel(new BorderLayout());
+    designPanel.add(BorderLayout.CENTER, view3D);
+        
+    JPanel ap = create3dViewActionPanel(home);
+    designPanel.add(BorderLayout.EAST, ap);
     
-    JPanel jp = (JPanel)c1;
-    Component c2 = jp.getComponent(0);
-    if (c2 instanceof NavigationPlanPanel) {
-      NavigationPlanPanel npp = (NavigationPlanPanel)c2;
-      
-      JPanel pbox = (JPanel)npp.getComponent(0);
-      
-      // 工具条
-      pbox.add(create3dViewToolBar(home), new GridBagConstraints(
-        0, 0, 4, 1, 2, 1, GridBagConstraints.LINE_START, 
-        GridBagConstraints.BOTH, new Insets(0, 0, 1, 0), 0, 0));
-      
-      controller.getHomeController3D().modifyAttributes();
-      
-      view3D.revalidate();
-    }
+    controller.getHomeController3D().modifyAttributes();
+    
+    return designPanel;
   }
 
   /**
