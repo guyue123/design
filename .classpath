@@ -16,10 +16,84 @@
 	<classpathentry kind="lib" path="libtest/jdepend-2.9.jar"/>
 	<classpathentry kind="lib" path="libtest/AppleJavaExtensions.jar"/>
 	<classpathentry kind="lib" path="libtest/jnlp.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.7.0_79"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.7.0_80"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="lib" path="lib/java3d-1.6/jogl-all.jar"/>
 	<classpathentry kind="lib" path="lib/beautyeye_lnf.jar"/>
 	<classpathentry kind="lib" path="lib/swingx.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/core.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/dense64.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/denseC64.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/eventbus.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/gluegen-rt-main.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/gluegen-rt-natives-android-aarch64.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/gluegen-rt-natives-android-armv6.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/gluegen-rt-natives-linux-amd64.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/gluegen-rt-natives-linux-armv6.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/gluegen-rt-natives-linux-armv6hf.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/gluegen-rt-natives-linux-i586.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/gluegen-rt-natives-macosx-universal.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/gluegen-rt-natives-solaris-amd64.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/gluegen-rt-natives-solaris-i586.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/gluegen-rt-natives-windows-amd64.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/gluegen-rt-natives-windows-i586.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/gluegen-rt.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/j-ogg-all.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jbullet.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jglfont-core.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jinput-platform-natives-linux.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jinput-platform-natives-osx.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jinput-platform-natives-windows.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jinput.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jme3-blender.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jme3-core.jar" sourcepath="/jme3-core"/>
+	<classpathentry kind="lib" path="lib/jme3/jme3-desktop.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jme3-effects.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jme3-jbullet.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jme3-jogg.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jme3-jogl.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jme3-lwjgl.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jme3-networking.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jme3-niftygui.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jme3-plugins.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jme3-terrain.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/joal-main.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/joal-natives-android-aarch64.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/joal-natives-android-armv6.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/joal-natives-linux-amd64.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/joal-natives-linux-armv6.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/joal-natives-linux-armv6hf.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/joal-natives-linux-i586.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/joal-natives-macosx-universal.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/joal-natives-solaris-amd64.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/joal-natives-solaris-i586.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/joal-natives-windows-amd64.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/joal-natives-windows-i586.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/joal.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jogl-all-main.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jogl-all-natives-android-aarch64.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jogl-all-natives-android-armv6.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jogl-all-natives-linux-amd64.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jogl-all-natives-linux-armv6.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jogl-all-natives-linux-armv6hf.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jogl-all-natives-linux-i586.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jogl-all-natives-macosx-universal.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jogl-all-natives-solaris-amd64.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jogl-all-natives-solaris-i586.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jogl-all-natives-windows-amd64.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jogl-all-natives-windows-i586.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jogl-all.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jsr305.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jutils.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/lwjgl-platform-natives-linux.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/lwjgl-platform-natives-osx.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/lwjgl-platform-natives-windows.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/lwjgl.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/nifty-default-controls.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/nifty-style-black.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/nifty.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/simple.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/vecmath.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/xpp3.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

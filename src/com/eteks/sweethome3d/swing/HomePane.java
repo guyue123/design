@@ -20,6 +20,7 @@
 package com.eteks.sweethome3d.swing;
 
 import java.awt.BorderLayout;
+import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.ComponentOrientation;
@@ -161,6 +162,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.swing.text.JTextComponent;
 
+import com.eteks.sweethome3d.game.Obj3DApp;
+import com.eteks.sweethome3d.game.Obj3DCanvas;
 import com.eteks.sweethome3d.j3d.Ground3D;
 import com.eteks.sweethome3d.j3d.OBJWriter;
 import com.eteks.sweethome3d.j3d.Object3DBranchFactory;
@@ -176,6 +179,7 @@ import com.eteks.sweethome3d.model.Elevatable;
 import com.eteks.sweethome3d.model.Home;
 import com.eteks.sweethome3d.model.HomeEnvironment;
 import com.eteks.sweethome3d.model.HomeFurnitureGroup;
+import com.eteks.sweethome3d.model.HomeLight;
 import com.eteks.sweethome3d.model.HomePieceOfFurniture;
 import com.eteks.sweethome3d.model.InterruptedRecorderException;
 import com.eteks.sweethome3d.model.Label;
@@ -245,6 +249,11 @@ public class HomePane extends JRootPane implements HomeView {
   private boolean               exportAllToOBJ = true;
   private ActionMap             menuActionMap;
   private List<Action>          pluginActions;
+  /**
+   * 2017/06/11
+   * 3D对象
+   */
+  private Obj3DApp obj3DApp;
   
   /**
    * Creates home view associated with its controller.
@@ -3010,6 +3019,40 @@ public class HomePane extends JRootPane implements HomeView {
         // 2017/02/19 设置右侧面板
         tabbedpane.add(preferences.getLocalizedString(HomePane.class, "tabbedPane.3dView.title"), createView3dRightPanel(view3D));
         
+        // 2017/02/19 设置右侧面板
+        final JPanel gamePanel = new JPanel();
+        tabbedpane.add(preferences.getLocalizedString(HomePane.class, "tabbedPane.game3DView.title"), gamePanel);
+
+        // 切换tab页时重新初始化game对象
+        tabbedpane.addChangeListener(new ChangeListener() {
+          public void stateChanged(ChangeEvent e) {
+            JTabbedPane tabbedPane = (JTabbedPane)e.getSource();
+            int selectedIndex = tabbedPane.getSelectedIndex();
+            if (selectedIndex == tabbedPane.getTabCount() - 1) {
+              
+              SwingUtilities.invokeLater(new Runnable(){
+                public void run(){
+                  try {
+                    gamePanel.removeAll();
+                    
+                    Canvas canvas = createGameCanvas();
+                    // 将3D添加到JPanel中
+                    gamePanel.setLayout(new BorderLayout());
+                    gamePanel.add(canvas, BorderLayout.CENTER);
+                  } catch (RecorderException ex) {
+                    ex.printStackTrace();
+                  }
+                }
+              });
+            } else {
+              if (obj3DApp != null) {
+                obj3DApp.stop();
+                obj3DApp = null;
+              }
+            }
+          }
+        });
+        
         planView3DPane = tabbedpane;
        
         /*
@@ -3092,6 +3135,79 @@ public class HomePane extends JRootPane implements HomeView {
     } else {
       return planView;
     }    
+  }
+  
+  /**
+   * 2017/06/10
+   * 创建JME3 真实渲染视图
+   * @return
+   * @throws RecorderException 
+   */
+  private Canvas createGameCanvas() throws RecorderException {
+    // TODO
+    // 参观者位置，参观者角度，参观者高度
+    
+    // 自定义光线强度，太阳光方向，太阳光强度，环境光强度
+    
+    // 是否实体化
+    
+    
+    // 触发导出3D模型，导出到系统临时目录
+
+    //String name = f.getName().substring(0, f.getName().lastIndexOf("."));
+    if (this.home.getName() == null) {
+      return null;
+    }
+    
+    // 导出到临时目录
+    String exportPath = System.getProperty("java.io.tmpdir") + 
+        preferences.getLocalizedString(HomePane.class, "exportToOBJ.dir");
+    File exportFile = new File(exportPath);
+    if (!exportFile.exists()) {
+      exportFile.mkdirs();
+    }
+    
+    File f = new File(this.home.getName());
+    exportPath += File.separator + f.getName();
+    exportFile = new File(exportPath);
+    if (!exportFile.exists()) {
+      exportFile.mkdirs();
+    }
+    
+    exportPath += File.separator + f.getName() + ".obj";
+    exportToOBJ(exportPath);
+    
+    if (obj3DApp != null) {
+      obj3DApp.stop();
+      obj3DApp = null;
+    }
+    
+    // 读取3D模型
+    obj3DApp = new Obj3DApp(exportPath, getLights(this.home.getFurniture()));
+    obj3DApp.init();
+    
+    // 创建Canvas
+    Obj3DCanvas obj3DCanvas = new Obj3DCanvas(obj3DApp, obj3DApp.getAppSettings());
+    Canvas canvas = obj3DCanvas.createCanvas();
+    obj3DCanvas.startApp();
+
+    return canvas;
+  }
+  
+  /**
+   * 读取灯光信息
+   * Returns all the light children of the given <code>furniture</code>.  
+   */
+  private List<HomeLight> getLights(List<HomePieceOfFurniture> furniture) {
+    List<HomeLight> lights = new ArrayList<HomeLight>();
+    for (HomePieceOfFurniture piece : furniture) {
+      if (piece instanceof HomeLight) {
+        lights.add((HomeLight)piece);
+      } else if (piece instanceof HomeFurnitureGroup) {
+        lights.addAll(getLights(((HomeFurnitureGroup)piece).getFurniture()));
+      } 
+    }
+    return lights;
   }
   
   /**
@@ -3538,6 +3654,10 @@ public class HomePane extends JRootPane implements HomeView {
       JDialog separateDialog = new JDialog(defaultFrame, defaultFrame.getTitle(), false);
       separateDialog.setResizable(true);
       separateDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+      
+      // 2017/03/02
+      //separateDialog.setUndecorated(true);
+      
       // Copy action map and input map to enable shortcuts in the window
       ActionMap actionMap = getActionMap();
       separateDialog.getRootPane().setActionMap(actionMap);
@@ -3605,6 +3725,10 @@ public class HomePane extends JRootPane implements HomeView {
 
     separateWindow.setBounds(x, y, width, height);
     separateWindow.setLocationByPlatform(!SwingTools.isRectangleVisibleAtScreen(separateWindow.getBounds()));
+    
+    // 2017/03/02
+    separateWindow.getGraphicsConfiguration().getDevice().setFullScreenWindow(separateWindow);
+    
     separateWindow.setVisible(true);
     
     this.controller.setHomeProperty(view.getClass().getName() + DETACHED_VIEW_VISUAL_PROPERTY, Boolean.TRUE.toString());
