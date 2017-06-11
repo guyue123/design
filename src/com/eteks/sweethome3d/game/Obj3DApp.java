@@ -35,9 +35,12 @@ package com.eteks.sweethome3d.game;
 import java.io.File;
 import java.util.List;
 
+import org.lwjgl.opengl.Display;
+
 import com.eteks.sweethome3d.model.HomeLight;
 import com.eteks.sweethome3d.model.Level;
 import com.eteks.sweethome3d.model.LightSource;
+import com.jme3.app.ChaseCameraAppState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.plugins.FileLocator;
 import com.jme3.bullet.BulletAppState;
@@ -46,17 +49,21 @@ import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.objects.PhysicsCharacter;
 import com.jme3.input.KeyInput;
+import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
@@ -119,7 +126,10 @@ public class Obj3DApp extends SimpleApplication implements ActionListener {
     
     private int flyCamMoveSpeed = 20;
     
-    
+    /**
+     * 窗口标题
+     */
+    private String appTitle = "3D";
     
     public Obj3DApp() {
       
@@ -178,6 +188,7 @@ public class Obj3DApp extends SimpleApplication implements ActionListener {
     public AppSettings initAppSettings() {
         appSettings = new AppSettings(true);
         appSettings.setSamples(4);
+        appSettings.setTitle(appTitle);
         return appSettings;
     }
     
@@ -194,11 +205,25 @@ public class Obj3DApp extends SimpleApplication implements ActionListener {
         appSettings.setSamples(samples);
         appSettings.setWidth(width);
         appSettings.setHeight(height);
+        appSettings.setTitle(appTitle);
       return appSettings;
     }
 
     @Override
+    public void update() {
+        super.update();
+        if (Display.wasResized()) {
+            int newWidth = Math.max(Display.getWidth(), 1);
+            int newHeight = Math.max(Display.getHeight(), 1);
+            reshape(newWidth, newHeight);
+        }
+    }
+    
+    @Override
     public void simpleInitApp() {
+        Display.setResizable(true);
+        initChaseCameraAppState();
+        
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
         
@@ -228,6 +253,24 @@ public class Obj3DApp extends SimpleApplication implements ActionListener {
         
         // 环境光+环境光
         addLight2();
+    }
+    
+    /**
+     * 触发鼠标旋转
+     */
+    private void initChaseCameraAppState() {
+        final Node camTarget = new Node("CamTarget");
+        rootNode.attachChild(camTarget);
+
+        ChaseCameraAppState chaser = new ChaseCameraAppState();
+        chaser.setTarget(camTarget);
+        chaser.setMaxDistance(150);
+        chaser.setDefaultDistance(70);
+        chaser.setDefaultHorizontalRotation(FastMath.HALF_PI);
+        chaser.setMinVerticalRotation(-FastMath.PI);
+        chaser.setMaxVerticalRotation(FastMath.PI * 2);
+        chaser.setToggleRotationTrigger(new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+        stateManager.attach(chaser);
     }
 
     /**
@@ -470,6 +513,14 @@ public class Obj3DApp extends SimpleApplication implements ActionListener {
 
     public void setHomeLights(List<HomeLight> homeLights) {
       this.homeLights = homeLights;
+    }
+
+    public String getAppTitle() {
+      return this.appTitle;
+    }
+
+    public void setAppTitle(String appTitle) {
+      this.appTitle = appTitle;
     }
 
 }

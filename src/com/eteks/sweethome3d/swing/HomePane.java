@@ -198,6 +198,7 @@ import com.eteks.sweethome3d.plugin.HomePluginController;
 import com.eteks.sweethome3d.plugin.Plugin;
 import com.eteks.sweethome3d.plugin.PluginAction;
 import com.eteks.sweethome3d.plugin.PluginManager;
+import com.eteks.sweethome3d.swing.ResourceAction.ButtonAction;
 import com.eteks.sweethome3d.tools.OperatingSystem;
 import com.eteks.sweethome3d.viewcontroller.ContentManager;
 import com.eteks.sweethome3d.viewcontroller.FurnitureController;
@@ -525,6 +526,10 @@ public class HomePane extends JRootPane implements HomeView {
       createAction(ActionType.CREATE_PHOTOS_AT_POINTS_OF_VIEW, preferences, controller, "createPhotos");
       createAction(ActionType.CREATE_VIDEO, preferences, controller, "createVideo");
       createAction(ActionType.EXPORT_TO_OBJ, preferences, controller, "exportToOBJ");
+      
+      // 2017/06/11
+      createAction(ActionType.DISPLAY_IN_JME3D, preferences, controller, "displayInJme3D");
+      createAction(ActionType.DISPLAY_IN_JME3D_4_WINDOW, preferences, controller, "displayInJme3D4Window");
     }
     
     createAction(ActionType.HELP, preferences, controller, "help");
@@ -2039,7 +2044,7 @@ public class HomePane extends JRootPane implements HomeView {
    */
   private JPanel create3dViewActionPanel(Home home) {
     final JPanel actionBox = new JPanel(new BorderLayout());
-    actionBox.setPreferredSize(new Dimension(100, 0));
+    actionBox.setPreferredSize(new Dimension(100, 80));
     
     final JPanel actionPanel = new JPanel(new GridBagLayout());
     Action action1 = getActionMap().get(ActionType.CREATE_PHOTO);
@@ -2051,6 +2056,17 @@ public class HomePane extends JRootPane implements HomeView {
     if (action2!= null && action2.getValue(Action.NAME) != null) {
       actionPanel.add(new JButton(new ResourceAction.ToolBarAction(action2)));
     }
+    
+    Action action3 = getActionMap().get(ActionType.DISPLAY_IN_JME3D);
+    if (action3!= null && action3.getValue(Action.NAME) != null) {
+      actionPanel.add(new JButton(new ButtonAction(action3)));
+    }
+    
+    Action action4 = getActionMap().get(ActionType.DISPLAY_IN_JME3D_4_WINDOW);
+    if (action4!= null && action4.getValue(Action.NAME) != null) {
+      actionPanel.add(new JButton(new ButtonAction(action3)));
+    }
+    
     actionBox.add(BorderLayout.NORTH, actionPanel);
     return actionBox;
   }
@@ -3019,7 +3035,7 @@ public class HomePane extends JRootPane implements HomeView {
         // 2017/02/19 设置右侧面板
         tabbedpane.add(preferences.getLocalizedString(HomePane.class, "tabbedPane.3dView.title"), createView3dRightPanel(view3D));
         
-        // 2017/02/19 设置右侧面板
+/*        // 2017/06/11 设置右侧面板
         final JPanel gamePanel = new JPanel();
         tabbedpane.add(preferences.getLocalizedString(HomePane.class, "tabbedPane.game3DView.title"), gamePanel);
 
@@ -3051,7 +3067,7 @@ public class HomePane extends JRootPane implements HomeView {
               }
             }
           }
-        });
+        });*/
         
         planView3DPane = tabbedpane;
        

@@ -21,6 +21,7 @@ package com.eteks.sweethome3d.viewcontroller;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.lang.ref.WeakReference;
@@ -63,6 +64,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.eteks.sweethome3d.game.Obj3DApp;
 import com.eteks.sweethome3d.model.AspectRatio;
 import com.eteks.sweethome3d.model.BackgroundImage;
 import com.eteks.sweethome3d.model.Camera;
@@ -81,6 +83,7 @@ import com.eteks.sweethome3d.model.HomeApplication;
 import com.eteks.sweethome3d.model.HomeDoorOrWindow;
 import com.eteks.sweethome3d.model.HomeEnvironment;
 import com.eteks.sweethome3d.model.HomeFurnitureGroup;
+import com.eteks.sweethome3d.model.HomeLight;
 import com.eteks.sweethome3d.model.HomeMaterial;
 import com.eteks.sweethome3d.model.HomePieceOfFurniture;
 import com.eteks.sweethome3d.model.HomeRecorder;
@@ -101,6 +104,7 @@ import com.eteks.sweethome3d.model.TextureImage;
 import com.eteks.sweethome3d.model.TexturesCatalog;
 import com.eteks.sweethome3d.model.UserPreferences;
 import com.eteks.sweethome3d.model.Wall;
+import com.eteks.sweethome3d.swing.HomePane;
 import com.eteks.sweethome3d.tools.OperatingSystem;
 import com.eteks.sweethome3d.tools.ResourceURLContent;
 
@@ -125,6 +129,12 @@ public class HomeController implements Controller {
   private int                         saveUndoLevel;
   private boolean                     notUndoableModifications;
   private View                        focusedView;
+  
+  /**
+   * 2017/06/11
+   * 3D对象
+   */
+  private Obj3DApp obj3DApp;
 
   private static final Content REPAIRED_IMAGE_CONTENT = new ResourceURLContent(HomeController.class, "resources/repairedImage.png");
   private static final Content REPAIRED_ICON_CONTENT = new ResourceURLContent(HomeController.class, "resources/repairedIcon.png");
@@ -329,6 +339,11 @@ public class HomeController implements Controller {
     homeView.setEnabled(HomeView.ActionType.CREATE_PHOTO, true);
     homeView.setEnabled(HomeView.ActionType.CREATE_VIDEO, true);
     homeView.setEnabled(HomeView.ActionType.EXPORT_TO_OBJ, true);
+    
+    //2017/06/11
+    homeView.setEnabled(HomeView.ActionType.DISPLAY_IN_JME3D, true);
+    homeView.setEnabled(HomeView.ActionType.DISPLAY_IN_JME3D_4_WINDOW, true);
+    
     homeView.setEnabled(HomeView.ActionType.HELP, true);
     homeView.setEnabled(HomeView.ActionType.ABOUT, true);
     enableCreationToolsActions(homeView);
@@ -2493,6 +2508,92 @@ public class HomeController implements Controller {
     VideoController videoController = new VideoController(this.home, this.preferences, 
         this.viewFactory, this.contentManager);
     videoController.displayView(getView());
+  }
+  
+  /**
+   * Controls the creation of 3D videos.
+   */
+  public void displayInJme3D() {
+    try {
+      exportAndDisplay();
+    } catch (RecorderException ex) {
+      ex.printStackTrace();
+    }
+  }
+  
+  /**
+   * 2017/06/10
+   * 创建JME3 真实渲染视图
+   * @return
+   * @throws RecorderException 
+   */
+  private void exportAndDisplay() throws RecorderException {
+    // TODO
+    // 参观者位置，参观者角度，参观者高度
+    
+    // 自定义光线强度，太阳光方向，太阳光强度，环境光强度
+    
+    // 是否实体化
+    
+    
+    // 触发导出3D模型，导出到系统临时目录
+
+    //String name = f.getName().substring(0, f.getName().lastIndexOf("."));
+    String modelName = this.home.getName();
+    if (modelName == null) {
+      modelName = "tmp_model.sh3d";
+    }
+    
+    // 导出到临时目录
+    String exportPath = System.getProperty("java.io.tmpdir") + 
+        preferences.getLocalizedString(HomePane.class, "exportToOBJ.dir");
+    File exportFile = new File(exportPath);
+    if (!exportFile.exists()) {
+      exportFile.mkdirs();
+    }
+    
+    File f = new File(modelName);
+    exportPath += File.separator + f.getName();
+    exportFile = new File(exportPath);
+    if (!exportFile.exists()) {
+      exportFile.mkdirs();
+    }
+    
+    exportPath += File.separator + f.getName() + ".obj";
+    this.homeView.exportToOBJ(exportPath);
+    
+    if (obj3DApp != null) {
+      obj3DApp.stop();
+      obj3DApp = null;
+    }
+    
+    // 读取3D模型
+    obj3DApp = new Obj3DApp(exportPath, getLights(this.home.getFurniture()));
+    obj3DApp.init();
+    obj3DApp.start();
+  }
+  
+  /**
+   * 读取灯光信息
+   * Returns all the light children of the given <code>furniture</code>.  
+   */
+  private List<HomeLight> getLights(List<HomePieceOfFurniture> furniture) {
+    List<HomeLight> lights = new ArrayList<HomeLight>();
+    for (HomePieceOfFurniture piece : furniture) {
+      if (piece instanceof HomeLight) {
+        lights.add((HomeLight)piece);
+      } else if (piece instanceof HomeFurnitureGroup) {
+        lights.addAll(getLights(((HomeFurnitureGroup)piece).getFurniture()));
+      } 
+    }
+    return lights;
+  }
+  
+  /**
+   * Controls the creation of 3D videos.
+   */
+  public void displayInJme3D4Window() {
+    
   }
   
   /**
