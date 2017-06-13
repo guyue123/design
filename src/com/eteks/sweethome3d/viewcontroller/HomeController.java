@@ -64,6 +64,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.eteks.sweethome3d.game.Obj3D4CApp;
 import com.eteks.sweethome3d.game.Obj3DApp;
 import com.eteks.sweethome3d.model.AspectRatio;
 import com.eteks.sweethome3d.model.BackgroundImage;
@@ -135,6 +136,8 @@ public class HomeController implements Controller {
    * 3D对象
    */
   private Obj3DApp obj3DApp;
+  
+  private Obj3D4CApp obj3D4CApp;
 
   private static final Content REPAIRED_IMAGE_CONTENT = new ResourceURLContent(HomeController.class, "resources/repairedImage.png");
   private static final Content REPAIRED_ICON_CONTENT = new ResourceURLContent(HomeController.class, "resources/repairedIcon.png");
@@ -2549,6 +2552,37 @@ public class HomeController implements Controller {
     obj3DApp.init();
     obj3DApp.start();
   }
+  
+  /**
+   * 2017/06/10
+   * 创建JME3 真实渲染视图
+   * @return
+   */
+  private void Display4CModel(String objFilePath) {
+    // TODO
+    // 参观者位置，参观者角度，参观者高度
+    
+    // 自定义光线强度，太阳光方向，太阳光强度，环境光强度
+    
+    // 是否实体化
+    
+    
+    // 触发导出3D模型，导出到系统临时目录
+
+    //String name = f.getName().substring(0, f.getName().lastIndexOf("."));
+    
+/*    if (obj3D4CApp != null) {
+      obj3D4CApp.stop();
+      obj3D4CApp = null;
+    }*/
+    
+    obj3D4CApp = null;
+    
+    // 读取3D模型
+    obj3D4CApp = new Obj3D4CApp(objFilePath, getLights(this.home.getFurniture()));
+    obj3D4CApp.init();
+    obj3D4CApp.start();
+  }
 
   /**
    * 导出3D模型
@@ -2602,7 +2636,11 @@ public class HomeController implements Controller {
    * Controls the creation of 3D videos.
    */
   public void displayInJme3D4Window() {
-    
+    try {
+      Display4CModel(exportModel());
+    } catch (RecorderException ex) {
+      ex.printStackTrace();
+    }
   }
   
   /**
