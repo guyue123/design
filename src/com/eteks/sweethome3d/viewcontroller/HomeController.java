@@ -2515,7 +2515,7 @@ public class HomeController implements Controller {
    */
   public void displayInJme3D() {
     try {
-      exportAndDisplay();
+      DisplayModel(exportModel());
     } catch (RecorderException ex) {
       ex.printStackTrace();
     }
@@ -2525,9 +2525,8 @@ public class HomeController implements Controller {
    * 2017/06/10
    * 创建JME3 真实渲染视图
    * @return
-   * @throws RecorderException 
    */
-  private void exportAndDisplay() throws RecorderException {
+  private void DisplayModel(String objFilePath) {
     // TODO
     // 参观者位置，参观者角度，参观者高度
     
@@ -2539,6 +2538,25 @@ public class HomeController implements Controller {
     // 触发导出3D模型，导出到系统临时目录
 
     //String name = f.getName().substring(0, f.getName().lastIndexOf("."));
+    
+    if (obj3DApp != null) {
+      obj3DApp.stop();
+      obj3DApp = null;
+    }
+    
+    // 读取3D模型
+    obj3DApp = new Obj3DApp(objFilePath, getLights(this.home.getFurniture()));
+    obj3DApp.init();
+    obj3DApp.start();
+  }
+
+  /**
+   * 导出3D模型
+   * 
+   * @return 导出文件路径
+   * @throws RecorderException
+   */
+  private String exportModel() throws RecorderException {
     String modelName = this.home.getName();
     if (modelName == null) {
       modelName = "tmp_model.sh3d";
@@ -2561,16 +2579,7 @@ public class HomeController implements Controller {
     
     exportPath += File.separator + f.getName() + ".obj";
     this.homeView.exportToOBJ(exportPath);
-    
-    if (obj3DApp != null) {
-      obj3DApp.stop();
-      obj3DApp = null;
-    }
-    
-    // 读取3D模型
-    obj3DApp = new Obj3DApp(exportPath, getLights(this.home.getFurniture()));
-    obj3DApp.init();
-    obj3DApp.start();
+    return exportPath;
   }
   
   /**

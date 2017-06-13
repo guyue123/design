@@ -2046,25 +2046,38 @@ public class HomePane extends JRootPane implements HomeView {
     final JPanel actionBox = new JPanel(new BorderLayout());
     actionBox.setPreferredSize(new Dimension(100, 80));
     
+    Insets labelInsets = new Insets(0, 0, 5, 5);
+    
+    int labelAlignment = OperatingSystem.isMacOSX() 
+        ? GridBagConstraints.LINE_END
+        : GridBagConstraints.LINE_START;
     final JPanel actionPanel = new JPanel(new GridBagLayout());
     Action action1 = getActionMap().get(ActionType.CREATE_PHOTO);
     if (action1!= null && action1.getValue(Action.NAME) != null) {
-      actionPanel.add(new JButton(new ResourceAction.ToolBarAction(action1)));
+      actionPanel.add(new JButton(new ResourceAction.ToolBarAction(action1)),new GridBagConstraints(
+          0, 0, 1, 1, 0, 0, labelAlignment, 
+          GridBagConstraints.NONE, labelInsets, 0, 0));
     }
     
     Action action2 = getActionMap().get(ActionType.CREATE_VIDEO);
     if (action2!= null && action2.getValue(Action.NAME) != null) {
-      actionPanel.add(new JButton(new ResourceAction.ToolBarAction(action2)));
+      actionPanel.add(new JButton(new ResourceAction.ToolBarAction(action2)),new GridBagConstraints(
+          0, 1, 1, 1, 0, 0, labelAlignment, 
+          GridBagConstraints.NONE, labelInsets, 0, 0));
     }
     
     Action action3 = getActionMap().get(ActionType.DISPLAY_IN_JME3D);
     if (action3!= null && action3.getValue(Action.NAME) != null) {
-      actionPanel.add(new JButton(new ButtonAction(action3)));
+      actionPanel.add(new JButton(new ButtonAction(action3)),new GridBagConstraints(
+          0, 2, 1, 1, 0, 0, labelAlignment, 
+          GridBagConstraints.NONE, labelInsets, 0, 0));
     }
     
     Action action4 = getActionMap().get(ActionType.DISPLAY_IN_JME3D_4_WINDOW);
     if (action4!= null && action4.getValue(Action.NAME) != null) {
-      actionPanel.add(new JButton(new ButtonAction(action3)));
+      actionPanel.add(new JButton(new ButtonAction(action4)),new GridBagConstraints(
+          0, 3, 1, 1, 0, 0, labelAlignment, 
+          GridBagConstraints.NONE, labelInsets, 0, 0));
     }
     
     actionBox.add(BorderLayout.NORTH, actionPanel);

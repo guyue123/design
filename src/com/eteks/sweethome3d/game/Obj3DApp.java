@@ -32,6 +32,8 @@
 
 package com.eteks.sweethome3d.game;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.io.File;
 import java.util.List;
 
@@ -47,7 +49,9 @@ import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
+import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.objects.PhysicsCharacter;
+import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
@@ -131,6 +135,10 @@ public class Obj3DApp extends SimpleApplication implements ActionListener {
      */
     private String appTitle = "3D";
     
+    private Vector3f walkDirection = new Vector3f();
+    
+    private ChaseCamera chaserCamara;
+    
     public Obj3DApp() {
       
     }
@@ -144,6 +152,14 @@ public class Obj3DApp extends SimpleApplication implements ActionListener {
       this.homeLights = homeLights;
     }
     
+    public void start() {
+      super.start();
+    }
+    
+    public void stop() {
+      super.stop(true);
+    }
+    
     /**
      * 初始化模型
      */
@@ -154,6 +170,7 @@ public class Obj3DApp extends SimpleApplication implements ActionListener {
         objModel.setLocalScale(localScale);
         objModel.setLocalTranslation(0, 2.1f, 0);
         objModel.setShadowMode(ShadowMode.CastAndReceive);
+        objModel.addControl(new RigidBodyControl(0));
         rootNode.attachChild(objModel);
     }
     
@@ -161,8 +178,10 @@ public class Obj3DApp extends SimpleApplication implements ActionListener {
      * 初始化参观者
      */
     private void initPlayer() {
-        CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(0.1f, 23f, 1);
+        CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(0.1f, 17f, 1);
         player = new CharacterControl(capsuleShape, 0.5f);
+        
+        /*player = new PhysicsCharacter(new SphereCollisionShape(0.1f), .01f);*/
         player.setJumpSpeed(20);
         player.setFallSpeed(20);
         player.setGravity(30);
@@ -189,6 +208,10 @@ public class Obj3DApp extends SimpleApplication implements ActionListener {
         appSettings = new AppSettings(true);
         appSettings.setSamples(4);
         appSettings.setTitle(appTitle);
+        
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        appSettings.setWidth(screenSize.width);
+        appSettings.setHeight(screenSize.height);
         return appSettings;
     }
     
@@ -201,7 +224,6 @@ public class Obj3DApp extends SimpleApplication implements ActionListener {
      */
     public AppSettings initAppSettings(int width, int height, int samples) {
         appSettings = new AppSettings(true);
-        appSettings.setFrameRate(60);
         appSettings.setSamples(samples);
         appSettings.setWidth(width);
         appSettings.setHeight(height);
@@ -209,26 +231,28 @@ public class Obj3DApp extends SimpleApplication implements ActionListener {
       return appSettings;
     }
 
-    @Override
+/*    @Override
     public void update() {
         super.update();
         if (Display.wasResized()) {
-            int newWidth = Math.max(Display.getWidth(), 1);
-            int newHeight = Math.max(Display.getHeight(), 1);
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            int newWidth = Math.max(Display.getWidth(), screenSize.width);
+            int newHeight = Math.max(Display.getHeight(), screenSize.height);
             reshape(newWidth, newHeight);
         }
-    }
+    }*/
     
     @Override
     public void simpleInitApp() {
-        Display.setResizable(true);
-        initChaseCameraAppState();
-        
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
+        //Display.setResizable(true);
+        initChaseCameraAppState();
         
+        flyCam.setEnabled(false);
         // 移动速度
-        flyCam.setMoveSpeed(flyCamMoveSpeed);
+        //flyCam.setMoveSpeed(flyCamMoveSpeed);
+        
         
         // 初始化环境
         envInit();
@@ -253,6 +277,8 @@ public class Obj3DApp extends SimpleApplication implements ActionListener {
         
         // 环境光+环境光
         addLight2();
+        
+        
     }
     
     /**
@@ -271,6 +297,12 @@ public class Obj3DApp extends SimpleApplication implements ActionListener {
         chaser.setMaxVerticalRotation(FastMath.PI * 2);
         chaser.setToggleRotationTrigger(new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         stateManager.attach(chaser);
+        
+        chaserCamara = new ChaseCamera(cam, inputManager);
+        chaserCamara.registerWithInput(inputManager);
+        chaserCamara.setSmoothMotion(true);
+        chaserCamara.setMaxDistance(50);
+        chaserCamara.setDefaultDistance(50);
     }
 
     /**
@@ -324,7 +356,7 @@ public class Obj3DApp extends SimpleApplication implements ActionListener {
              ColorRGBA rgba = new ColorRGBA();
              
              pl.setColor(rgba.fromIntARGB(la.getRgbColor()).mult(la.getPower()));
-             pl.setRadius(200f);
+             pl.setRadius(20f);
              pl.setPosition(new Vector3f(la.getPx() * localScale, la.getHangHeight() * localScale +  2f, la.getPy() * localScale));
              rootNode.addLight(pl);
              
@@ -344,6 +376,23 @@ public class Obj3DApp extends SimpleApplication implements ActionListener {
            }
          }
        }
+    }
+    
+    @Override
+    public void simpleUpdate(float tpf) {
+      Vector3f camDir = cam.getDirection().clone().multLocal(0.6f);
+      Vector3f camLeft = cam.getLeft().clone().multLocal(0.4f);
+      walkDirection.set(0,0,0);
+      if(left)
+          walkDirection.addLocal(camLeft);
+      if(right)
+          walkDirection.addLocal(camLeft.negate());
+      if(up)
+          walkDirection.addLocal(camDir);
+      if(down)
+          walkDirection.addLocal(camDir.negate());
+      player.setWalkDirection(walkDirection);
+      cam.setLocation(player.getPhysicsLocation());
     }
     
     /**
@@ -411,6 +460,7 @@ public class Obj3DApp extends SimpleApplication implements ActionListener {
         
         // 实体化地面
         getPhysicsSpace().add(ground);
+        ground.addControl(new RigidBodyControl(0));
 
         Spatial sky = SkyFactory.createSky(assetManager, "resources/Scenes/Beach/FullskiesSunset0068.dds", false);
         sky.setLocalScale(350);
