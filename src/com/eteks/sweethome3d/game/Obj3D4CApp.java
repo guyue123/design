@@ -363,7 +363,7 @@ public class Obj3D4CApp extends AbstractObj3DApp {
 
     float y = cam.getRotation().getY();
     // 计算角度
-    double yAngle = this.sinAngle(y);
+    double yAngle = sinAngle(y);
     // 获得X方向的值，旋转角度问题60度-90度-60度-0度 - -60度，存在重叠角度，根据X方向重新计算
     float xDirect = cam.getDirection().getX();
 
@@ -382,26 +382,8 @@ public class Obj3D4CApp extends AbstractObj3DApp {
     cam2.setRotation(new Quaternion(0.0f, (float)sin(y2), 0.0f, (float)cos(y2)));
     cam3.setRotation(new Quaternion(0.0f, (float)sin(y3), 0.0f, (float)cos(y3)));
     cam4.setRotation(new Quaternion(0.0f, (float)sin(y4), 0.0f, (float)cos(y4)));
-
   }
 
-  private double sin(double angle) {
-    return Math.sin(Math.PI * angle / 180);
-  }
-
-  private double cos(double angle) {
-    return Math.cos(Math.PI * angle / 180);
-  }
-
-  /**
-   * 通过正弦值求角度
-   * 
-   * @param sin
-   * @return
-   */
-  private double sinAngle(double sin) {
-    return Math.asin(sin) * 180 / Math.PI;
-  }
 
   /**
    * 光线和阴影

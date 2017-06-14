@@ -165,6 +165,18 @@ public class LightAttribute {
                 + ", px=" + px + ", py=" + py + ", hangHeight=" + hangHeight + ", angle=" + angle + ", power=" + power
                 + ", rgbColor=" + rgbColor + ", display=" + display + ", floor=" + floor + "]";
     }
+    
+    /**
+     * 是否是球形光源
+     * @return
+     */
+    public boolean isSphere() {
+      if (this.height == this.deepth && this.height == this.width) {
+        return true;
+      }
+      
+      return false;
+    }
 
     
 }

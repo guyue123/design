@@ -46,6 +46,7 @@ import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
@@ -53,6 +54,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
+import com.jme3.scene.shape.Dome;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.shadow.PointLightShadowRenderer;
@@ -314,7 +316,7 @@ public abstract class AbstractObj3DApp extends SimpleApplication implements Acti
 
           la.setPx(light.getX());
           la.setPy(light.getY());
-          la.setHangHeight(light.getElevation() + light.getLevel().getElevation());
+          la.setHangHeight(light.getElevation() + light.getLevel().getElevation() + light.getLevel().getFloorThickness());
 
           la.setRgbColor(lightSource.getColor());
 
@@ -322,22 +324,36 @@ public abstract class AbstractObj3DApp extends SimpleApplication implements Acti
           ColorRGBA rgba = new ColorRGBA();
 
           pl.setColor(rgba.fromIntARGB(la.getRgbColor()).mult(la.getPower()));
-          pl.setRadius(20f);
-          pl.setPosition(
-              new Vector3f(la.getPx() * localScale, la.getHangHeight() * localScale + 2f, la.getPy() * localScale));
+          pl.setRadius(10f);
+          Vector3f plLocation = new Vector3f(la.getPx() * localScale, la.getHangHeight() * localScale + 2.1f, la.getPy() * localScale);
+          pl.setPosition(plLocation);
           rootNode.addLight(pl);
-
-          Geometry lightMdl = new Geometry("Light", new Sphere(5, 5, la.getDeepth() * localScale / 2f));
+          
+          // Dome b = new Dome(plLocation, 10, 100, 1);
+          //new Sphere(5, 5, la.getDeepth() * localScale / 2f)
+          
+          Geometry lightMdl = new Geometry("Light", new Dome(Vector3f.ZERO, 20, 100, la.getDeepth() * localScale / 2f));
+          if (!la.isSphere()) {
+            lightMdl = new Geometry("Light", new Box(la.getDeepth()* localScale/2, la.getHeight()* localScale/2, la.getWidth()* localScale/2));
+          }
           lightMdl.setMaterial(assetManager.loadMaterial("Common/Materials/WhiteColor.j3m"));
           lightMdl.getMesh().setStatic();
           lightMdl.setLocalTranslation(pl.getPosition());
+          
+          float y = lightMdl.getLocalRotation().getY();
+          // 计算角度
+          double yAngle = sinAngle(y);
+          // 默认计算
+          double y2 = yAngle + (la.getAngle()/Math.PI) * 180;
+          
+          lightMdl.setLocalRotation(new Quaternion(0.0f, -1, 0.0f, (float)cos(y2)));
           rootNode.attachChild(lightMdl);
 
           PointLightShadowRenderer plsr = new PointLightShadowRenderer(assetManager, SHADOWMAP_SIZE);
           plsr.setLight(pl);
           plsr.setEdgeFilteringMode(EdgeFilteringMode.PCF4);
           plsr.setShadowIntensity(0.05f);
-          plsr.setEdgesThickness(3);
+          plsr.setEdgesThickness(1);
           viewPort.addProcessor(plsr);
 
         }
@@ -502,5 +518,24 @@ public abstract class AbstractObj3DApp extends SimpleApplication implements Acti
 
   public void setAppTitle(String appTitle) {
     this.appTitle = appTitle;
+  }
+  
+
+  public static double sin(double angle) {
+    return Math.sin(Math.PI * angle / 180);
+  }
+
+  public static double cos(double angle) {
+    return Math.cos(Math.PI * angle / 180);
+  }
+
+  /**
+   * 通过正弦值求角度
+   * 
+   * @param sin
+   * @return
+   */
+  public static double sinAngle(double sin) {
+    return Math.asin(sin) * 180 / Math.PI;
   }
 }
