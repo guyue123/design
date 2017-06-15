@@ -189,6 +189,11 @@ public class PlanController extends FurnitureController implements Controller {
   private List<GeneralPath>               roomPathsCache;
   private Map<HomePieceOfFurniture, Area> furnitureSidesCache;
   private List<Selectable>                draggedItems;
+  
+  /**
+   * 2017/06/15 参观者控制
+   */
+  private ObserverCameraController observerCameraController;
 
   /**
    * Creates the controller of plan view. 
@@ -1219,7 +1224,10 @@ public class PlanController extends FurnitureController implements Controller {
    * Controls the modification of the observer camera.
    */
   public void modifyObserverCamera() {
-    new ObserverCameraController(this.home, this.preferences, this.viewFactory).displayView(getView());
+    if (observerCameraController == null) {
+      observerCameraController = new ObserverCameraController(this.home, this.preferences, this.viewFactory);
+    }
+    observerCameraController.displayView(getView());
   }
   
   /**
@@ -12334,5 +12342,13 @@ public class PlanController extends FurnitureController implements Controller {
       return String.format(this.resizeToolTipFeedback,  
           preferences.getLengthUnit().getFormatWithUnit().format(diameter));
     }
+  }
+
+  public ObserverCameraController getObserverCameraController() {
+    return this.observerCameraController;
+  }
+
+  public void setObserverCameraController(ObserverCameraController observerCameraController) {
+    this.observerCameraController = observerCameraController;
   }
 }

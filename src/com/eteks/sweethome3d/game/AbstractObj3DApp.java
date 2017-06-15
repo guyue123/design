@@ -54,7 +54,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
-import com.jme3.scene.shape.Dome;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.shadow.PointLightShadowRenderer;
@@ -67,6 +66,7 @@ import com.jme3.util.SkyFactory;
  * @author Emmanuel Puybaret
  */
 public abstract class AbstractObj3DApp extends SimpleApplication implements ActionListener {
+  
   
   protected static final int SHADOWMAP_SIZE = 512;
   /**
@@ -92,9 +92,9 @@ public abstract class AbstractObj3DApp extends SimpleApplication implements Acti
   /**
    * 游戏者位置
    */
-  protected float playerPosx = 23.4f;
-  protected float playerPosy = 20f;
-  protected float playerPosz = 40f;
+  protected float playerPosx = 234f;
+  protected float playerPosy = 200f;
+  protected float playerPosz = 400f;
   
   
   protected Vector3f walkDirection = new Vector3f();
@@ -124,6 +124,11 @@ public abstract class AbstractObj3DApp extends SimpleApplication implements Acti
    * 窗口标题
    */
   protected String appTitle = "3D";
+  
+  /**
+   * 游戏者高度
+   */
+  private float playerHeight = 170f;
   
   public void start() {
     super.start();
@@ -312,11 +317,16 @@ public abstract class AbstractObj3DApp extends SimpleApplication implements Acti
           la.setFloor(1);
 
           la.setName(light.getName());
-          la.setPower(power * 10);
+          la.setPower(lightPower);
 
           la.setPx(light.getX());
           la.setPy(light.getY());
-          la.setHangHeight(light.getElevation() + light.getLevel().getElevation() + light.getLevel().getFloorThickness());
+          
+          float hangheight = light.getElevation() + light.getLevel().getElevation();
+          if (light.getLevel().getElevation() > 0) {
+            hangheight += light.getLevel().getFloorThickness() + 2;
+          }
+          la.setHangHeight(hangheight);
 
           la.setRgbColor(lightSource.getColor());
 
@@ -324,19 +334,24 @@ public abstract class AbstractObj3DApp extends SimpleApplication implements Acti
           ColorRGBA rgba = new ColorRGBA();
 
           pl.setColor(rgba.fromIntARGB(la.getRgbColor()).mult(la.getPower()));
+          System.out.println(la);
           pl.setRadius(10f);
-          Vector3f plLocation = new Vector3f(la.getPx() * localScale, la.getHangHeight() * localScale + 2.1f, la.getPy() * localScale);
+          
+          Vector3f plLocation = new Vector3f(la.getPx() * localScale, la.getHangHeight() * localScale + 2.1f , la.getPy() * localScale);
           pl.setPosition(plLocation);
           rootNode.addLight(pl);
           
           // Dome b = new Dome(plLocation, 10, 100, 1);
           //new Sphere(5, 5, la.getDeepth() * localScale / 2f)
           
-          Geometry lightMdl = new Geometry("Light", new Dome(Vector3f.ZERO, 20, 100, la.getDeepth() * localScale / 2f));
+          Geometry lightMdl = new Geometry("Light", new Sphere(20, 100, la.getDeepth() * localScale / 2f));
           if (!la.isSphere()) {
             lightMdl = new Geometry("Light", new Box(la.getDeepth()* localScale/2, la.getHeight()* localScale/2, la.getWidth()* localScale/2));
           }
-          lightMdl.setMaterial(assetManager.loadMaterial("Common/Materials/WhiteColor.j3m"));
+          
+          Material mtl = assetManager.loadMaterial("Common/Materials/WhiteColor.j3m");
+          //mtl.setColor("", rgba.fromIntARGB(la.getRgbColor()));
+          lightMdl.setMaterial(mtl);
           lightMdl.getMesh().setStatic();
           lightMdl.setLocalTranslation(pl.getPosition());
           
@@ -419,7 +434,7 @@ public abstract class AbstractObj3DApp extends SimpleApplication implements Acti
    * 初始化参观者
    */
   private void initPlayer() {
-      CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(0.1f, 17f, 1);
+      CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(0.1f, playerPosz * this.localScale, 1);
       player = new CharacterControl(capsuleShape, 0.5f);
       
       /*player = new PhysicsCharacter(new SphereCollisionShape(0.1f), .01f);*/
@@ -427,7 +442,7 @@ public abstract class AbstractObj3DApp extends SimpleApplication implements Acti
       player.setFallSpeed(20);
       player.setGravity(30);
 
-      player.setPhysicsLocation(new Vector3f(playerPosx, playerPosy, playerPosz));
+      player.setPhysicsLocation(new Vector3f(playerPosx * this.localScale, playerPosy * this.localScale, playerPosz * this.localScale));
   }
   
   /**
@@ -537,5 +552,13 @@ public abstract class AbstractObj3DApp extends SimpleApplication implements Acti
    */
   public static double sinAngle(double sin) {
     return Math.asin(sin) * 180 / Math.PI;
+  }
+
+  public float getPlayerHeight() {
+    return this.playerHeight;
+  }
+
+  public void setPlayerHeight(float playerHeight) {
+    this.playerHeight = playerHeight;
   }
 }

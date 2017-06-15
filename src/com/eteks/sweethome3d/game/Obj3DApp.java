@@ -63,7 +63,7 @@ public class Obj3DApp extends AbstractObj3DApp {
 
     // 环境光
     AmbientLight al = new AmbientLight();
-    al.setColor(ColorRGBA.White.mult(0.4f));
+    al.setColor(ColorRGBA.White.mult(1f));
 
     rootNode.addLight(al);
   }

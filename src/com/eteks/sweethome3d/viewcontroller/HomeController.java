@@ -2542,13 +2542,17 @@ public class HomeController implements Controller {
 
     //String name = f.getName().substring(0, f.getName().lastIndexOf("."));
     
-    if (obj3DApp != null) {
+/*    if (obj3DApp != null) {
       obj3DApp.stop();
       obj3DApp = null;
-    }
+    }*/
     
     // 读取3D模型
     obj3DApp = new Obj3DApp(objFilePath, getLights(this.home.getFurniture()));
+    if (planController.getObserverCameraController() != null) {
+      ObserverCameraController observer = planController.getObserverCameraController();
+      obj3DApp.setPlayerPosition(observer.getX(), observer.getElevation(), observer.getY());
+    }
     obj3DApp.init();
     obj3DApp.start();
   }
@@ -2580,6 +2584,10 @@ public class HomeController implements Controller {
     
     // 读取3D模型
     obj3D4CApp = new Obj3D4CApp(objFilePath, getLights(this.home.getFurniture()));
+    if (planController.getObserverCameraController() != null) {
+      ObserverCameraController observer = planController.getObserverCameraController();
+      obj3D4CApp.setPlayerPosition(observer.getX(), observer.getY(), observer.getElevation());
+    }
     obj3D4CApp.init();
     obj3D4CApp.start();
   }
