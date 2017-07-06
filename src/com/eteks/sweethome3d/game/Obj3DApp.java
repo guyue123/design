@@ -1,6 +1,7 @@
 package com.eteks.sweethome3d.game;
 
 import java.util.List;
+import java.util.Map;
 
 import com.eteks.sweethome3d.model.HomeLight;
 import com.jme3.light.AmbientLight;
@@ -20,11 +21,11 @@ public class Obj3DApp extends AbstractObj3DApp {
 
   }
 
-  public Obj3DApp(String objFilePath) {
+  public Obj3DApp(Map<String, String> objFilePath) {
     this.objFilePath = objFilePath;
   }
 
-  public Obj3DApp(String objFilePath, List<HomeLight> homeLights) {
+  public Obj3DApp(Map<String, String> objFilePath, List<HomeLight> homeLights) {
     this.objFilePath = objFilePath;
     this.homeLights = homeLights;
   }
@@ -50,22 +51,55 @@ public class Obj3DApp extends AbstractObj3DApp {
    * 光线和阴影
    */
   private void addLight2() {
-    // 太阳光
-    DirectionalLight l = new DirectionalLight();
-    l.setDirection(new Vector3f(-1, -2, -1));
+    //rootNode.addLight(initDirectionalLight(new Vector3f(-90,  -1, 0), ColorRGBA.White.mult(0.5f), 512 * 2, true));
 
-    // 太阳光阴影
-    DirectionalLightShadowRenderer dlsr = new DirectionalLightShadowRenderer(assetManager, 512 * 2, 4);
-    dlsr.setLight(l);
-    dlsr.setEdgeFilteringMode(EdgeFilteringMode.PCF4);
+   // rootNode.addLight(initDirectionalLight(new Vector3f(90, -1, 0), ColorRGBA.White.mult(0.5f), 512 * 2, true));
+    // rootNode.addLight(initDirectionalLight(new Vector3f(0, -1, 90), ColorRGBA.White.mult(0.5f), 512 * 2, true));
+    
+    
+    // 补充房间亮度
+    // 从上到下
+    rootNode.addLight(initDirectionalLight(new Vector3f(0, -1000, 0), ColorRGBA.White.mult(0.4f), 512 * 2, false));
+    rootNode.addLight(initDirectionalLight(new Vector3f(0, 1000, 0), ColorRGBA.White.mult(0.4f), 512 * 2, false));
+    
+    // 四方
+    rootNode.addLight(initDirectionalLight(new Vector3f(0, 0, 100), ColorRGBA.White.mult(0.4f), 512 * 2, false));
+    rootNode.addLight(initDirectionalLight(new Vector3f(0, 0, -100), ColorRGBA.White.mult(0.4f), 512 * 2, false));
+    rootNode.addLight(initDirectionalLight(new Vector3f(100, 0, 0), ColorRGBA.White.mult(0.4f), 512 * 2, false));
+    rootNode.addLight(initDirectionalLight(new Vector3f(-100, 0, 0), ColorRGBA.White.mult(0.4f), 512 * 2, false));
+    
 
-    rootNode.addLight(l);
-
+    
+    
     // 环境光
     AmbientLight al = new AmbientLight();
-    al.setColor(ColorRGBA.White.mult(1f));
+    al.setColor(ColorRGBA.White.mult(0.8f));
 
     rootNode.addLight(al);
+  }
+
+  /**
+   * 太阳光线
+   * @param direction
+   * @param colorRgba
+   * @param shadowMapSize
+   * @return
+   */
+  private DirectionalLight initDirectionalLight(Vector3f direction, ColorRGBA colorRgba, int shadowMapSize, boolean needShadow) {
+    // 太阳光
+    DirectionalLight l = new DirectionalLight();
+    l.setDirection(direction);
+    l.setColor(colorRgba);
+
+    if (needShadow) {
+      // 太阳光阴影
+      DirectionalLightShadowRenderer dlsr = new DirectionalLightShadowRenderer(assetManager, shadowMapSize, 4);
+      dlsr.setLight(l);
+      dlsr.setEdgeFilteringMode(EdgeFilteringMode.PCF4);
+      dlsr.setShadowIntensity(0.03f);
+      viewPort.addProcessor(dlsr);
+    }
+    return l;
   }
 
   @Override

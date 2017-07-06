@@ -75,6 +75,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
@@ -162,6 +163,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.swing.text.JTextComponent;
 
+import com.alibaba.fastjson.JSON;
 import com.eteks.sweethome3d.game.Obj3DApp;
 import com.eteks.sweethome3d.game.Obj3DCanvas;
 import com.eteks.sweethome3d.j3d.Ground3D;
@@ -3212,8 +3214,8 @@ public class HomePane extends JRootPane implements HomeView {
     }
     
     // 读取3D模型
-    obj3DApp = new Obj3DApp(exportPath, getLights(this.home.getFurniture()));
-    obj3DApp.init();
+    //obj3DApp = new Obj3DApp(exportPath, getLights(this.home.getFurniture()));
+    //obj3DApp.init();
     
     // 创建Canvas
     Obj3DCanvas obj3DCanvas = new Obj3DCanvas(obj3DApp, obj3DApp.getAppSettings());
@@ -4646,22 +4648,33 @@ public class HomePane extends JRootPane implements HomeView {
    * Caution !!! This method may be called from an other thread than EDT.  
    */
   public void exportToOBJ(String objFile) throws RecorderException {
-    exportToOBJ(objFile, new Object3DBranchFactory());
+    exportToOBJ(objFile, new Object3DBranchFactory(), 0);
+  }
+  
+  /**
+   * Exports the objects of the 3D view to the given OBJ file.
+   * Caution !!! This method may be called from an other thread than EDT.  
+   */
+  public void exportToOBJ(String objFile, int exportType) throws RecorderException {
+    exportToOBJ(objFile, new Object3DBranchFactory(), exportType);
   }
 
   /**
    * Exports to an OBJ file the objects of the 3D view created with the given factory.
    * Caution !!! This method may be called from an other thread than EDT.  
    */
-  protected void exportToOBJ(String objFile, Object3DFactory object3dFactory) throws RecorderException {
+  protected void exportToOBJ(String objFile, Object3DFactory object3dFactory, int exportType) throws RecorderException {
     String header = this.preferences != null
         ? this.preferences.getLocalizedString(HomePane.class, 
                                               "exportToOBJ.header", new Date())
         : "";
-        
+     
+     if (exportType > 0) {
+       this.exportAllToOBJ = false;
+     }
     // Use a clone of home to ignore selection and for thread safety
     OBJExporter.exportHomeToFile(cloneHomeInEventDispatchThread(this.home), 
-        objFile, header, this.exportAllToOBJ, object3dFactory);
+        objFile, header, this.exportAllToOBJ, object3dFactory, exportType);
   }
 
   /**
@@ -4692,15 +4705,28 @@ public class HomePane extends JRootPane implements HomeView {
    */
   private static class OBJExporter {
     public static void exportHomeToFile(Home home, String objFile, String header, 
-                                        boolean exportAllToOBJ, Object3DFactory object3dFactory) throws RecorderException {
+                                        boolean exportAllToOBJ, Object3DFactory object3dFactory, int exportType) throws RecorderException {
       OBJWriter writer = null;
       boolean exportInterrupted = false;
       try {
-        writer = new OBJWriter(objFile, header, -1);
-  
+        File tmpFile = new File(objFile);
+        if (!tmpFile.isDirectory()) {
+          writer = new OBJWriter(objFile, header, -1);
+        }
+        
         List<Selectable> exportedItems = new ArrayList<Selectable>(exportAllToOBJ
             ? home.getSelectableViewableItems()
             : home.getSelectedItems());
+        
+        // 2017/06/29 导出墙壁
+        if (exportType == 1) {
+          exportedItems = new ArrayList<Selectable>(home.getWallViewableItems());
+        } else if (exportType == 2) {//天花板，地板
+          exportedItems = new ArrayList<Selectable>(home.getRoomViewableItems());
+        }  else if (exportType == 3 || exportType == 4) {
+          // 导出家具等
+          exportedItems = new ArrayList<Selectable>(home.getFurnitureViewableItems());
+        }
         // Search furniture in groups
         List<Selectable> furnitureInGroups = new ArrayList<Selectable>();
         for (Iterator<Selectable> it = exportedItems.iterator(); it.hasNext();) {
@@ -4718,7 +4744,7 @@ public class HomePane extends JRootPane implements HomeView {
 
         List<Selectable> emptySelection = Collections.emptyList();
         home.setSelectedItems(emptySelection);
-        if (exportAllToOBJ) {
+        if (exportAllToOBJ || exportType == 2) {// 地板或者全部模型
           // Create a not alive new ground to be able to explore its coordinates without setting capabilities
           Rectangle2D homeBounds = getExportedHomeBounds(home);
           if (homeBounds != null) {
@@ -4731,16 +4757,24 @@ public class HomePane extends JRootPane implements HomeView {
         
         // Write 3D objects 
         int i = 0;
+        int idx = 1;
         for (Selectable item : exportedItems) {
           // Create a not alive new node to be able to explore its coordinates without setting capabilities 
           Node node = (Node)object3dFactory.createObject3D(home, item, true);
           if (node != null) {
             if (item instanceof HomePieceOfFurniture) {
-              writer.writeNode(node);
+              if ( exportType == 4) {// 把每个家具全部分别导入到子目录下
+                writeNode(objFile, header, node, idx, (HomePieceOfFurniture)item);
+              } else {
+                writer.writeNode(node);
+              }
+              
             } else {
               writer.writeNode(node, item.getClass().getSimpleName().toLowerCase() + "_" + ++i);
             }
           }
+          
+          idx++;
         }
       } catch (InterruptedIOException ex) {
         exportInterrupted = true;
@@ -4757,6 +4791,78 @@ public class HomePane extends JRootPane implements HomeView {
             }
           } catch (IOException ex) {
             throw new RecorderException("Couldn't export to OBJ in " + objFile, ex);
+          }
+        }
+      }
+    }
+    
+    /**
+     * 导出家具到子目录
+     * @throws RecorderException 
+     */
+    private static void writeNode(String objFile, String header, Node node, int idx, HomePieceOfFurniture item) throws RecorderException {
+      if (node == null) {
+        return;
+      }
+      
+      OBJWriter writer = null;
+     //FileWriter fWriter = null;
+      Writer fWriter = null;
+      boolean exportInterrupted = false;
+      try {
+        String filePath = objFile + File.separator + idx + File.separator;
+        File file = new File(filePath);
+        if (!file.exists()) {
+          file.mkdirs();
+        }
+        writer = new OBJWriter(filePath + File.separator + idx + ".obj", header, -1);
+        //fWriter = new FileWriter(filePath + File.separator + idx + ".json");
+        fWriter = new BufferedWriter( new OutputStreamWriter(new FileOutputStream(filePath + File.separator + idx + ".json"), "UTF-8"));
+        writer.writeNode(node); 
+        
+        Map<String, Object> dataMap = new HashMap();
+        // 对象信息
+        dataMap.put("width", item.getWidth());
+        dataMap.put("height", item.getHeight());
+        dataMap.put("x", item.getX());
+        dataMap.put("y", item.getY());
+        dataMap.put("angle", item.getAngle());
+        dataMap.put("color", item.getColor());
+        dataMap.put("depth", item.getDepth());
+        dataMap.put("elevation", item.getElevation());
+        dataMap.put("currency", item.getCurrency());
+        dataMap.put("groundElevation", item.getGroundElevation());
+        dataMap.put("name", item.getName());
+        dataMap.put("nameAngle", item.getNameAngle());
+        dataMap.put("nameXOffset", item.getNameXOffset());
+        dataMap.put("nameYOffset", item.getNameYOffset());
+        dataMap.put("price", item.getPrice());
+        dataMap.put("shininess", item.getShininess());
+        dataMap.put("catalogId", item.getCatalogId());
+        fWriter.write(JSON.toJSONString(dataMap));
+      } catch (InterruptedIOException ex) {
+        exportInterrupted = true;
+        throw new InterruptedRecorderException("Export to " + objFile + " interrupted");
+      } catch (IOException ex) {
+        throw new RecorderException("Couldn't export to OBJ in " + objFile, ex);
+      } finally {
+        if (writer != null) {
+          try {
+            writer.close();
+            // Delete the file if exporting is interrupted
+            if (exportInterrupted) {
+              new File(objFile).delete();
+            }
+          } catch (IOException ex) {
+            throw new RecorderException("Couldn't export to OBJ in " + objFile, ex);
+          }
+        }
+        
+        if (fWriter != null) {
+          try {
+            fWriter.close();
+          } catch (IOException ex) {
+            ex.printStackTrace();
           }
         }
       }

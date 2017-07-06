@@ -38,6 +38,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import javax.swing.JFrame;
@@ -111,12 +112,12 @@ public class Obj3D4CApp extends AbstractObj3DApp {
 
   }
 
-  public Obj3D4CApp(String objFilePath) {
-    this.objFilePath = objFilePath;
+  public Obj3D4CApp(Map<String, String> pathMap) {
+    this.objFilePath = pathMap;
   }
 
-  public Obj3D4CApp(String objFilePath, List<HomeLight> homeLights) {
-    this.objFilePath = objFilePath;
+  public Obj3D4CApp(Map<String, String> pathMap, List<HomeLight> homeLights) {
+    this.objFilePath = pathMap;
     this.homeLights = homeLights;
     this.app = this;
   }

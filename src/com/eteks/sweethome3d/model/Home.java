@@ -326,7 +326,7 @@ public class Home implements Serializable, Cloneable {
     // Create a default top camera that matches default point of view 
     this.topCamera = new Camera(50, 1050, 1010, 
         (float)Math.PI, (float)Math.PI / 4, (float)Math.PI * 63 / 180);
-    // Create a default observer camera (use a 63� field of view equivalent to a 35mm lens for a 24x36 film)
+    // Create a default observer camera (use a 63� field of view equivalent to a 35mm lens for a 24x36 film)
     this.observerCamera = new ObserverCamera(50, 50, 170, 
         7 * (float)Math.PI / 4, (float)Math.PI / 16, (float)Math.PI * 63 / 180);
     this.storedCameras = Collections.emptyList();
@@ -1216,6 +1216,59 @@ public class Home implements Serializable, Cloneable {
     if (getCompass().isVisible()) {
       homeItems.add(getCompass());
     }
+    return homeItems;
+  }
+  
+  /**
+   * 2017/06/29
+   * 获得房间家具等
+   * Returns all the selectable and viewable items in this home, except the observer camera.
+   * @return a list containing viewable walls, furniture, dimension lines, labels and compass.
+   * @since 5.0
+   */
+  public List<Selectable> getFurnitureViewableItems() {
+    List<Selectable> homeItems = new ArrayList<Selectable>();
+    addViewableItems(this.dimensionLines, homeItems);
+    addViewableItems(this.polylines, homeItems);
+    addViewableItems(this.labels, homeItems);
+    for (HomePieceOfFurniture piece : getFurniture()) {
+      if (piece.isVisible()
+          && (piece.getLevel() == null
+              || piece.getLevel().isViewable())) {
+        homeItems.add(piece);
+      }
+    }
+    if (getCompass().isVisible()) {
+      homeItems.add(getCompass());
+    }
+    return homeItems;
+  }
+  
+  /**
+   * 2017/06/29
+   * 获得墙壁，屋顶，地板
+   * Returns all the selectable and viewable items in this home, except the observer camera.
+   * @return a list containing viewable walls, furniture, dimension lines, labels and compass.
+   * @since 5.0
+   */
+  public List<Selectable> getWallViewableItems() {
+    List<Selectable> homeItems = new ArrayList<Selectable>();
+    addViewableItems(this.walls, homeItems);
+    
+    return homeItems;
+  }
+  
+  /**
+   * 2017/06/29
+   * 获得墙壁，屋顶，地板
+   * Returns all the selectable and viewable items in this home, except the observer camera.
+   * @return a list containing viewable walls, furniture, dimension lines, labels and compass.
+   * @since 5.0
+   */
+  public List<Selectable> getRoomViewableItems() {
+    List<Selectable> homeItems = new ArrayList<Selectable>();
+    addViewableItems(this.rooms, homeItems);
+    
     return homeItems;
   }
 

@@ -21,9 +21,17 @@ package com.eteks.sweethome3d.game;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import com.alibaba.fastjson.JSON;
 import com.eteks.sweethome3d.model.HomeLight;
 import com.eteks.sweethome3d.model.Level;
 import com.eteks.sweethome3d.model.LightSource;
@@ -68,11 +76,12 @@ import com.jme3.util.SkyFactory;
 public abstract class AbstractObj3DApp extends SimpleApplication implements ActionListener {
   
   
+  private static final float FLOOR_HEIHGT = 0.1f;
   protected static final int SHADOWMAP_SIZE = 512;
   /**
    * 模型路径
    */
-  protected String objFilePath;
+  protected Map<String, String> objFilePath;
   
   /**
    * 模型灯光信息
@@ -118,7 +127,7 @@ public abstract class AbstractObj3DApp extends SimpleApplication implements Acti
    */
   protected float localScale = 0.1f;
   
-  protected int flyCamMoveSpeed = 20;
+  protected int flyCamMoveSpeed = 10;
   
   /**
    * 窗口标题
@@ -143,10 +152,10 @@ public abstract class AbstractObj3DApp extends SimpleApplication implements Acti
    * 初始化场景
    */
   private void envInit() {
-      Box b = new Box(1000, 2, 1000);
-      b.scaleTextureCoordinates(new Vector2f(10, 10));
+      Box b = new Box(1000, 1f, 1000);
+      b.scaleTextureCoordinates(new Vector2f(0.1f, 0.1f));
       ground = new Geometry("soil", b);
-      ground.setLocalTranslation(0, 0, 0);
+      ground.setLocalTranslation(0, -1f, 0);
       matGroundU = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
       matGroundU.setColor("Color", ColorRGBA.Green);
 
@@ -156,14 +165,12 @@ public abstract class AbstractObj3DApp extends SimpleApplication implements Acti
       matGroundL.setTexture("DiffuseMap", grass);
 
       ground.setMaterial(matGroundL);
-
       ground.setShadowMode(ShadowMode.Receive);
-      rootNode.attachChild(ground);
-      
+      ground.addControl(new RigidBodyControl(0));
       // 实体化地面
       getPhysicsSpace().add(ground);
-      ground.addControl(new RigidBodyControl(0));
-
+      
+      rootNode.attachChild(ground);
       Spatial sky = SkyFactory.createSky(assetManager, "resources/Scenes/Beach/FullskiesSunset0068.dds", false);
       sky.setLocalScale(350);
       rootNode.attachChild(sky);
@@ -200,11 +207,11 @@ public abstract class AbstractObj3DApp extends SimpleApplication implements Acti
       return bulletAppState.getPhysicsSpace();
   }
 
-  public String getObjFilePath() {
+  public Map<String, String> getObjFilePath() {
     return this.objFilePath;
   }
 
-  public void setObjFilePath(String objFilePath) {
+  public void setObjFilePath(Map<String, String> objFilePath) {
     this.objFilePath = objFilePath;
   }
 
@@ -251,7 +258,6 @@ public abstract class AbstractObj3DApp extends SimpleApplication implements Acti
       //Display.setResizable(true);
       initChaseCameraAppState();
       
-      flyCam.setEnabled(false);
       // 移动速度
       //flyCam.setMoveSpeed(flyCamMoveSpeed);
       
@@ -265,9 +271,8 @@ public abstract class AbstractObj3DApp extends SimpleApplication implements Acti
       // 初始化模型
       initModel();
       
-      rootNode.attachChild(objModel);
       // 实体化模型
-      getPhysicsSpace().add(objModel);
+      //getPhysicsSpace().add(objModel);
       
       // 参观者对象
       initPlayer();
@@ -322,9 +327,14 @@ public abstract class AbstractObj3DApp extends SimpleApplication implements Acti
           la.setPx(light.getX());
           la.setPy(light.getY());
           
-          float hangheight = light.getElevation() + light.getLevel().getElevation();
-          if (light.getLevel().getElevation() > 0) {
-            hangheight += light.getLevel().getFloorThickness() + 2;
+          float elevation = 0;
+          if (level != null) {
+            elevation = level.getElevation();
+          }
+          
+          float hangheight = light.getElevation() + elevation;
+          if (level != null && level.getElevation() > 0) {
+            hangheight += level.getFloorThickness() + 2;
           }
           la.setHangHeight(hangheight);
 
@@ -334,10 +344,10 @@ public abstract class AbstractObj3DApp extends SimpleApplication implements Acti
           ColorRGBA rgba = new ColorRGBA();
 
           pl.setColor(rgba.fromIntARGB(la.getRgbColor()).mult(la.getPower()));
-          System.out.println(la);
-          pl.setRadius(10f);
+          //System.out.println(la);
+          pl.setRadius(50f);
           
-          Vector3f plLocation = new Vector3f(la.getPx() * localScale, la.getHangHeight() * localScale + 2.1f , la.getPy() * localScale);
+          Vector3f plLocation = new Vector3f(la.getPx() * localScale, la.getHangHeight() * localScale + FLOOR_HEIHGT , la.getPy() * localScale);
           pl.setPosition(plLocation);
           rootNode.addLight(pl);
           
@@ -368,7 +378,7 @@ public abstract class AbstractObj3DApp extends SimpleApplication implements Acti
           plsr.setLight(pl);
           plsr.setEdgeFilteringMode(EdgeFilteringMode.PCF4);
           plsr.setShadowIntensity(0.05f);
-          plsr.setEdgesThickness(1);
+          plsr.setEdgesThickness(10);
           viewPort.addProcessor(plsr);
 
         }
@@ -393,11 +403,11 @@ public abstract class AbstractObj3DApp extends SimpleApplication implements Acti
       chaser.setToggleRotationTrigger(new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
       stateManager.attach(chaser);
       
-      chaserCamara = new ChaseCamera(cam, inputManager);
+/*      chaserCamara = new ChaseCamera(cam, inputManager);
       chaserCamara.registerWithInput(inputManager);
       chaserCamara.setSmoothMotion(true);
       chaserCamara.setMaxDistance(50);
-      chaserCamara.setDefaultDistance(50);
+      chaserCamara.setDefaultDistance(70);*/
   }
   
   /**
@@ -420,29 +430,89 @@ public abstract class AbstractObj3DApp extends SimpleApplication implements Acti
    * 初始化模型
    */
   private void initModel() {
-      File f = new File(objFilePath);
-      assetManager.registerLocator(f.getParent(), FileLocator.class);
-      objModel = assetManager.loadModel(f.getName());
-      objModel.setLocalScale(localScale);
-      objModel.setLocalTranslation(0, 2.1f, 0);
-      objModel.setShadowMode(ShadowMode.CastAndReceive);
-      objModel.addControl(new RigidBodyControl(0));
-      rootNode.attachChild(objModel);
+      Set<String> keys = objFilePath.keySet();
+      Iterator<String> it = keys.iterator();
+      while (it.hasNext()) {
+        String k = it.next();
+        File f = new File(k);
+        
+        if (f.isDirectory()) {
+          // 读取全部子目录下的模型
+          File[] files = f.listFiles();
+          for (File fl : files) {
+            // 读取模型文件
+            String fPath = fl.getAbsolutePath() + File.separator + fl.getName() + ".obj";
+            String jsonPath = fl.getAbsolutePath() + File.separator + fl.getName() + ".json";
+            File objFile = new File(fPath);
+            File jsonFile = new File(jsonPath);
+            if (!objFile.exists() || !jsonFile.exists()) {
+              continue;
+            }
+            
+            StringBuffer dataStr = new StringBuffer();
+            try {  
+              FileReader fileReader = new FileReader(jsonFile);
+              BufferedReader br = new BufferedReader(fileReader);  
+              String line = null;  
+              while( ( line = br.readLine() ) != null ) { 
+                dataStr.append(new String(line.getBytes("Utf-8")));
+              }
+              br.close();  
+            } catch( FileNotFoundException e ) {  
+            }  
+            catch( IOException e ) {
+            }
+            //Map<String, Object> dataMap = JSON.parseObject(dataStr.toString(), Map.class);
+            
+            assetManager.registerLocator(objFile.getParent(), FileLocator.class);
+            Spatial objModel = assetManager.loadModel(objFile.getName());
+            objModel.setLocalScale(localScale);
+            objModel.setLocalTranslation(0, FLOOR_HEIHGT, 0);
+            objModel.setShadowMode(ShadowMode.CastAndReceive);
+            getPhysicsSpace().add(objModel);
+            
+            objModel.addControl(new RigidBodyControl(0));
+            rootNode.attachChild(objModel);
+          }
+          
+          continue;
+        }
+        
+        assetManager.registerLocator(f.getParent(), FileLocator.class);
+        Spatial objModel = assetManager.loadModel(f.getName());
+        objModel.setLocalScale(localScale);
+        objModel.setLocalTranslation(0, FLOOR_HEIHGT, 0);
+        // 1 墙壁
+        if ("1".equals(objFilePath.get(k))) {
+          objModel.setShadowMode(ShadowMode.Receive);
+          //objModel.setQueueBucket(Bucket.Transparent);
+        } else if("2".equals(objFilePath.get(k))){// 天花板，地面
+          objModel.setShadowMode(ShadowMode.Receive);
+          getPhysicsSpace().add(objModel);
+        } else {
+          objModel.setShadowMode(ShadowMode.CastAndReceive);
+          getPhysicsSpace().add(objModel);
+        }
+        
+        objModel.addControl(new RigidBodyControl(0));
+        rootNode.attachChild(objModel);
+      }
   }
   
   /**
    * 初始化参观者
    */
   private void initPlayer() {
-      CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(0.1f, playerPosz * this.localScale, 1);
-      player = new CharacterControl(capsuleShape, 0.5f);
+      CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(0.1f, 2 * playerPosz * this.localScale, 1);
+      player = new CharacterControl(capsuleShape, 0.2f);
       
       /*player = new PhysicsCharacter(new SphereCollisionShape(0.1f), .01f);*/
-      player.setJumpSpeed(20);
-      player.setFallSpeed(20);
+      player.setJumpSpeed(10);
+      player.setFallSpeed(10);
       player.setGravity(30);
 
-      player.setPhysicsLocation(new Vector3f(playerPosx * this.localScale, playerPosy * this.localScale, playerPosz * this.localScale));
+      player.setPhysicsLocation(new Vector3f(playerPosx * this.localScale, playerPosz * this.localScale,  playerPosy * this.localScale));
+      //player.setPhysicsLocation(new Vector3f(100, playerPosz * this.localScale,  100));
   }
   
   /**

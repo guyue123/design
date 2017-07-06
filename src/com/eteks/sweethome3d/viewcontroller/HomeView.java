@@ -270,6 +270,12 @@ public interface HomeView extends View {
    * Caution !!! This method may be called from a threaded task.  
    */
   public abstract void exportToOBJ(String objFile) throws RecorderException;
+  
+  /**
+   * Exports the 3D home objects to a given OBJ file.
+   * Caution !!! This method may be called from a threaded task.  
+   */
+  public abstract void exportToOBJ(String objFile, int exportType) throws RecorderException;
 
   /**
    * Displays a dialog that lets the user choose a name for the current camera.

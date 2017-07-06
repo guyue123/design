@@ -95,5 +95,8 @@
 	<classpathentry kind="lib" path="lib/jme3/simple.jar"/>
 	<classpathentry kind="lib" path="lib/jme3/vecmath.jar"/>
 	<classpathentry kind="lib" path="lib/jme3/xpp3.jar"/>
+	<classpathentry kind="lib" path="lib/other/fastjson-1.2.6.jar"/>
+	<classpathentry kind="lib" path="lib/other/commons-lang3-3.5.jar"/>
+	<classpathentry kind="lib" path="lib/other/commons-io-2.5.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

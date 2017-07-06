@@ -60,6 +60,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.sunflow.system.FileUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -2529,7 +2530,7 @@ public class HomeController implements Controller {
    * 创建JME3 真实渲染视图
    * @return
    */
-  private void DisplayModel(String objFilePath) {
+  private void DisplayModel(Map<String, String> objFilePath) {
     // TODO
     // 参观者位置，参观者角度，参观者高度
     
@@ -2549,9 +2550,8 @@ public class HomeController implements Controller {
     
     // 读取3D模型
     obj3DApp = new Obj3DApp(objFilePath, getLights(this.home.getFurniture()));
-    if (planController.getObserverCameraController() != null) {
-      ObserverCameraController observer = planController.getObserverCameraController();
-      obj3DApp.setPlayerPosition(observer.getX(), observer.getElevation(), observer.getY());
+    if (this.home.getCamera() != null) {
+      obj3DApp.setPlayerPosition(this.home.getCamera().getX(), this.home.getCamera().getY(), this.home.getCamera().getZ());
     }
     obj3DApp.init();
     obj3DApp.start();
@@ -2562,7 +2562,7 @@ public class HomeController implements Controller {
    * 创建JME3 真实渲染视图
    * @return
    */
-  private void Display4CModel(String objFilePath) {
+  private void Display4CModel(Map<String, String> pathMap) {
     // TODO
     // 参观者位置，参观者角度，参观者高度
     
@@ -2583,10 +2583,9 @@ public class HomeController implements Controller {
     obj3D4CApp = null;
     
     // 读取3D模型
-    obj3D4CApp = new Obj3D4CApp(objFilePath, getLights(this.home.getFurniture()));
-    if (planController.getObserverCameraController() != null) {
-      ObserverCameraController observer = planController.getObserverCameraController();
-      obj3D4CApp.setPlayerPosition(observer.getX(), observer.getY(), observer.getElevation());
+    obj3D4CApp = new Obj3D4CApp(pathMap, getLights(this.home.getFurniture()));
+    if (this.home.getCamera() != null) {
+      obj3D4CApp.setPlayerPosition(this.home.getCamera().getX(), this.home.getCamera().getY(), this.home.getCamera().getZ());
     }
     obj3D4CApp.init();
     obj3D4CApp.start();
@@ -2598,7 +2597,7 @@ public class HomeController implements Controller {
    * @return 导出文件路径
    * @throws RecorderException
    */
-  private String exportModel() throws RecorderException {
+  private Map<String, String> exportModel() throws RecorderException {
     String modelName = this.home.getName();
     if (modelName == null) {
       modelName = "tmp_model.sh3d";
@@ -2607,21 +2606,62 @@ public class HomeController implements Controller {
     // 导出到临时目录
     String exportPath = System.getProperty("java.io.tmpdir") + 
         preferences.getLocalizedString(HomePane.class, "exportToOBJ.dir");
+    // 创建obj文件导出根路径
+    createPath(exportPath);
+    
+    File f = new File(modelName);
+    exportPath += File.separator + f.getName();
+    // 清空路径内容
+    try {
+      org.apache.commons.io.FileUtils.deleteDirectory(new File(exportPath));
+    } catch (IOException ex) {
+      ex.printStackTrace();
+    }
+    
+    // 创建文件导出路径
+    createPath(exportPath);
+    
+    // 墙壁，天花板，地板等3D模型子路径
+    String wrPath = exportPath + File.separator + "wl";
+    createPath(wrPath);
+    
+    // 家具等模型路径
+    String ftPath = exportPath + File.separator + "ft";
+    createPath(ftPath);
+    
+    // 家具等模型路径
+    String roomPath = exportPath + File.separator + "rm";
+    createPath(roomPath);
+    
+    Map<String, String> pathList = new HashMap();
+    // 导出墙壁
+    wrPath += File.separator + "wl1" + ".obj";
+    this.homeView.exportToOBJ(wrPath, 1);
+    pathList.put(wrPath, "1");
+    
+    // 导出地板
+    roomPath += File.separator + "rm2" + ".obj";
+    this.homeView.exportToOBJ(roomPath, 2);
+    pathList.put(roomPath, "2");
+    
+    // 导出家具等
+/*    ftPath += File.separator + "3" + ".obj";
+    this.homeView.exportToOBJ(ftPath, 3);
+    pathList.put(ftPath, "3");
+    */
+    // 分开导出家具
+   // ftPath += File.separator + "4";
+    this.homeView.exportToOBJ(ftPath, 4);
+    pathList.put(ftPath, "4");
+    
+    return pathList;
+  }
+
+  private void createPath(String exportPath) {
     File exportFile = new File(exportPath);
     if (!exportFile.exists()) {
       exportFile.mkdirs();
     }
-    
-    File f = new File(modelName);
-    exportPath += File.separator + f.getName();
-    exportFile = new File(exportPath);
-    if (!exportFile.exists()) {
-      exportFile.mkdirs();
-    }
-    
-    exportPath += File.separator + f.getName() + ".obj";
-    this.homeView.exportToOBJ(exportPath);
-    return exportPath;
   }
   
   /**
